@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Batch Tank Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- CSS Styles -->
+  <style>
+    /* Updated Dark Mode Palette */
+    :root {
+      --background: #121212; /* Primary background */
+      --foreground: #E0E0E0; /* Primary text */
+      --card: #333333; /* Elevated components */
+      --card-foreground: #E0E0E0; /* Primary text */
+      --primary: #7B68EE; /* Primary accent (Medium slate blue) */
+      --primary-foreground: #E0E0E0; /* Primary text */
+      --secondary: #222222; /* Secondary background */
+      --secondary-foreground: #E0E0E0; /* Primary text */
+      --accent: #BB86FC; /* Secondary accent (Light purple) */
+      --accent-foreground: #121212; /* Primary background */
+      --destructive: #CF6679; /* Error/Alert (Muted red) */
+      --destructive-foreground: #121212; /* Primary background */
+      --border: #555555; /* Borders */
+      --input: #2D2D2D; /* Input background (Slightly lighter secondary) */
+      --ring: #7B68EE; /* Primary accent (for focus rings) */
+      --radius: 0.5rem; /* Keep existing */
+      --color-vibrant: #4CAF50; /* Success (Material green) */
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+      padding: 1rem;
+      line-height: 1.5;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .container {
+      max-width: 36rem;
+      margin: 0 auto;
+    }
+
+    .heading {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .heading h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .card {
+      background-color: var(--card);
+      color: var(--card-foreground);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-description {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-content {
+      padding: 0 1.5rem 1.5rem 1.5rem;
+    }
+
+    .card-footer {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .tabs {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tabs-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .tab-trigger {
+      background-color: var(--secondary);
+      color: var(--secondary-foreground);
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .tab-trigger.active {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 0.25rem;
+    }
+
+    .form-select, .form-input {
+      width: 100%;
+      padding: 0.5rem;
+      background-color: var(--input);
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) - 2px);
+      font-size: 0.875rem;
+    }
+
+    .form-input {
+      appearance: none;
+    }
+
+    .form-select option {
+      background-color: var(--card);
+      color: var(--foreground);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-weight: 500;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+      border: none;
+    }
+
+    .button-primary {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+      .button-primary:hover {
+      background-color: rgba(123, 104, 238, 0.8); /* Changed to match --primary variable */
+    }
+
+    .button-outline {
+      background-color: transparent;
+      color: var(--foreground);
+      border: 1px solid var(--border);
+    }
+
+    .button-outline:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .button-icon {
+      margin-right: 0.5rem;
+    }
+
+    .button-delete {
+      background-color: var(--destructive);
+      color: var(--destructive-foreground);
+    }
+
+      .button-delete:hover {
+      background-color: rgba(207, 102, 121, 0.8); /* Changed to match --destructive variable */
+    }
+
+    .button-full {
+      width: 100%;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .flex-between {
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .flex-center {
+      justify-content: center;
+      align-items: center;
+    }
+
+    .gap-2 {
+      gap: 0.5rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+
+    .mt-2 {
+      margin-top: 0.5rem;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-sm {
+      font-size: 0.875rem;
+    }
+
+    .text-xs {
+      font-size: 0.75rem;
+    }
+
+    .font-medium {
+      font-weight: 500;
+    }
+
+    .font-bold {
+      font-weight: 700;
+    }
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .unit-toggle {
+      display: inline-flex;
+      background-color: var(--secondary);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .unit-toggle-option {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      text-align: center;
+      min-width: 6rem; /* Adjusted for Cleanse/Anolyte */
+      font-weight: 500;
+    }
+
+    .unit-toggle-option.active {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+    .separator {
+      height: 1px;
+      background-color: var(--border);
+      margin: 1rem 0;
+    }
+
+    .result-card {
+      background-color: var(--secondary);
+      border-radius: var(--radius);
+      padding: 0.75rem;
+      text-align: center;
+    }
+
+    .result-title {
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .result-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-vibrant);
+    }
+
+    .log-entry {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .log-content {
+      padding: 0.75rem;
+    }
+
+    .log-title {
+      font-weight: 500;
+    }
+
+    .log-description {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .logs-container {
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    /* Dialog/Modal */
+    .dialog-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .dialog-content {
+      background-color: var(--card);
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 32rem;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    }
+
+    .dialog-header {
+      padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+    }
+
+    .dialog-footer {
+      padding: 1rem 1.5rem 1.5rem 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .fullscreen-dialog .dialog-content {
+      width: 95%;
+      max-width: unset;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .fullscreen-dialog .dialog-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .no-logs {
+      text-align: center;
+      padding: 2rem 0;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--secondary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+
+    /* Icon styles */
+    .icon {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="heading">
+      <h1>Batch Tank Calculator</h1>
+    </div>
+
+    <div class="tabs">
+      <div class="tabs-list">
+        <button class="tab-trigger active" data-tab="calculator">Calculator</button>
+        <button class="tab-trigger" data-tab="logs">History</button>
+      </div>
+
+      <div class="tab-content active" id="calculator-tab">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Dosage Calculator</h2>
+            <p class="card-description">Calculate precise nutrient dosages for your batch tank</p>
+          </div>
+          <div class="card-content">
+            <!-- Unit toggle -->
+            <div class="flex flex-center mb-4">
+              <div class="unit-toggle">
+                <div class="unit-toggle-option active" id="metricToggle">Metric</div>
+                <div class="unit-toggle-option" id="imperialToggle">Imperial</div>
+              </div>
+            </div>
+
+            <form id="dosageForm">
+              <div class="form-group">
+                <label class="form-label" for="growthStage">Growth Stage</label>
+                <select class="form-select" id="growthStage">
+                  <option value="">-- Select Growth Stage --</option>
+                  <option value="clone">Clone</option>
+                  <option value="veg">Mother & Veg</option>
+                  <option value="flower">Flower</option>
+                  <option value="finish">Finish</option>
+                  <option value="flush">Flush</option>
+                </select>
+              </div>
+
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="desiredPH">Desired pH</label>
+                  <select class="form-select" id="desiredPH">
+                    <!-- Options will be generated by JavaScript -->
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="ec">Target EC</label>
+                  <select class="form-select" id="ec">
+                    <!-- Options generated by JS -->
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="size" id="sizeLabel">Batch Tank Size (Liters)</label>
+                <input type="number" class="form-input" id="size" placeholder="Enter batch tank size in liters">
+              </div>
+
+              <div class="grid grid-2">
+                 <div class="form-group">
+                   <label class="form-label" for="balance" id="balanceLabel">Balance Dosage (ml/10L)</label>
+                   <select class="form-select" id="balance">
+                     <option value="">-- Select Balance Dosage --</option>
+                     <option value="1">1 ml</option>
+                     <option value="2">2 ml</option>
+                     <option value="3">3 ml</option>
+                     <option value="4">4 ml</option>
+                     <option value="5">5 ml</option>
+                     <option value="6">6 ml</option>
+                     <option value="7">7 ml</option>
+                     <option value="8">8 ml</option>
+                     <option value="9">9 ml</option>
+                     <option value="10">10 ml</option>
+                   </select>
+                    <!-- New Balance Calculation Input -->
+                    <div class="flex gap-2 mt-2">
+                        <input type="number" id="balanceTotalUsed" placeholder="Total Balance Used (mL)" class="form-input" style="flex-grow: 1;">
+                        <button type="button" id="calculateBalanceRateBtn" class="button button-outline" style="flex-shrink: 0;">Calc Rate</button>
+                    </div>
+                    <p class="form-hint text-xs">Enter total mL used to find mL/10L or mL/Gal rate.</p>
+                 </div>
+
+                 <div class="form-group">
+                    <label class="form-label" for="cleanse" id="cleanseLabel">Cleanse Dosage (ml/10L)</label>
+                    <div class="flex gap-2">
+                        <select class="form-select" id="cleanse" style="flex-grow: 1;">
+                            <option value="">-- Select Cleanse Dosage --</option>
+                            <option value="1">1 ml</option>
+                            <option value="2">2 ml</option>
+                            <option value="3">3 ml</option>
+                            <option value="4">4 ml</option>
+                            <option value="5">5 ml</option>
+                            <option value="6">6 ml</option>
+                            <option value="7">7 ml</option>
+                            <option value="8">8 ml</option>
+                            <option value="9">9 ml</option>
+                            <option value="10">10 ml</option>
+                            <option value="11">11 ml</option>
+                            <option value="12">12 ml</option>
+                            <option value="13">13 ml</option>
+                            <option value="26">26 ml (Flush)</option>
+                        </select>
+                    </div>
+                    <!-- Cleanse Type Toggle - Moved Here -->
+                    <div class="unit-toggle mt-2" style="display: inline-flex;">
+                        <div class="unit-toggle-option active" id="cleanseToggle">Cleanse</div>
+                        <div class="unit-toggle-option" id="anolytToggle">Anolyte</div>
+                    </div>
+                 </div>
+               </div>
+
+              <div class="form-group">
+                <label class="form-label" for="coreFade" id="coreFadeLabel">Mix Ratio for Core/Fade</label>
+                <select class="form-select" id="coreFade">
+                  <option value="">-- Select Core/Fade Ratio --</option>
+                  <!-- Metric options -->
+                  <option value="113" class="metric-option">113 grams/L</option>
+                  <option value="226" class="metric-option">226 grams/L</option>
+                  <option value="240" class="metric-option">240 grams/L</option>
+                  <option value="282" class="metric-option">282 grams/L</option>
+                  <!-- Imperial options -->
+                  <option value="1" class="imperial-option" style="display:none">1 lb/gallon</option>
+                  <option value="2" class="imperial-option" style="display:none">2 lbs/gallon</option>
+                  <option value="2.2" class="imperial-option" style="display:none">2.2 lbs/gallon</option>
+                  <option value="2.5" class="imperial-option" style="display:none">2.5 lbs/gallon</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="growBloom" id="growBloomLabel">Mix Ratio for Grow/Bloom</label>
+                <select class="form-select" id="growBloom">
+                  <option value="">-- Select Grow/Bloom Ratio --</option>
+                  <!-- Metric options -->
+                  <option value="113" class="metric-option">113 grams/L</option>
+                  <option value="226" class="metric-option">226 grams/L</option>
+                  <option value="240" class="metric-option">240 grams/L</option>
+                  <option value="282" class="metric-option">282 grams/L</option>
+                  <!-- Imperial options -->
+                  <option value="1" class="imperial-option" style="display:none">1 lb/gallon</option>
+                  <option value="2" class="imperial-option" style="display:none">2 lbs/gallon</option>
+                  <option value="2.2" class="imperial-option" style="display:none">2.2 lbs/gallon</option>
+                  <option value="2.5" class="imperial-option" style="display:none">2.5 lbs/gallon</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer">
+            <button id="calculateButton" class="button button-primary button-full">
+              <svg class="icon button-icon" viewBox="0 0 24 24">
+                <path d="M12 3v18M3 12h18"></path>
+              </svg>
+              Calculate Dosage
+            </button>
+            <div class="flex gap-2">
+              <button id="saveConfigButton" class="button button-outline">
+                <svg class="icon button-icon" viewBox="0 0 24 24">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Defaults
+              </button>
+              <button id="resetButton" class="button button-outline">
+                <svg class="icon button-icon" viewBox="0 0 24 24">
+                  <path d="M23 4v6h-6"></path>
+                  <path d="M1 20v-6h6"></path>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="resultCard" class="card hidden">
+          <div class="card-header">
+            <h2 class="card-title">Calculation Result</h2>
+          </div>
+          <div class="card-content" id="resultContent">
+            <!-- Result will be shown here -->
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content hidden" id="logs-tab">
+        <div class="card">
+          <div class="card-header">
+            <div class="flex flex-between">
+              <h2 class="card-title">Calculation History</h2>
+              <div class="flex gap-2">
+                <button id="clearLogsButton" class="button button-outline">
+                  <svg class="icon button-icon" viewBox="0 0 24 24">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                  </svg>
+                  Clear
+                </button>
+                <button id="exportLogsButton" class="button button-outline">
+                  <svg class="icon button-icon" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Export
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="logs-container" id="logEntries">
+              <!-- Log entries will be shown here -->
+              <div class="no-logs" id="noLogsMessage">No calculation logs yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Dialog -->
+  <div id="confirmDialog" class="dialog-overlay hidden">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <h2 class="card-title">Confirm Action</h2>
+        <p class="card-description" id="confirmMessage">Are you sure you want to proceed?</p>
+      </div>
+      <div class="dialog-footer">
+        <button id="cancelConfirmButton" class="button button-outline">Cancel</button>
+        <button id="confirmActionButton" class="button button-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Result Dialog -->
+  <div id="fullscreenDialog" class="dialog-overlay fullscreen-dialog hidden">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <h2 class="card-title">Dosage Calculation</h2>
+        <p class="card-description" id="fullscreenTimestamp"></p>
+      </div>
+      <div class="dialog-body" id="fullscreenContent">
+        <!-- Fullscreen result will be shown here -->
+      </div>
+      <div class="dialog-footer">
+        <button id="shareFullscreenButton" class="button button-outline">
+          <svg class="icon button-icon" viewBox="0 0 24 24">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          Share
+        </button>
+        <button id="closeFullscreenButton" class="button button-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Official dosage tables from reference guide
+      const metricDosages = {
+        "113": {
+          grow: [null, 54, 83, 114, 146, 179, 214, 249], // ml per 10L by EC index (1.0, 1.5, 2.0, etc.)
+          core: [null, 32, 50, 69, 88, 108, 128, 149]
+        },
+        "226": {
+          grow: [null, 27, 42, 57, 73, 90, 107, 124],
+          core: [null, 16, 25, 34, 44, 54, 64, 75]
+        },
+        "240": {
+          grow: [null, 25, 38, 55, 71, 85, 102, 119],
+          core: [null, 15, 23, 33, 43, 51, 61, 72]
+        },
+        "282": {
+          grow: [null, 21, 33, 46, 59, 72, 86, 100],
+          core: [null, 13, 20, 27, 35, 43, 51, 60]
+        }
+      };
+
+      const imperialDosages = {
+        "1": {
+          grow: [null, 19, 30, 41, 52, 64, 76, 89], // ml per gallon by EC index (1.0, 1.5, 2.0, etc.)
+          core: [null, 11, 18, 24, 31, 38, 46, 53]
+        },
+        "2": {
+          grow: [null, 10, 15, 20, 26, 32, 38, 44],
+          core: [null, 6, 9, 12, 16, 19, 23, 27]
+        },
+        "2.2": { // Equivalent to 240 g/L in metric
+          grow: [null, 9, 14, 19, 24, 30, 36, 42],
+          core: [null, 5.5, 8.5, 11, 15, 18, 21.5, 25]
+        },
+        "2.5": {
+          grow: [null, 8, 12, 16, 21, 26, 30, 36],
+          core: [null, 5, 7, 10, 13, 15, 18, 21]
+        }
+      };
+
+      let isMetric = true; // Default to metric units
+      let useAnolyte = false; // Default to standard Cleanse
+      let currentResult = null;
+      let logs = [];
+      let confirmCallback = null;
+
+      // Constants
+      const ANOLYTE_FACTOR = 0.028 / 0.05; // 0.56
+
+      // Recipe Defaults (based on initial images)
+      // Using mid-point for cleanse range where applicable
+      // Balance default set to 5ml/10L as a placeholder, user can adjust
+      const recipeDefaults = {
+          clone: { ph: "5.6", ec: "2.0", balance: "5", cleanse: "3" },
+          veg:   { ph: "5.8", ec: "3.0", balance: "5", cleanse: "9" }, // 5.8-6.2 pH -> 5.8, 5-13ml cleanse -> 9ml
+          flower:{ ph: "5.8", ec: "3.0", balance: "5", cleanse: "9" }, // 5.8-6.2 pH -> 5.8, 5-13ml cleanse -> 9ml
+          finish:{ ph: "5.8", ec: "3.0", balance: "5", cleanse: "9" }, // 5.8-6.2 pH -> 5.8, 5-13ml cleanse -> 9ml
+          flush: { ph: "6.0", ec: "<0.1", balance: "0", cleanse: "26"} // Flush uses RO+Cleanse, setting balance to 0
+      };
+
+
+      // Mapping between metric and imperial values
+      const metricToImperial = {
+        "113": "1",
+        "226": "2",
+        "240": "2.2",
+        "282": "2.5"
+      };
+
+      const imperialToMetric = {
+        "1": "113",
+        "2": "226",
+        "2.2": "240",
+        "2.5": "282"
+      };
+
+      // Element Refs
+      const balanceTotalUsedInput = document.getElementById('balanceTotalUsed');
+      const calculateBalanceRateBtn = document.getElementById('calculateBalanceRateBtn');
+
+      // Initialize tabs
+      const tabTriggers = document.querySelectorAll('.tab-trigger');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      tabTriggers.forEach(trigger => {
+        trigger.addEventListener('click', function() {
+          // Get the tab ID
+          const tabId = this.getAttribute('data-tab');
+
+          // Deactivate all tabs
+          tabTriggers.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(c => {
+            c.classList.add('hidden');
+            c.classList.remove('active');
+          });
+
+          // Activate selected tab
+          this.classList.add('active');
+          const tabContent = document.getElementById(tabId + '-tab');
+          tabContent.classList.remove('hidden');
+          tabContent.classList.add('active');
+        });
+      });
+
+      // Generate pH options
+      function generatePHOptions() {
+        const desiredPH = document.getElementById('desiredPH');
+        desiredPH.innerHTML = '<option value="">-- Select pH --</option>';
+
+        for (let i = 5.4; i <= 6.5; i += 0.1) {
+          const option = document.createElement('option');
+          option.value = i.toFixed(1);
+          option.textContent = i.toFixed(1);
+          desiredPH.appendChild(option);
+        }
+      }
+      generatePHOptions();
+
+      // Generate EC options dynamically
+      function generateECOptions() {
+          const ecSelect = document.getElementById('ec');
+          ecSelect.innerHTML = '<option value="">-- Select EC --</option>'; // Clear existing
+          // Ensure loop handles floating point inaccuracies
+          for (let i = 10; i <= 40; i++) { // Loop using integers
+              const option = document.createElement('option');
+              const val = (i / 10).toFixed(1);
+              option.value = val;
+              option.textContent = val;
+              ecSelect.appendChild(option);
+          }
+      }
+      generateECOptions(); // Call it
+
+      // Calculate Balance Rate based on total used and tank size
+      function calculateBalanceRate() {
+          const totalUsed = parseFloat(balanceTotalUsedInput.value);
+          const tankSize = parseFloat(document.getElementById('size').value);
+
+          if (isNaN(totalUsed) || totalUsed < 0 || isNaN(tankSize) || tankSize <= 0) {
+              alert('Please enter valid Total Balance Used and Batch Tank Size.');
+              return;
+          }
+
+          let rate;
+          let calculatedRateDisplay; // For the alert message
+          if (isMetric) {
+              // Calculate mL per 10L
+              rate = (totalUsed / tankSize) * 10;
+              calculatedRateDisplay = `${rate.toFixed(1)} mL/10L`;
+          } else {
+              // Calculate mL per Gallon
+              rate = totalUsed / tankSize;
+              calculatedRateDisplay = `${rate.toFixed(1)} mL/Gal`;
+              // Convert mL/Gal to mL/10L for the dropdown value (which is always mL/10L based)
+              // 1 Gal = 3.78541 L -> 10 L = 2.64172 Gal
+              // Rate (mL/10L) = Rate (mL/Gal) * 2.64172
+              rate = rate * 2.64172;
+          }
+
+          // Find the closest value in the balance dropdown (1-10)
+          const closestRate = Math.round(Math.max(1, Math.min(10, rate))); // Clamp between 1 and 10
+          document.getElementById('balance').value = closestRate;
+          alert(`Calculated Balance Rate: ${calculatedRateDisplay}. Set dropdown to closest value: ${closestRate} mL/10L.`);
+      }
+
+
+      // Update labels based on unit system
+      function updateUnitLabels() {
+        const sizeLabel = document.getElementById('sizeLabel');
+        const balanceLabel = document.getElementById('balanceLabel');
+        const cleanseLabel = document.getElementById('cleanseLabel');
+        const sizePlaceholder = document.getElementById('size');
+        const balanceRateHint = document.querySelector('#balanceTotalUsed + .button + .form-hint'); // Adjusted selector
+
+        if (isMetric) {
+          sizeLabel.textContent = 'Batch Tank Size (Liters)';
+          balanceLabel.textContent = 'Balance Dosage (ml/10L)';
+          cleanseLabel.textContent = 'Cleanse Dosage (ml/10L)';
+          sizePlaceholder.placeholder = 'Enter batch tank size in liters';
+          if (balanceRateHint) balanceRateHint.textContent = 'Enter total mL used to find mL/10L rate.';
+        } else {
+          sizeLabel.textContent = 'Batch Tank Size (Gallons)';
+          balanceLabel.textContent = 'Balance Dosage (ml/gal)';
+          cleanseLabel.textContent = 'Cleanse Dosage (ml/gal)';
+          sizePlaceholder.placeholder = 'Enter batch tank size in gallons';
+          if (balanceRateHint) balanceRateHint.textContent = 'Enter total mL used to find mL/Gal rate.';
+        }
+
+        // Show/hide metric/imperial options
+        const metricOptions = document.querySelectorAll('.metric-option');
+        const imperialOptions = document.querySelectorAll('.imperial-option');
+
+        metricOptions.forEach(option => {
+          option.style.display = isMetric ? 'block' : 'none';
+        });
+
+        imperialOptions.forEach(option => {
+          option.style.display = isMetric ? 'none' : 'block';
+        });
+      }
+
+      // Toggle between metric and imperial
+      function toggleUnits(system) {
+        // Set the unit system
+        if (system === 'metric') {
+          isMetric = true;
+          document.getElementById('metricToggle').classList.add('active');
+          document.getElementById('imperialToggle').classList.remove('active');
+        } else {
+          isMetric = false;
+          document.getElementById('metricToggle').classList.remove('active');
+          document.getElementById('imperialToggle').classList.add('active');
+        }
+
+        // Convert size if there's a value
+        const sizeInput = document.getElementById('size');
+        if (sizeInput.value && !isNaN(parseFloat(sizeInput.value))) {
+          const currentSize = parseFloat(sizeInput.value);
+          if (system === 'imperial' && isMetric === false) {
+            // Convert liters to gallons
+            sizeInput.value = (currentSize * 0.264172).toFixed(2);
+          } else if (system === 'metric' && isMetric === true) {
+            // Convert gallons to liters
+            sizeInput.value = (currentSize * 3.78541).toFixed(2);
+          }
+        }
+
+        // Convert concentration values
+        const coreFade = document.getElementById('coreFade');
+        const growBloom = document.getElementById('growBloom');
+
+        if (coreFade.value) {
+          if (system === 'metric' && imperialToMetric[coreFade.value]) {
+            coreFade.value = imperialToMetric[coreFade.value];
+          } else if (system === 'imperial' && metricToImperial[coreFade.value]) {
+            coreFade.value = metricToImperial[coreFade.value];
+          }
+        }
+
+        if (growBloom.value) {
+          if (system === 'metric' && imperialToMetric[growBloom.value]) {
+            growBloom.value = imperialToMetric[growBloom.value];
+          } else if (system === 'imperial' && metricToImperial[growBloom.value]) {
+            growBloom.value = metricToImperial[growBloom.value];
+          }
+        }
+
+        updateUnitLabels();
+        localStorage.setItem('isMetric', isMetric);
+      }
+
+      // Set defaults based on growth stage using recipeDefaults
+      function setDefaultsByGrowthStage() {
+        const growthStage = document.getElementById('growthStage').value;
+        const defaults = recipeDefaults[growthStage];
+
+        if (defaults) {
+            document.getElementById('desiredPH').value = defaults.ph || '';
+            // Handle non-numeric EC for Flush
+            const ecSelect = document.getElementById('ec');
+            if (growthStage === 'flush') {
+                 ecSelect.value = '';
+                 ecSelect.disabled = true; // Disable selection for flush
+                 // Also disable ratio selects for flush as they aren't relevant
+                 document.getElementById('coreFade').disabled = true;
+                 document.getElementById('growBloom').disabled = true;
+            } else {
+                 ecSelect.disabled = false;
+                 document.getElementById('coreFade').disabled = false;
+                 document.getElementById('growBloom').disabled = false;
+                 ecSelect.value = defaults.ec || '';
+            }
+            document.getElementById('balance').value = defaults.balance || '';
+            document.getElementById('cleanse').value = defaults.cleanse || '';
+
+            // Optional: Set default mix ratios if desired, though not explicitly in recipe images
+            // if (isMetric) {
+            //     document.getElementById('coreFade').value = '226';
+            //     document.getElementById('growBloom').value = '226';
+            // } else {
+            //     document.getElementById('coreFade').value = '2';
+            //     document.getElementById('growBloom').value = '2';
+            // }
+        } else {
+             // Clear/reset if no stage selected or no defaults found
+             document.getElementById('desiredPH').value = '';
+             document.getElementById('ec').value = '';
+             document.getElementById('ec').disabled = false;
+             document.getElementById('coreFade').disabled = false;
+             document.getElementById('growBloom').disabled = false;
+             document.getElementById('balance').value = '';
+             document.getElementById('cleanse').value = '';
+        }
+      }
+
+      // Reset form
+      function resetForm() {
+        document.getElementById('dosageForm').reset();
+        document.getElementById('resultCard').classList.add('hidden');
+
+        // Set default values
+        document.getElementById('desiredPH').value = '6.0';
+        document.getElementById('ec').value = '3.0';
+        document.getElementById('cleanse').value = '5';
+        document.getElementById('balance').value = '5';
+
+        if (isMetric) {
+          document.getElementById('coreFade').value = '226';
+          document.getElementById('growBloom').value = '226';
+        } else {
+          document.getElementById('coreFade').value = '2';
+          document.getElementById('growBloom').value = '2';
+        }
+      }
+
+      // Calculate dosage
+      function calculateDosage() {
+        const growthStage = document.getElementById('growthStage').value;
+        const desiredPH = document.getElementById('desiredPH').value;
+        const ec = document.getElementById('ec').value;
+        const size = document.getElementById('size').value;
+        const balance = document.getElementById('balance').value;
+        const cleanse = document.getElementById('cleanse').value;
+        const coreFade = document.getElementById('coreFade').value;
+        const growBloom = document.getElementById('growBloom').value;
+
+        // Input Validation - Allow calculation even if some fields are empty initially
+        // if (!growthStage || !desiredPH || !ec || !size || !balance || !cleanse || !coreFade || !growBloom) {
+        //   alert('Please fill in all fields.');
+        //   return;
+        // }
+
+        // Use the correct dosage tables based on unit system
+        const dosageTable = isMetric ? metricDosages : imperialDosages;
+
+        // Calculate the EC index (1.0 → 1, 1.5 → 2, etc.)
+        const ecIndex = Math.round(parseFloat(ec) * 2) - 1;
+
+        // Get the values for the selected ratios
+        const growValue = dosageTable[growBloom]?.grow[ecIndex];
+        const coreValue = dosageTable[coreFade]?.core[ecIndex];
+
+        // Don't show error if EC/Ratio is invalid yet, wait for button click
+        // if (!growValue || !coreValue) {
+        //   // alert('Error: Invalid EC value or ratio not available for this EC level.');
+        //   // return; // Don't return, allow partial display or wait for click
+        // }
+
+        // Calculate total dosages
+        let totalGrowDosage = NaN, totalCoreDosage = NaN, totalBalanceDosage = NaN, totalCleanseDosage = NaN;
+        const sizeNum = parseFloat(size);
+        const balanceRate = parseInt(balance);
+        const cleanseRate = parseInt(cleanse);
+
+        if (!isNaN(sizeNum) && sizeNum > 0) {
+            if (isMetric) {
+                // For metric: ml per 10L * (size / 10)
+                if (growValue && !isNaN(growValue)) totalGrowDosage = growValue * (sizeNum / 10);
+                if (coreValue && !isNaN(coreValue)) totalCoreDosage = coreValue * (sizeNum / 10);
+                if (!isNaN(balanceRate)) totalBalanceDosage = balanceRate * (sizeNum / 10);
+                if (!isNaN(cleanseRate)) totalCleanseDosage = cleanseRate * (sizeNum / 10);
+            } else {
+                // For imperial: ml per gallon * size
+                if (growValue && !isNaN(growValue)) totalGrowDosage = growValue * sizeNum;
+                if (coreValue && !isNaN(coreValue)) totalCoreDosage = coreValue * sizeNum;
+                if (!isNaN(balanceRate)) totalBalanceDosage = balanceRate * sizeNum; // Assuming balance/cleanse dropdowns are now mL/Gal when imperial
+                if (!isNaN(cleanseRate)) totalCleanseDosage = cleanseRate * sizeNum; // Assuming balance/cleanse dropdowns are now mL/Gal when imperial
+            }
+        }
+
+
+        // Apply Anolyte factor if selected and dosage is valid
+        let cleanseLabel = "Cleanse";
+        if (useAnolyte && !isNaN(totalCleanseDosage)) {
+            totalCleanseDosage *= ANOLYTE_FACTOR;
+            cleanseLabel = "Anolyte"; /* Fixed inconsistent label */
+        }
+
+        // Display units
+        const volumeUnit = 'ml';
+        const sizeUnit = isMetric ? 'liters' : 'gallons';
+
+        // Format ratio labels
+        const growRatioLabel = isMetric ?
+          `${growBloom || '?'} grams/L` :
+          `${growBloom || '?'} ${growBloom === '1' ? 'lb' : 'lbs'}/gallon`;
+
+        const coreRatioLabel = isMetric ?
+          `${coreFade || '?'} grams/L` :
+          `${coreFade || '?'} ${coreFade === '1' ? 'lb' : 'lbs'}/gallon`;
+
+        // Create result object
+        currentResult = {
+          details: {
+            growthStage: growthStage || 'N/A',
+            desiredPH: desiredPH || 'N/A',
+            ec: ec || 'N/A',
+            size: !isNaN(sizeNum) ? sizeNum : 'N/A',
+            sizeUnit,
+            growRatio: growRatioLabel,
+            coreRatio: coreRatioLabel,
+            units: isMetric ? 'Metric' : 'Imperial'
+          },
+          dosages: {
+            balance: !isNaN(totalBalanceDosage) ? totalBalanceDosage.toFixed(1) : 'N/A',
+            grow: !isNaN(totalGrowDosage) ? totalGrowDosage.toFixed(1) : 'N/A',
+            core: !isNaN(totalCoreDosage) ? totalCoreDosage.toFixed(1) : 'N/A',
+            cleanse: !isNaN(totalCleanseDosage) ? totalCleanseDosage.toFixed(1) : 'N/A',
+            cleanseLabel: cleanseLabel, // Use the determined label
+            unit: volumeUnit
+          }
+        };
+
+        // Display result only if triggered by button click or if all inputs are valid?
+        // For now, let's always display, but maybe show placeholders if invalid
+        displayResult(currentResult);
+        // document.getElementById('resultCard').classList.remove('hidden'); // Moved to handleCalculateClick
+
+        // Save to logs only on explicit calculation? Or always? Let's do it on button click only.
+        // const timestamp = new Date().toLocaleString();
+        // const logEntry = { ... };
+        // logs.unshift(logEntry);
+        // updateLogEntries();
+        // localStorage.setItem('logEntries', JSON.stringify(logs));
+
+        // Scroll to result
+        // document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+      }
+
+      // Function specifically for the Calculate Button click
+      function handleCalculateClick() {
+          const growthStage = document.getElementById('growthStage').value;
+          const desiredPH = document.getElementById('desiredPH').value;
+          const ec = document.getElementById('ec').value;
+          const size = document.getElementById('size').value;
+          const balance = document.getElementById('balance').value;
+          const cleanse = document.getElementById('cleanse').value;
+          const coreFade = document.getElementById('coreFade').value;
+          const growBloom = document.getElementById('growBloom').value;
+          
+          // Basic validation for all cases
+          if (!growthStage || !desiredPH || !size || !balance || !cleanse) {
+            alert('Please fill in all required fields before calculating.');
+            return;
+          }
+          
+    // Special case for flush stage which doesn't use nutrients
+    if (growthStage === 'flush') {
+      // For flush, we don't need EC or nutrient ratios
+    } else {
+      // For other stages, validate those fields
+      if (!ec || !coreFade || !growBloom) {
+        alert('Please fill in all nutrient fields before calculating.');
+        return;
+      }
+      
+      const ecIndex = Math.round(parseFloat(ec) * 2) - 1;
+      const dosageTable = isMetric ? metricDosages : imperialDosages;
+      const growValue = dosageTable[growBloom]?.grow[ecIndex];
+      const coreValue = dosageTable[coreFade]?.core[ecIndex];
+      if (!growValue || !coreValue) {
+        alert('Error: Invalid EC value or ratio not available for this EC level.');
+        return;
+      }
+    }
+           if (isNaN(parseFloat(size)) || parseFloat(size) <= 0) {
+               alert('Please enter a valid Batch Tank Size.');
+               return;
+           }
+
+          // If validation passes, calculate and log
+          calculateDosage(); // This will now use validated inputs
+          
+          // Show results card - moved here to ensure it's shown for all valid calculations
+          document.getElementById('resultCard').classList.remove('hidden');
+
+          // Save validated calculation to logs
+          const timestamp = new Date().toLocaleString();
+          const logEntry = {
+            id: Date.now(),
+            timestamp,
+            inputs: {
+              growthStage, desiredPH, ec, size: parseFloat(size),
+              sizeUnit: isMetric ? 'liters' : 'gallons',
+              balance, cleanse, coreFade, growBloom, isMetric, useAnolyte // Log anolyte state too
+            },
+            result: currentResult // Use the result calculated by calculateDosage
+          };
+          logs.unshift(logEntry);
+          updateLogEntries();
+          localStorage.setItem('logEntries', JSON.stringify(logs));
+
+          // Scroll to result
+          document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+      }
+
+
+      // Display result
+      function displayResult(result, container = document.getElementById('resultContent')) {
+        const { details, dosages } = result;
+
+        container.innerHTML = `
+          <div class="grid grid-2 text-sm mb-4">
+            <div><span class="font-medium">Growth Stage:</span> ${details.growthStage}</div>
+            <div><span class="font-medium">Desired pH:</span> ${details.desiredPH}</div>
+            <div><span class="font-medium">Target EC:</span> ${details.ec}</div>
+            <div><span class="font-medium">Batch Tank Size:</span> ${details.size} ${details.sizeUnit}</div>
+            <div><span class="font-medium">Grow/Bloom Ratio:</span> ${details.growRatio}</div>
+            <div><span class="font-medium">Core/Fade Ratio:</span> ${details.coreRatio}</div>
+            <div><span class="font-medium">Units:</span> ${details.units}</div>
+          </div>
+
+          <div class="separator"></div>
+
+          <div class="grid grid-2 gap-2">
+            <div class="result-card">
+              <div class="result-title">Balance Dosage</div>
+              <div class="result-value">${dosages.balance} ${dosages.unit}</div>
+            </div>
+            <div class="result-card">
+              <div class="result-title">Grow/Bloom Dosage</div>
+              <div class="result-value">${dosages.grow} ${dosages.unit}</div>
+            </div>
+            <div class="result-card">
+              <div class="result-title">Core/Fade Dosage</div>
+              <div class="result-value">${dosages.core} ${dosages.unit}</div>
+            </div>
+            <div class="result-card">
+              <div class="result-title">${dosages.cleanseLabel || 'Cleanse'} Dosage</div> <!-- Added fallback -->
+              <div class="result-value">${dosages.cleanse} ${dosages.unit}</div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 mt-2">
+            <button class="button button-outline button-full fullscreen-button">
+              <svg class="icon button-icon" viewBox="0 0 24 24">
+                <path d="M15 3h6v6"></path>
+                <path d="M9 21H3v-6"></path>
+                <path d="M21 3l-7 7"></path>
+                <path d="M3 21l7-7"></path>
+              </svg>
+              Fullscreen
+            </button>
+            <button class="button button-outline button-full share-button">
+              <svg class="icon button-icon" viewBox="0 0 24 24">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+              Share
+            </button>
+          </div>
+        `;
+
+        // Add event listeners to the fullscreen and share buttons
+        const fullscreenButtons = container.querySelectorAll('.fullscreen-button');
+        const shareButtons = container.querySelectorAll('.share-button');
+
+        fullscreenButtons.forEach(button => {
+          button.addEventListener('click', () => showFullscreen(result));
+        });
+
+        shareButtons.forEach(button => {
+          button.addEventListener('click', () => shareResult(result));
+        });
+      }
+
+      // Show fullscreen result
+      function showFullscreen(result) {
+        document.getElementById('fullscreenTimestamp').textContent = `Calculated on ${new Date().toLocaleString()}`;
+
+        const fullscreenContent = document.getElementById('fullscreenContent');
+        displayResult(result, fullscreenContent);
+
+        // Remove buttons from fullscreen content
+        const buttonsContainer = fullscreenContent.querySelector('.flex');
+        if (buttonsContainer) {
+          buttonsContainer.remove();
+        }
+
+        document.getElementById('fullscreenDialog').classList.remove('hidden');
+      }
+
+      // Share result
+      function shareResult(result) {
+        if (!result) return;
+
+        const { details, dosages } = result;
+        const resultText =
+          `Dosage Calculation:\n\n` +
+          `Growth Stage: ${details.growthStage}\n` +
+          `Desired pH: ${details.desiredPH}\n` +
+          `Target EC: ${details.ec}\n` +
+          `Batch Tank Size: ${details.size} ${details.sizeUnit}\n` +
+          `Grow/Bloom Ratio: ${details.growRatio}\n` +
+          `Core/Fade Ratio: ${details.coreRatio}\n` +
+          `Units: ${details.units}\n\n` +
+          `Balance Dosage: ${dosages.balance} ${dosages.unit}\n` +
+          `Grow/Bloom Dosage: ${dosages.grow} ${dosages.unit}\n` +
+          `Core/Fade Dosage: ${dosages.core} ${dosages.unit}\n` +
+          `${dosages.cleanseLabel || 'Cleanse'} Dosage: ${dosages.cleanse} ${dosages.unit}`; // Use label here too
+
+        if (navigator.share) {
+          navigator.share({
+            title: 'Dosage Calculation',
+            text: resultText
+          }).catch(() => {
+            navigator.clipboard.writeText(resultText);
+            alert('Result copied to clipboard');
+          });
+        } else if (navigator.clipboard) {
+          navigator.clipboard.writeText(resultText);
+          alert('Result copied to clipboard');
+        } else {
+          alert('Sharing not supported on this device');
+        }
+      }
+
+      // Update log entries display
+      function updateLogEntries() {
+        const logEntriesContainer = document.getElementById('logEntries');
+        const noLogsMessage = document.getElementById('noLogsMessage');
+
+        if (logs.length === 0) {
+          noLogsMessage.classList.remove('hidden');
+          return;
+        }
+
+        noLogsMessage.classList.add('hidden');
+
+        // Clear existing entries except the no logs message
+        while (logEntriesContainer.children.length > 1) {
+          logEntriesContainer.removeChild(logEntriesContainer.firstChild);
+        }
+
+        // Add log entries
+        logs.forEach(log => {
+          const logElement = document.createElement('div');
+          logElement.className = 'log-entry';
+          logElement.setAttribute('data-id', log.id);
+
+          const { growthStage, ec, isMetric } = log.inputs;
+
+          logElement.innerHTML = `
+            <div class="log-header">
+              <div>
+                <div class="log-title">${log.timestamp}</div>
+                <div class="log-description">${growthStage} - EC: ${ec} - ${isMetric ? 'Metric' : 'Imperial'}</div>
+              </div>
+              <button class="button button-outline delete-log" data-id="${log.id}">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="log-content" id="log-content-${log.id}"></div>
+          `;
+
+          logEntriesContainer.insertBefore(logElement, noLogsMessage);
+
+          // Display result in log entry
+          const logContentElement = logElement.querySelector(`.log-content`);
+          displayResult(log.result, logContentElement);
+
+          // Add delete event listener
+          logElement.querySelector('.delete-log').addEventListener('click', function() {
+            const id = parseInt(this.getAttribute('data-id'));
+            deleteLogEntry(id);
+          });
+        });
+      }
+
+      // Delete a log entry
+      function deleteLogEntry(id) {
+        logs = logs.filter(log => log.id !== id);
+        localStorage.setItem('logEntries', JSON.stringify(logs));
+        updateLogEntries();
+      }
+
+      // Clear all logs
+      function clearLogs() {
+        document.getElementById('confirmMessage').textContent = 'Are you sure you want to clear all logs? This action cannot be undone.';
+        document.getElementById('confirmDialog').classList.remove('hidden');
+
+        // Set callback for confirmation
+        confirmCallback = function() {
+          logs = [];
+          localStorage.removeItem('logEntries');
+          updateLogEntries();
+          document.getElementById('confirmDialog').classList.add('hidden');
+        };
+      }
+
+      // Save default configuration
+      function saveDefaultConfig() {
+        const defaultConfig = {
+          growthStage: document.getElementById('growthStage').value,
+          desiredPH: document.getElementById('desiredPH').value,
+          ec: document.getElementById('ec').value,
+          size: document.getElementById('size').value,
+          balance: document.getElementById('balance').value,
+          cleanse: document.getElementById('cleanse').value,
+          coreFade: document.getElementById('coreFade').value,
+          growBloom: document.getElementById('growBloom').value,
+          isMetric
+        };
+
+        localStorage.setItem('defaultConfig', JSON.stringify(defaultConfig));
+        alert('Default configuration saved!');
+      }
+
+      // Load default configuration and logs
+      function loadSavedData() {
+        // Load unit preference
+        const savedIsMetric = localStorage.getItem('isMetric');
+        if (savedIsMetric !== null) {
+          isMetric = savedIsMetric === 'true';
+          toggleUnits(isMetric ? 'metric' : 'imperial');
+        } else {
+          updateUnitLabels();
+        }
+
+        // Load default config
+        const defaultConfig = JSON.parse(localStorage.getItem('defaultConfig'));
+        if (defaultConfig) {
+          document.getElementById('growthStage').value = defaultConfig.growthStage || '';
+          document.getElementById('desiredPH').value = defaultConfig.desiredPH || '6.0';
+          document.getElementById('ec').value = defaultConfig.ec || '3.0';
+          document.getElementById('size').value = defaultConfig.size || '';
+          document.getElementById('balance').value = defaultConfig.balance || '5';
+          document.getElementById('cleanse').value = defaultConfig.cleanse || '5';
+          document.getElementById('coreFade').value = defaultConfig.coreFade || '';
+          document.getElementById('growBloom').value = defaultConfig.growBloom || '';
+        } else {
+          // Set default values
+          document.getElementById('desiredPH').value = '6.0';
+          document.getElementById('ec').value = '3.0';
+          document.getElementById('balance').value = '5';
+          document.getElementById('cleanse').value = '5';
+
+          if (isMetric) {
+            document.getElementById('coreFade').value = '226';
+            document.getElementById('growBloom').value = '226';
+          } else {
+            document.getElementById('coreFade').value = '2';
+            document.getElementById('growBloom').value = '2';
+          }
+        }
+
+        // Load logs
+        const savedLogs = JSON.parse(localStorage.getItem('logEntries')) || [];
+        logs = savedLogs;
+        updateLogEntries();
+      }
+
+      // Export logs to CSV
+      function exportLogsToCSV() {
+        if (logs.length === 0) {
+          alert('No logs to export.');
+          return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Timestamp,Growth Stage,Desired pH,Target EC,Batch Tank Size,Units,Balance,Cleanse,Core/Fade Ratio,Grow/Bloom Ratio\n";
+
+        logs.forEach(log => {
+          const inputs = log.inputs;
+          const unitSystem = inputs.isMetric ? 'Metric' : 'Imperial';
+
+          const dataString = `"${log.timestamp}","${inputs.growthStage}","${inputs.desiredPH}","${inputs.ec}","${inputs.size} ${inputs.sizeUnit}","${unitSystem}","${inputs.balance}","${inputs.cleanse}","${inputs.coreFade}","${inputs.growBloom}"`;
+          csvContent += dataString + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'dosage_calculation_logs.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Add event listeners
+      document.getElementById('metricToggle').addEventListener('click', function() {
+        toggleUnits('metric');
+      });
+
+      document.getElementById('imperialToggle').addEventListener('click', function() {
+        toggleUnits('imperial');
+      });
+
+      // Add listeners for Cleanse/Anolyte toggle
+      document.getElementById('cleanseToggle').addEventListener('click', function() {
+        useAnolyte = false;
+        this.classList.add('active');
+        document.getElementById('anolytToggle').classList.remove('active');
+        // Only recalculate if results are already shown
+        if (!document.getElementById('resultCard').classList.contains('hidden')) {
+            calculateDosage();
+            // Update the UI label to show Cleanse
+            const cleanseCard = document.querySelector('.result-card:nth-child(4)');
+            if (cleanseCard) {
+                const resultTitle = cleanseCard.querySelector('.result-title');
+                if (resultTitle) resultTitle.textContent = "Cleanse Dosage";
+            }
+        }
+      });
+
+      document.getElementById('anolytToggle').addEventListener('click', function() {
+        useAnolyte = true;
+        this.classList.add('active');
+        document.getElementById('cleanseToggle').classList.remove('active');
+        // Only recalculate if results are already shown
+        if (!document.getElementById('resultCard').classList.contains('hidden')) {
+            calculateDosage();
+            // Update the UI label to show Anolyte
+            const cleanseCard = document.querySelector('.result-card:nth-child(4)');
+            if (cleanseCard) {
+                const resultTitle = cleanseCard.querySelector('.result-title');
+                if (resultTitle) resultTitle.textContent = "Anolyte Dosage";
+            }
+        }
+      });
+
+
+      document.getElementById('growthStage').addEventListener('change', setDefaultsByGrowthStage);
+      document.getElementById('calculateButton').addEventListener('click', handleCalculateClick); // Use handler for validation
+      document.getElementById('saveConfigButton').addEventListener('click', saveDefaultConfig);
+      document.getElementById('resetButton').addEventListener('click', resetForm);
+      document.getElementById('clearLogsButton').addEventListener('click', clearLogs);
+      document.getElementById('exportLogsButton').addEventListener('click', exportLogsToCSV);
+      calculateBalanceRateBtn.addEventListener('click', calculateBalanceRate); // Listener for new button
+
+
+      // Confirmation dialog
+      document.getElementById('cancelConfirmButton').addEventListener('click', function() {
+        document.getElementById('confirmDialog').classList.add('hidden');
+        confirmCallback = null;
+      });
+
+      document.getElementById('confirmActionButton').addEventListener('click', function() {
+        if (confirmCallback) {
+          confirmCallback();
+        }
+        document.getElementById('confirmDialog').classList.add('hidden');
+      });
+
+      // Fullscreen dialog
+      document.getElementById('closeFullscreenButton').addEventListener('click', function() {
+        document.getElementById('fullscreenDialog').classList.add('hidden');
+      });
+
+      document.getElementById('shareFullscreenButton').addEventListener('click', function() {
+        shareResult(currentResult);
+      });
+
+      // Load data on startup
+      loadSavedData();
+    });
+  </script>
+</body>
+</html>
