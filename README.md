@@ -16,7 +16,7 @@ The main advantage of this tool over standard feed charts is its ability to scal
 
 - **Persistent Calculation History:** Automatically saves every calculation to your browser's local storage. Each log entry retains all input parameters, including the unit system used, for future reference.
 
-- **Data Export:** Export your entire calculation history to a CSV file for record-keeping or analysis.
+- **Data Export:** Export your entire calculation history to a CSV file for record-keeping or analysis..
 
 - **Default Configuration:** Save your most-used inputs—such as tank size and mix ratios—as the default settings for faster subsequent use.
 
