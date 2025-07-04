@@ -1,6 +1,6 @@
 # Athena Batch Tank Calculator - for Athena Pro-Line nutrients
 
-**🚀 [Use the Live Calculator](https://jaketherabbit.github.io/Athena_Batch_Tank_Nutrient_Calculator)
+**🚀 [Use the Live Calculator]([[https://jaketherabbit.github.io/Athena_Batch_Tank_Nutrient_Calculator](https://jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator/))](https://jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator/)
 /)**
 This app is basically a calculator on your phone for the feed charts. https://support.athenaag.com/hc/en-us/articles/17190427112859-Pro-Line-Feed-Schedules
 
