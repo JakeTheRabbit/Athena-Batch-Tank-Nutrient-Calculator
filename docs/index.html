@@ -1,763 +1,996 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Batch Tank Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <!-- CSS Styles -->
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+<meta charset="UTF-8">
+<title>Athena Batch Tank Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Precision batch tank dosing calculator for Athena Pro Line nutrients. Scales feed-chart recipes to any tank size.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0c10'/%3E%3Cpath d='M16 5c4.5 6.2 7.5 10.4 7.5 14a7.5 7.5 0 1 1-15 0C8.5 15.4 11.5 11.2 16 5z' fill='%2334d399'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0a0c10; --bg2:#0f1318; --card:#141a21; --card2:#19212a;
+  --hair:rgba(255,255,255,.08); --hair2:rgba(255,255,255,.14);
+  --ink:#e7ecf2; --ink2:#aab4c0; --ink3:#727d8a;
+  --accent:#34d399; --accent2:#22d3ee; --warn:#fbbf24; --bad:#f87171; --violet:#a78bfa;
+  --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+html,body{background:var(--bg);color:var(--ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;line-height:1.5;padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+.wrap{max-width:1080px;margin:0 auto}
 
-    :root {
-      --color-dark-blue: #052a4f;
-      --color-blue: #2b407a;
-      --color-light-blue: #c6d2df;
-      --color-dark-gray: #333333;
-      --color-medium-gray: #6c6c6c;
-      --color-light-gray: #f1f1f1;
-      --color-white: #ffffff;
-      --color-vibrant: #00ff00; /* Vibrant color for numbers */
-    }
+/* ---------- header ---------- */
+header{display:flex;align-items:center;gap:12px;padding:6px 2px 16px}
+.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,rgba(52,211,153,.18),rgba(34,211,238,.12));
+  border:1px solid var(--hair2);display:grid;place-items:center;flex:none}
+.logo svg{width:18px;height:18px}
+header h1{font-size:1.05rem;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+header .tag{font-size:10.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.hspacer{flex:1}
 
-    body {
-      background-color: #000000; /* Black background for OLED screens */
-      color: var(--color-light-gray);
-      margin: 0;
-      padding: 20px;
-      font-family: 'Roboto', sans-serif; /* Modern font */
-    }
-    .calculator {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-      border-radius: 8px;
-      background: #000000;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      text-align: center;
-      color: var(--color-light-blue);
-    }
-    .section {
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--color-light-blue);
-    }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      margin-bottom: 16px;
-      border: 1px solid var(--color-medium-gray);
-      border-radius: 4px;
-      background-color: #1a1a1a;
-      color: var(--color-light-gray);
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: var(--color-blue);
-      color: var(--color-white);
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-    button:hover {
-      background-color: #333333;
-      color: var(--color-white);
-    }
-    .result {
-      margin-top: 20px;
-      padding: 10px;
-      background: #1a1a1a;
-      border-left: 6px solid var(--color-blue);
-    }
-    .logs {
-      margin-top: 20px;
-      padding: 10px;
-      background: #000000;
-      border: 1px solid var(--color-medium-gray);
-      border-radius: 4px;
-    }
-    .log-entry {
-      margin-bottom: 10px;
-      padding: 10px;
-      background: #1a1a1a;
-      border: 1px solid var(--color-medium-gray);
-      border-radius: 4px;
-      position: relative;
-    }
-    .log-entry-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .delete-log {
-      background-color: #444;
-      border: none;
-      color: var(--color-white);
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .delete-log:hover {
-      background-color: #666;
-    }
-    /* Fullscreen Result Styles */
-    .fullscreen-result {
-      display: none;
-      flex-direction: column;
-      background-color: #000000;
-      color: var(--color-light-gray);
-      width: 100%;
-      height: 100%;
-      position: fixed;
-      top: 0;
-      left: 0;
-      overflow: hidden;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    .fullscreen-result.active {
-      display: flex;
-    }
-    .fullscreen-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-    }
-    .dosage-item {
-      margin-bottom: 20px;
-    }
-    .dosage-name {
-      font-weight: bold;
-      text-align: center;
-      color: var(--color-light-gray);
-    }
-    .dosage-value {
-      text-align: center;
-      font-size: 1.8em;
-      color: var(--color-vibrant);
-    }
-    /* Button Group */
-    .button-group {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-    .button-group button {
-      width: 48%;
-    }
-    /* Fullscreen Buttons */
-    .fullscreen-buttons {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      background-color: #000000;
-      padding-bottom: calc(10px + env(safe-area-inset-bottom));
-    }
-    .fullscreen-buttons button {
-      width: 48%;
-    }
-    /* Responsive Design */
-    @media (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
-      .calculator {
-        padding: 15px;
-      }
-      button {
-        font-size: 14px;
-      }
-    }
-    /* Note Style */
-    .note {
-      font-size: 0.9em;
-      color: var(--color-medium-gray);
-      margin-top: -10px;
-      margin-bottom: 20px;
-    }
-    /* Compact Details in Fullscreen */
-    .fullscreen-content .details p {
-      font-size: 0.8em;
-      margin: 5px 0;
-    }
-    /* Prevent Text Wrapping */
-    .details p, .dosage-item {
-      white-space: nowrap;
-    }
-  </style>
+/* ---------- segmented control ---------- */
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--hair);border-radius:11px;padding:3px;gap:2px}
+.seg button{font:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border:0;background:transparent;
+  color:var(--ink2);cursor:pointer;border-radius:8px;transition:background .15s,color .15s;white-space:nowrap}
+.seg button.on{background:linear-gradient(180deg,rgba(52,211,153,.22),rgba(52,211,153,.10));color:var(--accent);
+  box-shadow:inset 0 0 0 1px rgba(52,211,153,.35)}
+.seg.sm button{padding:5px 10px;font-size:11.5px}
+
+/* ---------- layout ---------- */
+.cols{display:grid;gap:14px;grid-template-columns:1fr;align-items:start}
+@media(min-width:1000px){
+  .cols{grid-template-columns:1fr 400px}
+  .rightcol{position:sticky;top:14px}
+}
+
+/* ---------- cards ---------- */
+.card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--hair);
+  border-radius:var(--r);box-shadow:0 10px 40px -22px rgba(0,0,0,.65);margin-bottom:14px;overflow:hidden}
+.chead{display:flex;align-items:center;gap:10px;padding:15px 17px 0}
+.chead h2{font-size:.95rem;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+.chead h2::before{content:"";width:4px;height:1.05em;border-radius:3px;background:linear-gradient(180deg,var(--accent),var(--accent2));flex:none}
+.chead .sub{font-size:11.5px;color:var(--ink3);margin-left:auto;text-align:right}
+.cbody{padding:14px 17px 17px}
+
+/* ---------- form bits ---------- */
+.lab{display:block;font-size:10.5px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.lab b{color:var(--ink2)}
+.hint{font-size:11px;color:var(--ink3);margin-top:6px;line-height:1.45}
+.hint b{color:var(--ink2);font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:430px){.grid2.tight{grid-template-columns:1fr}}
+.fgroup{margin-bottom:16px}
+.fgroup:last-child{margin-bottom:0}
+
+input[type=number],select{
+  width:100%;font:inherit;font-size:16px;font-weight:600;color:var(--ink);
+  background:rgba(0,0,0,.28);border:1px solid var(--hair);border-radius:10px;
+  padding:10px 12px;outline:none;appearance:none;transition:border-color .15s,box-shadow .15s}
+input[type=number]:focus,select:focus{border-color:rgba(52,211,153,.5);box-shadow:0 0 0 3px rgba(52,211,153,.12)}
+input[type=number]::-webkit-inner-spin-button{display:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23727d8a' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+select option{background:var(--card);color:var(--ink)}
+.inwrap{position:relative}
+.inwrap .unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:600;color:var(--ink3);pointer-events:none}
+.inwrap input{padding-right:58px}
+
+/* steppers */
+.step{display:flex;align-items:stretch;border:1px solid var(--hair);border-radius:10px;overflow:hidden;background:rgba(0,0,0,.28)}
+.step button{width:42px;border:0;background:transparent;color:var(--ink2);font-size:18px;font-weight:600;cursor:pointer;flex:none;transition:background .12s}
+.step button:active{background:rgba(52,211,153,.15);color:var(--accent)}
+@media(hover:hover){.step button:hover{background:rgba(255,255,255,.06);color:var(--ink)}}
+.step input{flex:1;min-width:0;border:0;background:transparent;text-align:center;border-radius:0;padding:10px 2px}
+.step input:focus{box-shadow:none}
+.step .u{display:flex;align-items:center;font-size:10.5px;color:var(--ink3);font-weight:600;padding-right:10px;white-space:nowrap}
+
+/* slider */
+input[type=range]{width:100%;height:26px;background:transparent;appearance:none;cursor:pointer;margin-top:2px}
+input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent) var(--fill,50%),rgba(255,255,255,.10) var(--fill,50%))}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:19px;height:19px;border-radius:50%;margin-top:-7px;
+  background:var(--ink);border:2px solid var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.5)}
+input[type=range]::-moz-range-track{height:5px;border-radius:3px;background:rgba(255,255,255,.10)}
+input[type=range]::-moz-range-progress{height:5px;border-radius:3px;background:var(--accent)}
+input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--ink);border:2px solid var(--accent)}
+.ends{display:flex;justify-content:space-between;font-size:10px;color:var(--ink3);margin-top:2px}
+
+/* chips */
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{font:inherit;font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:999px;cursor:pointer;
+  background:var(--card2);border:1px solid var(--hair);color:var(--ink2);transition:all .15s}
+.chip.on{background:linear-gradient(180deg,rgba(52,211,153,.22),rgba(52,211,153,.08));
+  border-color:rgba(52,211,153,.45);color:var(--accent)}
+@media(hover:hover){.chip:not(.on):hover{border-color:var(--hair2);color:var(--ink)}}
+.chip small{font-weight:500;opacity:.75;margin-left:4px}
+
+.sep{height:1px;background:var(--hair);margin:16px 0}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:13.5px;font-weight:700;
+  height:44px;padding:0 16px;border-radius:11px;border:1px solid var(--hair);background:var(--card2);color:var(--ink);
+  cursor:pointer;transition:all .15s;white-space:nowrap}
+@media(hover:hover){.btn:hover{border-color:var(--hair2);background:#1d2630}}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(135deg,#0ea66f,#0d9488);border-color:rgba(52,211,153,.4);color:#fff;
+  box-shadow:0 6px 24px -10px rgba(16,185,129,.55)}
+@media(hover:hover){.btn.primary:hover{background:linear-gradient(135deg,#10b981,#0ea5a4)}}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad)}
+.btn.full{width:100%}
+.btn.sm{height:36px;font-size:12px;padding:0 12px;border-radius:9px}
+.btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btnrow{display:flex;gap:9px;flex-wrap:wrap}
+.btnrow .btn{flex:1}
+
+/* ---------- results ---------- */
+.sumchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px}
+.sumchips .pill{font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--card2);
+  border:1px solid var(--hair);color:var(--ink2)}
+.sumchips .pill b{color:var(--ink)}
+.dose{display:flex;align-items:center;gap:13px;padding:11px 13px;border:1px solid var(--hair);
+  border-radius:12px;margin-bottom:9px;background:rgba(0,0,0,.18);position:relative;overflow:hidden}
+.dose::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--dc,var(--accent))}
+.dose .nm{flex:1;min-width:0}
+.dose .nm b{font-size:13px;font-weight:700;display:block}
+.dose .nm span{font-size:10.5px;color:var(--ink3);display:block;margin-top:1px}
+.dose .v{font-size:1.45rem;font-weight:800;letter-spacing:-.02em;white-space:nowrap;color:var(--dc,var(--accent))}
+.dose .v i{font-style:normal;font-size:11px;font-weight:600;color:var(--ink3);margin-left:3px}
+.dose.muted{opacity:.45}
+.empty{color:var(--ink3);font-size:12.5px;text-align:center;padding:26px 10px;line-height:1.6}
+.flag{font-size:10.5px;font-weight:600;border-radius:7px;padding:6px 10px;margin-bottom:11px;line-height:1.45;display:none}
+.flag.show{display:block}
+.flag.warn{background:rgba(251,191,36,.09);border:1px solid rgba(251,191,36,.25);color:var(--warn)}
+
+/* topup result */
+.tu-out{margin-top:12px;display:none}
+.tu-out.show{display:block}
+
+/* ---------- history ---------- */
+.log{border:1px solid var(--hair);border-radius:11px;margin-bottom:9px;overflow:hidden;background:rgba(0,0,0,.15)}
+.log-h{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;user-select:none}
+.log-h .t{font-size:12px;font-weight:600}
+.log-h .d{font-size:10.5px;color:var(--ink3)}
+.log-h .x{margin-left:auto;flex:none;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;
+  border:1px solid transparent;color:var(--ink3);cursor:pointer;background:transparent}
+@media(hover:hover){.log-h .x:hover{color:var(--bad);border-color:var(--hair)}}
+.log-h .x svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round}
+.log-b{display:none;padding:2px 12px 12px;font-size:12px}
+.log.open .log-b{display:block}
+.log-b .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--hair)}
+.log-b .row:last-child{border-bottom:0}
+.log-b .row span{color:var(--ink2)}
+.log-b .row b{font-weight:700}
+
+/* ---------- overlays ---------- */
+.ovl{position:fixed;inset:0;background:rgba(4,6,10,.78);backdrop-filter:blur(5px);z-index:60;
+  display:none;align-items:center;justify-content:center;padding:16px}
+.ovl.show{display:flex}
+.ovl .box{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--hair2);border-radius:18px;
+  width:100%;max-width:430px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px -20px rgba(0,0,0,.8);
+  padding:20px}
+.ovl .box h3{font-size:1rem;font-weight:800;margin-bottom:4px}
+.ovl .box .sub2{font-size:12px;color:var(--ink3);margin-bottom:14px}
+/* mix mode */
+.mix-step{display:flex;align-items:center;gap:13px;padding:13px;border:1px solid var(--hair);border-radius:13px;
+  margin-bottom:9px;cursor:pointer;user-select:none;transition:opacity .2s;background:rgba(0,0,0,.18)}
+.mix-step .ck{width:26px;height:26px;border-radius:8px;border:2px solid var(--hair2);flex:none;display:grid;place-items:center;transition:all .15s}
+.mix-step .ck svg{width:14px;height:14px;stroke:#06281c;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.mix-step.done .ck{background:var(--accent);border-color:var(--accent)}
+.mix-step.done .ck svg{opacity:1}
+.mix-step .mn{flex:1;min-width:0}
+.mix-step .mn b{display:block;font-size:13.5px}
+.mix-step .mn span{font-size:10.5px;color:var(--ink3)}
+.mix-step .mv{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;color:var(--dc,var(--accent));white-space:nowrap}
+.mix-step .mv i{font-style:normal;font-size:11px;color:var(--ink3);font-weight:600;margin-left:3px}
+.mix-step.done{opacity:.4}
+.mix-step.done .mn b{text-decoration:line-through}
+.ordnote{font-size:11px;color:var(--ink3);line-height:1.5;margin-top:11px}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:max(22px,env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+  background:var(--card2);border:1px solid var(--hair2);color:var(--ink);font-size:12.5px;font-weight:600;
+  padding:10px 18px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.6);z-index:80;opacity:0;
+  transition:opacity .25s,transform .25s;pointer-events:none;max-width:88vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{font-size:10.5px;color:var(--ink3);text-align:center;padding:18px 12px 6px;line-height:1.7}
+footer a{color:var(--ink2);text-decoration:none;border-bottom:1px dotted var(--ink3)}
+
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#27313c;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--ink3)}
+
+/* embed mode (?embed) */
+.embed header,.embed footer{display:none}
+.embed body{padding:8px}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.rise{animation:rise .3s ease both}
+</style>
 </head>
 <body>
-  <div class="calculator">
+<div class="wrap">
+
+<header>
+  <div class="logo"><svg viewBox="0 0 32 32"><path d="M16 4c4.8 6.6 8 11 8 14.9A8 8 0 1 1 8 18.9C8 15 11.2 10.6 16 4z" fill="#34d399"/></svg></div>
+  <div>
     <h1>Batch Tank Calculator</h1>
-    <form id="dosageForm">
-      <div class="section">
-        <label for="growthStage">Select Growth Stage:</label>
-        <select id="growthStage">
-          <option value="">-- Select Growth Stage --</option>
-          <option value="pre-soak">Clone Pre-soak</option>
-          <option value="clone">Clone</option>
-          <option value="veg">Veg</option>
-          <option value="flower">Flower</option>
-          <option value="finishing">Finishing</option>
-        </select>
+    <div class="tag">Athena Pro Line</div>
+  </div>
+  <div class="hspacer"></div>
+  <div class="seg" role="group" aria-label="Unit system">
+    <button type="button" id="uMetric" class="on">Metric</button>
+    <button type="button" id="uImperial">Imperial</button>
+  </div>
+</header>
+
+<div class="cols">
+<div class="leftcol">
+
+  <!-- ============ RECIPE ============ -->
+  <div class="card">
+    <div class="chead"><h2>Recipe</h2><div class="sub" id="stageSub">Mother &amp; Veg</div></div>
+    <div class="cbody">
+
+      <div class="fgroup">
+        <span class="lab">Growth stage</span>
+        <div class="chips" id="stageChips">
+          <button type="button" class="chip" data-stage="clone">Clone</button>
+          <button type="button" class="chip on" data-stage="veg">Veg</button>
+          <button type="button" class="chip" data-stage="flower">Flower</button>
+          <button type="button" class="chip" data-stage="finish">Finish<small>Fade</small></button>
+          <button type="button" class="chip" data-stage="flush">Flush</button>
+        </div>
       </div>
-      <div class="section">
-        <label for="desiredPH">Desired pH:</label>
-        <select id="desiredPH">
-          <!-- Options from 5.4 to 6.5 -->
-        </select>
+
+      <div class="grid2 fgroup">
+        <div>
+          <span class="lab">Target EC <b id="ecVal">3.0</b></span>
+          <input type="range" id="ecSlide" min="1" max="4" step="0.1" value="3" list="ecTicks">
+          <datalist id="ecTicks"><option value="1"></option><option value="1.5"></option><option value="2"></option><option value="2.5"></option><option value="3"></option><option value="3.5"></option><option value="4"></option></datalist>
+          <div class="ends"><span>1.0</span><span>2.5</span><span>4.0</span></div>
+        </div>
+        <div>
+          <span class="lab">Desired pH</span>
+          <div class="step">
+            <button type="button" data-step="ph" data-d="-1" aria-label="pH down">−</button>
+            <input type="number" id="ph" inputmode="decimal" step="0.1" min="5.0" max="7.0" value="5.8">
+            <button type="button" data-step="ph" data-d="1" aria-label="pH up">+</button>
+          </div>
+          <div class="hint">Logged only — dose Balance to hit it.</div>
+        </div>
       </div>
-      <div class="section">
-        <label for="ec">Select Target EC:</label>
-        <select id="ec">
-          <option value="">-- Select EC --</option>
-          <option value="1.0">1.0</option>
-          <option value="1.5">1.5</option>
-          <option value="2.0">2.0</option>
-          <option value="2.5">2.5</option>
-          <option value="3.0">3.0</option>
-          <option value="3.5">3.5</option>
-          <option value="4.0">4.0</option>
-        </select>
+
+      <div class="grid2 fgroup">
+        <div>
+          <span class="lab">Tank size</span>
+          <div class="inwrap">
+            <input type="number" id="vol" inputmode="decimal" min="0" placeholder="e.g. 100">
+            <span class="unit" id="volUnit">L</span>
+          </div>
+        </div>
+        <div>
+          <span class="lab">Source water EC</span>
+          <div class="inwrap">
+            <input type="number" id="srcEc" inputmode="decimal" step="0.1" min="0" max="1.5" value="0">
+            <span class="unit">mS/cm</span>
+          </div>
+          <div class="hint">RO = 0. Tap/bore water EC is subtracted from target before dosing.</div>
+        </div>
       </div>
-      <div class="section">
-        <label for="size">Batch Tank Size (Liters):</label>
-        <input type="number" id="size" placeholder="Enter batch tank size in liters">
+
+      <div class="sep"></div>
+
+      <div class="grid2 tight fgroup" id="concRow">
+        <div>
+          <span class="lab" id="gbLab">Grow / Bloom concentrate</span>
+          <select id="gbConc"></select>
+        </div>
+        <div>
+          <span class="lab" id="cfLab">Core / Fade concentrate</span>
+          <select id="cfConc"></select>
+        </div>
       </div>
-      <div class="section">
-        <label for="balance">Select Balance Dosage (ml/10L):</label>
-        <select id="balance">
-          <option value="">-- Select Balance Dosage --</option>
-          <option value="1">1 ml</option>
-          <option value="2">2 ml</option>
-          <option value="3">3 ml</option>
-          <option value="4">4 ml</option>
-          <option value="5">5 ml</option>
-          <option value="6">6 ml</option>
-          <option value="7">7 ml</option>
-          <option value="8">8 ml</option>
-          <option value="9">9 ml</option>
-          <option value="10">10 ml</option>
-        </select>
-        <p class="note">Note: Balance dosage is for user to interpret based on their balance mix ratio.</p>
+      <div class="hint" style="margin-top:-8px;margin-bottom:16px">Pick the strength each stock was mixed at — they can differ.</div>
+
+      <div class="sep"></div>
+
+      <!-- balance -->
+      <div class="fgroup">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;flex-wrap:wrap">
+          <span class="lab" style="margin:0">Balance · pH buffer</span>
+          <div class="seg sm" role="group" aria-label="Balance product">
+            <button type="button" id="balBlend" class="on">Blended <small>liquid</small></button>
+            <button type="button" id="balPro">Pro <small>dry</small></button>
+          </div>
+        </div>
+        <div class="grid2 tight">
+          <div>
+            <span class="lab">Rate <b id="balRateU">ml / 10 L</b></span>
+            <div class="step">
+              <button type="button" data-step="balRate" data-d="-1" aria-label="Balance rate down">−</button>
+              <input type="number" id="balRate" inputmode="decimal" step="0.5" min="0" value="5">
+              <button type="button" data-step="balRate" data-d="1" aria-label="Balance rate up">+</button>
+            </div>
+          </div>
+          <div id="proConcWrap" style="display:none">
+            <span class="lab">Pro Balance stock <b id="proConcU">g / L</b></span>
+            <select id="proConc">
+              <option value="40">40 g/L · ⅓ lb/gal</option>
+              <option value="80">80 g/L · ⅔ lb/gal</option>
+              <option value="120" selected>120 g/L · 1 lb/gal</option>
+            </select>
+          </div>
+          <div id="balDialWrap">
+            <span class="lab">Dial-in from last tank</span>
+            <div style="display:flex;gap:7px">
+              <div class="inwrap" style="flex:1">
+                <input type="number" id="balUsed" inputmode="decimal" min="0" placeholder="total used">
+                <span class="unit">ml</span>
+              </div>
+              <button type="button" class="btn sm" id="balDialBtn">Set rate</button>
+            </div>
+          </div>
+        </div>
+        <div class="hint" id="balHint">Blended Balance: liquid potassium silicate buffer — typically 2–5 ml/gal (5–13 ml/10 L). Add to water <b>before</b> nutrients, dose to target pH.</div>
       </div>
-      <div class="section">
-        <label for="cleanse">Select Cleanse Dosage (ml/10L):</label>
-        <select id="cleanse">
-          <option value="">-- Select Cleanse Dosage --</option>
-          <option value="1">1 ml</option>
-          <option value="2">2 ml</option>
-          <option value="3">3 ml</option>
-          <option value="4">4 ml</option>
-          <option value="5">5 ml</option>
-          <option value="6">6 ml</option>
-          <option value="7">7 ml</option>
-          <option value="8">8 ml</option>
-          <option value="9">9 ml</option>
-          <option value="10">10 ml</option>
-        </select>
+
+      <div class="sep"></div>
+
+      <!-- cleanse -->
+      <div class="fgroup">
+        <span class="lab">Athena Cleanse · hypochlorous <b id="clRateU">ml / 10 L</b></span>
+        <div class="grid2 tight">
+          <div class="step">
+            <button type="button" data-step="clRate" data-d="-1" aria-label="Cleanse rate down">−</button>
+            <input type="number" id="clRate" inputmode="decimal" step="0.5" min="0" value="9">
+            <button type="button" data-step="clRate" data-d="1" aria-label="Cleanse rate up">+</button>
+          </div>
+          <div class="chips" id="clChips">
+            <button type="button" class="chip" data-cl="3">Light</button>
+            <button type="button" class="chip on" data-cl="9">Maint.</button>
+            <button type="button" class="chip" data-cl="13">Reset</button>
+            <button type="button" class="chip" data-cl="26">Flush</button>
+          </div>
+        </div>
+        <div class="hint">Label: 2–5 ml/gal maintenance · 5–10 ml/gal reset &amp; final flush.</div>
       </div>
-      <div class="section">
-        <label for="coreFade">Select Mix Ratio for Core/Fade:</label>
-        <select id="coreFade">
-          <option value="">-- Select Core/Fade Ratio --</option>
-          <option value="113">113 grams/L</option>
-          <option value="226">226 grams/L</option>
-          <option value="240">240 grams/L</option>
-          <option value="282">282 grams/L</option>
-        </select>
+
+      <div class="sep"></div>
+
+      <button type="button" class="btn primary full" id="calcBtn">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        Calculate dosage
+      </button>
+      <div class="btnrow" style="margin-top:9px">
+        <button type="button" class="btn sm ghost" id="saveBtn">
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+          Save defaults</button>
+        <button type="button" class="btn sm ghost" id="resetBtn">
+          <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+          Reset</button>
       </div>
-      <div class="section">
-        <label for="growBloom">Select Mix Ratio for Grow/Bloom:</label>
-        <select id="growBloom">
-          <option value="">-- Select Grow/Bloom Ratio --</option>
-          <option value="113">113 grams/L</option>
-          <option value="226">226 grams/L</option>
-          <option value="240">240 grams/L</option>
-          <option value="282">282 grams/L</option>
-        </select>
-      </div>
-      <!-- Added IDs to buttons -->
-      <button type="button" id="calculateButton">Calculate Dosage</button>
-      <button type="button" id="saveConfigButton">Save as Default Configuration</button>
-      <button type="button" id="resetButton">Reset</button>
-      <button type="button" id="clearLogsButton">Clear Logs</button>
-      <button type="button" id="exportLogsButton">Export All Logs to CSV</button>
-    </form>
-    <div class="result" id="result"></div>
-    <!-- Added Fullscreen Result Section -->
-    <div class="fullscreen-result" id="fullscreenResult">
-      <div class="fullscreen-content" id="fullscreenContent"></div>
-      <div class="fullscreen-buttons">
-        <button type="button" id="backButton">Back to Calculator</button>
-        <button type="button" id="shareButton">Share Result</button>
-      </div>
-    </div>
-    <div class="logs" id="logs">
-      <h2>Calculation Logs</h2>
-      <div id="logEntries"></div>
     </div>
   </div>
 
-  <!-- JavaScript Code -->
-  <script>
-    (function() {
-      const mixRatios = {
-        "113": {
-          grow: [null, 5.4, 8.3, 11.4, 14.6, 17.9, 21.4, 24.9],
-          core: [null, 3.2, 5.0, 6.9, 8.8, 10.8, 12.8, 14.9]
-        },
-        "226": {
-          grow: [null, 2.7, 4.2, 5.7, 7.3, 9.0, 10.7, 12.4],
-          core: [null, 1.6, 2.5, 3.4, 4.4, 5.4, 6.4, 7.5]
-        },
-        "240": {
-          grow: [null, 2.5, 3.8, 5.5, 7.1, 8.5, 10.2, 11.9],
-          core: [null, 1.5, 2.3, 3.3, 4.3, 5.1, 6.1, 7.2]
-        },
-        "282": {
-          grow: [null, 1.8, 2.7, 3.8, 4.9, 6.1, 7.3, 8.6],
-          core: [null, 1.1, 1.7, 2.4, 3.1, 3.9, 4.6, 5.5]
-        },
-      };
-
-      let wakeLock = null; // For Screen Wake Lock
-      let isFullscreen = false; // To track fullscreen state
-
-      // Generate pH options
-      function generatePHOptions() {
-        const desiredPH = document.getElementById('desiredPH');
-        for (let i = 5.4; i <= 6.5; i += 0.1) {
-          const option = document.createElement('option');
-          option.value = i.toFixed(1);
-          option.textContent = i.toFixed(1);
-          desiredPH.appendChild(option);
-        }
-      }
-
-      async function requestWakeLock() {
-        try {
-          if ('wakeLock' in navigator) {
-            wakeLock = await navigator.wakeLock.request('screen');
-            console.log('Wake Lock is active');
-          }
-        } catch (err) {
-          console.error(`${err.name}, ${err.message}`);
-        }
-      }
-
-      function releaseWakeLock() {
-        if (wakeLock !== null) {
-          wakeLock.release().then(() => {
-            wakeLock = null;
-            console.log('Wake Lock is released');
-          });
-        }
-      }
-
-      async function enterFullscreen() {
-        const fsResult = document.getElementById('fullscreenResult');
-        if (fsResult.requestFullscreen) {
-          await fsResult.requestFullscreen();
-          isFullscreen = true;
-        }
-      }
-
-      async function exitFullscreen() {
-        if (document.fullscreenElement) {
-          await document.exitFullscreen();
-          isFullscreen = false;
-        }
-      }
-
-      function showFullscreenResult(resultContentHtml) {
-        const fullscreenContentHtml = `
-          <div id="fullscreenResultContent">
-            ${resultContentHtml}
+  <!-- ============ TOP-UP ============ -->
+  <div class="card">
+    <div class="chead"><h2>Top-up running tank</h2><div class="sub">what-if</div></div>
+    <div class="cbody">
+      <div class="grid2">
+        <div>
+          <span class="lab">Tank EC now</span>
+          <div class="inwrap">
+            <input type="number" id="tuEc" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 2.4">
+            <span class="unit">mS/cm</span>
           </div>
-        `;
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button type="button" class="btn full" id="tuBtn">Calc adjustment</button>
+        </div>
+      </div>
+      <div class="hint">Uses tank size, target EC &amp; concentrates above. Tells you what to add to bump EC up — or how much water to dilute with if you're over.</div>
+      <div class="tu-out" id="tuOut"></div>
+    </div>
+  </div>
 
-        document.getElementById('fullscreenContent').innerHTML = fullscreenContentHtml;
-        document.getElementById('fullscreenResult').classList.add('active');
+</div>
+<div class="rightcol">
 
-        // Attach event listener to share button
-        document.getElementById('shareButton').onclick = () => shareResult(resultContentHtml);
-        document.getElementById('backButton').onclick = hideFullscreenResult;
+  <!-- ============ RESULTS ============ -->
+  <div class="card" id="resCard">
+    <div class="chead"><h2>Dosage</h2><div class="sub" id="resStamp"></div></div>
+    <div class="cbody">
+      <div id="resBody"><div class="empty">Set your tank size and hit <b>Calculate</b>.<br>Doses scale to any volume.</div></div>
+      <div class="btnrow" id="resActions" style="display:none;margin-top:4px">
+        <button type="button" class="btn" id="mixBtn">
+          <svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M21 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h11"/></svg>
+          Mix mode</button>
+        <button type="button" class="btn" id="shareBtn">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+          Share</button>
+      </div>
+    </div>
+  </div>
 
-        // Enter fullscreen and keep screen awake
-        enterFullscreen();
-        requestWakeLock();
-      }
+  <!-- ============ HISTORY ============ -->
+  <div class="card">
+    <div class="chead">
+      <h2>History</h2>
+      <div class="sub">
+        <button type="button" class="btn sm ghost" id="csvBtn" style="height:30px">CSV</button>
+        <button type="button" class="btn sm ghost danger" id="clearBtn" style="height:30px">Clear</button>
+      </div>
+    </div>
+    <div class="cbody">
+      <div id="logList"><div class="empty" id="noLogs">No calculations yet.</div></div>
+    </div>
+  </div>
 
-      function hideFullscreenResult() {
-        document.getElementById('fullscreenResult').classList.remove('active');
-        document.getElementById('fullscreenContent').innerHTML = '';
+</div>
+</div>
 
-        // Exit fullscreen and release wake lock
-        exitFullscreen();
-        releaseWakeLock();
-      }
+<footer>
+  Independent tool — not affiliated with or endorsed by Athena. Verify every mix.<br>
+  Rates from the <a href="https://support.athenaag.com/hc/en-us/articles/17190427112859-Pro-Line-Feed-Schedules" target="_blank" rel="noopener">Athena Pro Line feed schedules</a> ·
+  <a href="https://github.com/JakeTheRabbit/Athena-Batch-Tank-Nutrient-Calculator" target="_blank" rel="noopener">source</a>
+</footer>
+</div>
 
-      function calculateDosage() {
-        const growthStage = document.getElementById('growthStage').value;
-        const desiredPH = parseFloat(document.getElementById('desiredPH').value);
-        const ec = parseFloat(document.getElementById('ec').value);
-        const size = parseFloat(document.getElementById('size').value);
-        const balance = parseInt(document.getElementById('balance').value);
-        const cleanse = parseInt(document.getElementById('cleanse').value);
-        const coreFade = document.getElementById('coreFade').value;
-        const growBloom = document.getElementById('growBloom').value;
+<!-- confirm -->
+<div class="ovl" id="cfOvl" role="dialog" aria-modal="true">
+  <div class="box">
+    <h3>Confirm</h3>
+    <div class="sub2" id="cfMsg"></div>
+    <div class="btnrow">
+      <button type="button" class="btn" id="cfNo">Cancel</button>
+      <button type="button" class="btn primary" id="cfYes">Confirm</button>
+    </div>
+  </div>
+</div>
 
-        // Input Validation
-        if (!growthStage) {
-          document.getElementById('result').innerHTML = '<p>Please select a growth stage.</p>';
-          return;
-        }
-        if (!desiredPH || desiredPH <= 0) {
-          document.getElementById('result').innerHTML = '<p>Please select a valid desired pH.</p>';
-          return;
-        }
-        if (!ec || ec <= 0) {
-          document.getElementById('result').innerHTML = '<p>Please select a valid EC value.</p>';
-          return;
-        }
-        if (!size || size <= 0) {
-          document.getElementById('result').innerHTML = '<p>Please enter a valid batch tank size.</p>';
-          return;
-        }
-        if (!balance || balance < 0) {
-          document.getElementById('result').innerHTML = '<p>Please select a valid balance dosage.</p>';
-          return;
-        }
-        if (!cleanse || cleanse < 0) {
-          document.getElementById('result').innerHTML = '<p>Please select a valid cleanse dosage.</p>';
-          return;
-        }
-        if (!coreFade) {
-          document.getElementById('result').innerHTML = '<p>Please select a core/fade ratio.</p>';
-          return;
-        }
-        if (!growBloom) {
-          document.getElementById('result').innerHTML = '<p>Please select a grow/bloom ratio.</p>';
-          return;
-        }
+<!-- mix mode -->
+<div class="ovl" id="mixOvl" role="dialog" aria-modal="true">
+  <div class="box">
+    <h3>Mix mode</h3>
+    <div class="sub2" id="mixSub"></div>
+    <div id="mixSteps"></div>
+    <div class="ordnote">Order: Cleanse → Balance → Grow/Bloom → Core/Fade. Let each addition fully dissolve &amp; circulate before the next. <b style="color:var(--warn)">Never combine concentrates undiluted.</b> Check pH last.</div>
+    <button type="button" class="btn primary full" id="mixClose" style="margin-top:14px">Done</button>
+  </div>
+</div>
 
-        const ratio = mixRatios[growBloom];
-        const growIndex = Math.round(ec * 2) - 1;
+<div id="toast" role="status"></div>
 
-        const grow = ratio.grow[growIndex];
-        const core = ratio.core[growIndex];
+<script>
+'use strict';
+(function(){
 
-        if (!core || !grow) {
-          document.getElementById('result').innerHTML = '<p>Error: Invalid EC value or mix ratio not available for this EC level.</p>';
-          return;
-        }
+/* ================= constants ================= */
+const GAL = 3.78541;                       // L per US gallon
+const ANCH = [1,1.5,2,2.5,3,3.5,4];        // EC anchors of the Athena dosing chart
 
-        // Calculate total dosages
-        const totalGrowDosage = grow * size;
-        const totalCoreDosage = core * size;
-        const totalBalanceDosage = (balance / 10) * size;
-        const totalCleanseDosage = (cleanse / 10) * size;
+// Official Athena Pro Line dosing chart — ml per 10 L (metric) / ml per gal (imperial)
+// at each EC anchor, per concentrate strength. Values verbatim from Athena's chart.
+const DOSE = {
+  metric: {
+    "113": {grow:[54,83,114,146,179,214,249], core:[32,50,69,88,108,128,149]},
+    "226": {grow:[27,42,57,73,90,107,124],    core:[16,25,34,44,54,64,75]},
+    "240": {grow:[25,38,55,71,85,102,119],    core:[15,23,33,43,51,61,72]},
+    "282": {grow:[21,33,46,59,72,86,100],     core:[13,20,27,35,43,51,60]}
+  },
+  imperial: {
+    "1":   {grow:[19,30,41,52,64,76,89],      core:[11,18,24,31,38,46,53]},
+    "2":   {grow:[10,15,20,26,32,38,44],      core:[6,9,12,16,19,23,27]},
+    "2.2": {grow:[9,14,19,24,30,36,42],       core:[5.5,8.5,11,15,18,21.5,25]},
+    "2.5": {grow:[8,12,16,21,26,30,36],       core:[5,7,10,13,15,18,21]}
+  }
+};
+const M2I = {"113":"1","226":"2","240":"2.2","282":"2.5"};
+const I2M = {"1":"113","2":"226","2.2":"240","2.5":"282"};
+const CONC_OPTS = [
+  {m:"113", gl:113, mLab:"113 g/L", iLab:"1 lb/gal"},
+  {m:"226", gl:226, mLab:"226 g/L", iLab:"2 lb/gal"},
+  {m:"240", gl:240, mLab:"240 g/L", iLab:"2.2 lb/gal"},
+  {m:"282", gl:282, mLab:"282 g/L", iLab:"2.5 lb/gal"}
+];
 
-        // Prepare the result items in the desired order
-        const resultContentHtml = `
-          <div class="details">
-            <p><strong>Growth Stage:</strong> ${growthStage}</p>
-            <p><strong>Desired pH:</strong> ${desiredPH}</p>
-            <p><strong>Target EC:</strong> ${ec}</p>
-            <p><strong>Batch Tank Size:</strong> ${size} liters</p>
-          </div>
-          <div class="dosage-item">
-            <div class="dosage-name">Balance Dosage</div>
-            <div class="dosage-value">${totalBalanceDosage.toFixed(2)} ml</div>
-          </div>
-          <div class="dosage-item">
-            <div class="dosage-name">Grow/Bloom Dosage</div>
-            <div class="dosage-value">${totalGrowDosage.toFixed(2)} ml</div>
-          </div>
-          <div class="dosage-item">
-            <div class="dosage-name">Core/Fade Dosage</div>
-            <div class="dosage-value">${totalCoreDosage.toFixed(2)} ml</div>
-          </div>
-          <div class="dosage-item">
-            <div class="dosage-name">Cleanse Dosage</div>
-            <div class="dosage-value">${totalCleanseDosage.toFixed(2)} ml</div>
-          </div>
-        `;
+const STAGES = {
+  clone:  {name:"Clone",        ph:5.6, ec:2.0, bal:5, cl:3,  parts:["grow","core"]},
+  veg:    {name:"Mother & Veg", ph:5.8, ec:3.0, bal:5, cl:9,  parts:["grow","core"]},
+  flower: {name:"Flower",       ph:5.8, ec:3.0, bal:5, cl:9,  parts:["bloom","core"]},
+  finish: {name:"Finish",       ph:5.8, ec:3.0, bal:5, cl:9,  parts:["bloom","fade"]},
+  flush:  {name:"Flush",        ph:6.0, ec:0,   bal:0, cl:26, parts:[]}
+};
+const PART_LABEL = {grow:"Pro Grow", bloom:"Pro Bloom", core:"Pro Core", fade:"Pro Fade"};
 
-        // For display, include the buttons
-        const displayResultHtml = `
-          <div id="resultContent">
-            ${resultContentHtml}
-          </div>
-          <div class="button-group">
-            <button type="button" class="fullscreenButton">View Full Screen</button>
-            <button type="button" class="shareResultButton">Share Result</button>
-          </div>
-        `;
+/* ================= state =================
+   Canonical units everywhere: liters, ml per 10 L.
+   Imperial exists only at the presentation layer.        */
+const S = {
+  metric: true,
+  stage: "veg",
+  ec: 3.0,
+  ph: 5.8,
+  srcEc: 0,
+  volL: NaN,               // canonical liters
+  gb: "226", cf: "226",    // concentrate keys (metric form)
+  balProduct: "blended",   // blended | pro
+  balRate10L: {blended:5, pro:5},   // remembered per product
+  proConc: 120,            // g/L of Pro Balance stock
+  cl10L: 9,                // cleanse ml/10L
+};
+let lastResult = null;
+let logs = [];
+let cfCb = null;
 
-        document.getElementById('result').innerHTML = displayResultHtml;
+/* ================= helpers ================= */
+const $ = id => document.getElementById(id);
+const r1 = n => Math.round(n*10)/10;
+function fmt(n,d){ if(!isFinite(n)) return "—";
+  if(d===undefined) d = n>=100?0:1;
+  return n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:d}); }
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2600); }
+function confirmBox(msg,cb){ $('cfMsg').textContent=msg; cfCb=cb; $('cfOvl').classList.add('show'); }
+const dispVol  = () => S.metric ? S.volL : S.volL/GAL;
+const volUnit  = () => S.metric ? "L" : "gal";
+const rateUnit = () => S.metric ? "ml / 10 L" : "ml / gal";
+const rateDisp = r10 => S.metric ? r10 : r10*GAL/10;       // ml/10L -> ml/gal
+const rateCanon= rd  => S.metric ? rd  : rd*10/GAL;        // display -> ml/10L
 
-        // Attach event listeners to the buttons
-        const fullscreenButtons = document.querySelectorAll('.fullscreenButton');
-        const shareResultButtons = document.querySelectorAll('.shareResultButton');
+/* Interpolated chart lookup. table = array at anchors; ec in mS/cm.
+   Below 1.0 extrapolates linearly through origin (flagged by caller). */
+function lerpDose(table, ec){
+  if(ec<=0) return 0;
+  if(ec < ANCH[0]) return table[0]*ec/ANCH[0];
+  if(ec >= ANCH[ANCH.length-1]) return table[ANCH.length-1];
+  for(let i=0;i<ANCH.length-1;i++){
+    if(ec<=ANCH[i+1]){
+      const t=(ec-ANCH[i])/(ANCH[i+1]-ANCH[i]);
+      return table[i]+(table[i+1]-table[i])*t;
+    }
+  }
+  return table[ANCH.length-1];
+}
 
-        fullscreenButtons.forEach(button => {
-          button.addEventListener('click', function() {
-            const resultContent = this.parentElement.previousElementSibling.innerHTML;
-            showFullscreenResult(resultContent);
-          });
-        });
+/* Per-part totals for a given effective EC and volume (canonical L). */
+function nutTotals(ecEff, volL){
+  const sys = S.metric?'metric':'imperial';
+  const gbKey = S.metric?S.gb:M2I[S.gb], cfKey = S.metric?S.cf:M2I[S.cf];
+  const mult = S.metric ? volL/10 : volL/GAL;   // chart rows are per-10L or per-gal
+  const growRate = lerpDose(DOSE[sys][gbKey].grow, ecEff);
+  const coreRate = lerpDose(DOSE[sys][cfKey].core, ecEff);
+  return {
+    grow: growRate*mult, core: coreRate*mult,
+    growRate, coreRate,
+    growG: growRate*mult*CONC_OPTS.find(o=>o.m===S.gb).gl/1000,
+    coreG: coreRate*mult*CONC_OPTS.find(o=>o.m===S.cf).gl/1000
+  };
+}
 
-        shareResultButtons.forEach(button => {
-          button.addEventListener('click', function() {
-            const resultContent = this.parentElement.previousElementSibling.innerHTML;
-            shareResult(resultContent);
-          });
-        });
+/* ================= UI sync ================= */
+function fillConcSelects(){
+  for(const [el,cur] of [[$('gbConc'),S.gb],[$('cfConc'),S.cf]]){
+    el.innerHTML='';
+    CONC_OPTS.forEach(o=>{
+      const op=document.createElement('option');
+      op.value=o.m; op.textContent=S.metric?o.mLab:o.iLab;
+      el.appendChild(op);
+    });
+    el.value=cur;
+  }
+}
+function syncUnits(){
+  $('uMetric').classList.toggle('on',S.metric);
+  $('uImperial').classList.toggle('on',!S.metric);
+  $('volUnit').textContent=volUnit();
+  $('vol').value = isFinite(S.volL)? +dispVol().toFixed(2) : '';
+  $('vol').placeholder = S.metric?'e.g. 100':'e.g. 25';
+  $('balRateU').textContent=rateUnit();
+  $('clRateU').textContent=rateUnit();
+  $('balRate').value = r1(rateDisp(S.balRate10L[S.balProduct]));
+  $('clRate').value  = r1(rateDisp(S.cl10L));
+  fillConcSelects();
+  // cleanse chip labels show converted value
+  document.querySelectorAll('#clChips .chip').forEach(c=>{
+    const v=+c.dataset.cl;
+    c.querySelector('small')?.remove();
+    const s=document.createElement('small');
+    s.textContent=r1(rateDisp(v))+' ml';
+    c.appendChild(s);
+  });
+}
+function syncStage(){
+  document.querySelectorAll('#stageChips .chip').forEach(c=>
+    c.classList.toggle('on',c.dataset.stage===S.stage));
+  const st=STAGES[S.stage];
+  $('stageSub').textContent=st.name;
+  const isFlush=S.stage==='flush';
+  $('ecSlide').disabled=isFlush;
+  $('gbConc').disabled=isFlush; $('cfConc').disabled=isFlush;
+  $('concRow').style.opacity=isFlush?'.4':'1';
+  const gp=st.parts[0]==='bloom'?'Bloom':'Grow', cp=st.parts[1]==='fade'?'Fade':'Core';
+  $('gbLab').textContent=`Pro ${gp} concentrate`;
+  $('cfLab').textContent=`Pro ${cp} concentrate`;
+}
+function syncEc(){
+  $('ecVal').textContent=S.ec.toFixed(1);
+  const sl=$('ecSlide');
+  sl.value=S.ec;
+  sl.style.setProperty('--fill',((S.ec-1)/3*100)+'%');
+}
+function syncBal(){
+  $('balBlend').classList.toggle('on',S.balProduct==='blended');
+  $('balPro').classList.toggle('on',S.balProduct==='pro');
+  $('proConcWrap').style.display=S.balProduct==='pro'?'':'none';
+  $('balRate').value=r1(rateDisp(S.balRate10L[S.balProduct]));
+  $('balHint').innerHTML = S.balProduct==='blended'
+    ? 'Blended Balance: liquid potassium silicate buffer — typically 2–5 ml/gal (5–13 ml/10 L). Add to water <b>before</b> nutrients, dose to target pH.'
+    : 'Pro Balance: dry potassium carbonate pH-up, mixed as a stock at 40–120 g/L. Dose the stock to target pH — grams shown in results. <b>Mixing the stock runs hot; let it cool first.</b>';
+}
+function syncClChips(){
+  document.querySelectorAll('#clChips .chip').forEach(c=>
+    c.classList.toggle('on',Math.abs(+c.dataset.cl-S.cl10L)<0.26));
+}
 
-        const timestamp = new Date().toLocaleString();
-        const logEntry = {
-          id: Date.now(),
-          timestamp,
-          inputs: {
-            growthStage,
-            desiredPH,
-            ec,
-            size,
-            balance,
-            cleanse,
-            coreFade,
-            growBloom
-          },
-          resultContentHtml
-        };
+/* ================= calculate ================= */
+function calc(){
+  S.volL = rateCanon10Vol($('vol').value);
+  if(!isFinite(S.volL)||S.volL<=0){ toast('Enter a tank size first'); $('vol').focus(); return; }
+  S.ph=clampNum($('ph').value,5,7,5.8);
+  S.srcEc=clampNum($('srcEc').value,0,1.5,0);
 
-        addLogEntry(logEntry);
-        saveLogEntry(logEntry);
+  const st=STAGES[S.stage];
+  const isFlush=S.stage==='flush';
+  const ecEff=isFlush?0:Math.max(0,S.ec-S.srcEc);
+  const n=isFlush?null:nutTotals(ecEff,S.volL);
 
-        // Scroll to the result
-        document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
-      }
+  const balMl=S.balRate10L[S.balProduct]*S.volL/10;
+  const clMl=S.cl10L*S.volL/10;
 
-      function addLogEntry(logEntry) {
-        const logsContainer = document.getElementById('logEntries');
-        const logElement = document.createElement('div');
-        logElement.className = 'log-entry';
-        logElement.setAttribute('data-id', logEntry.id);
-        logElement.innerHTML = `
-          <div class="log-entry-header">
-            <p><strong>${logEntry.timestamp}</strong></p>
-            <button class="delete-log" data-id="${logEntry.id}">Delete</button>
-          </div>
-          <div id="logResultContent${logEntry.id}">
-            ${logEntry.resultContentHtml}
-          </div>
-          <div class="button-group">
-            <button type="button" class="fullscreenButton">View Full Screen</button>
-            <button type="button" class="shareResultButton">Share Result</button>
-          </div>
-        `;
-        logsContainer.insertBefore(logElement, logsContainer.firstChild);
+  lastResult={
+    when:new Date(), stage:S.stage, stageName:st.name,
+    metric:S.metric, volL:S.volL, ec:S.ec, srcEc:S.srcEc, ecEff, ph:S.ph,
+    gb:S.gb, cf:S.cf, parts:st.parts,
+    grow:n?n.grow:0, core:n?n.core:0, growG:n?n.growG:0, coreG:n?n.coreG:0,
+    growRate:n?n.growRate:0, coreRate:n?n.coreRate:0,
+    balProduct:S.balProduct, balMl, balG:S.balProduct==='pro'?balMl*S.proConc/1000:null,
+    clMl, cl10L:S.cl10L, bal10L:S.balRate10L[S.balProduct],
+    offAnchor:!isFlush && Math.abs(ecEff*2-Math.round(ecEff*2))>0.001,
+    belowChart:!isFlush && ecEff>0 && ecEff<1
+  };
+  renderResult(lastResult);
+  pushLog(lastResult);
+  persist();
+  if(window.innerWidth<1000) $('resCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
 
-        // Add event listener to delete button
-        logElement.querySelector('.delete-log').addEventListener('click', deleteLogEntry);
+function clampNum(v,lo,hi,dflt){ const n=parseFloat(v); return isFinite(n)?Math.min(hi,Math.max(lo,n)):dflt; }
+function rateCanon10Vol(v){ const n=parseFloat(v); if(!isFinite(n)||n<=0) return NaN; return S.metric?n:n*GAL; }
 
-        // Attach event listeners to the buttons
-        const fullscreenButton = logElement.querySelector('.fullscreenButton');
-        const shareResultButton = logElement.querySelector('.shareResultButton');
+function doseRows(r){
+  const u=r.metric?'10 L':'gal', f=v=>r.metric?v:v*GAL/10;
+  const rows=[];
+  rows.push({key:'cl', name:'Athena Cleanse', sub:`${fmt(f(r.cl10L))} ml/${u}`, ml:r.clMl, color:'var(--violet)'});
+  if(r.stage==='flush') return rows;
+  rows.push({key:'bal', name:r.balProduct==='pro'?'Pro Balance stock':'Blended Balance',
+    sub:`${fmt(f(r.bal10L))} ml/${u}`+(r.balG!=null?` · ≈${fmt(r.balG)} g dry`:''),
+    ml:r.balMl, color:'var(--warn)'});
+  if(r.parts.length){
+    rows.push({key:'gb', name:PART_LABEL[r.parts[0]],
+      sub:`${fmt(r.growRate)} ml/${u} · ≈${fmt(r.growG)} g`, ml:r.grow, color:'var(--accent)'});
+    rows.push({key:'cf', name:PART_LABEL[r.parts[1]],
+      sub:`${fmt(r.coreRate)} ml/${u} · ≈${fmt(r.coreG)} g`, ml:r.core, color:'var(--accent2)'});
+  }
+  return rows;
+}
 
-        fullscreenButton.addEventListener('click', function() {
-          const resultContent = logElement.querySelector(`#logResultContent${logEntry.id}`).innerHTML;
-          showFullscreenResult(resultContent);
-        });
+function renderResult(r){
+  const vol=r.metric?r.volL:r.volL/GAL;
+  let h=`<div class="sumchips rise">
+    <span class="pill"><b>${r.stageName}</b></span>
+    <span class="pill">${fmt(vol,1)} ${r.metric?'L':'gal'}</span>
+    ${r.parts.length?`<span class="pill">EC <b>${r.ecEff.toFixed(1)}</b>${r.srcEc>0?` <span style="color:var(--ink3)">(${r.ec.toFixed(1)}−${r.srcEc.toFixed(1)} src)</span>`:''}</span>`:''}
+    <span class="pill">pH <b>${r.ph.toFixed(1)}</b></span>
+  </div>`;
+  if(r.belowChart) h+=`<div class="flag warn show">EC below the Athena chart (1.0) — dose extrapolated linearly. Verify with your meter.</div>`;
+  if(r.stage==='flush') h+=`<div class="flag warn show">Flush: plain RO water + Cleanse only. No nutrients, no Balance.</div>`;
+  h+=doseRows(r).map((d,i)=>`
+    <div class="dose rise" style="--dc:${d.color};animation-delay:${i*40}ms">
+      <div class="nm"><b>${d.name}</b><span>${d.sub}</span></div>
+      <div class="v">${fmt(d.ml)}<i>ml</i></div>
+    </div>`).join('');
+  $('resBody').innerHTML=h;
+  $('resActions').style.display='flex';
+  $('resStamp').textContent=r.when.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
 
-        shareResultButton.addEventListener('click', function() {
-          const resultContent = logElement.querySelector(`#logResultContent${logEntry.id}`).innerHTML;
-          shareResult(resultContent);
-        });
-      }
+/* ================= mix mode ================= */
+function openMix(){
+  if(!lastResult) return;
+  const r=lastResult, vol=r.metric?r.volL:r.volL/GAL;
+  $('mixSub').textContent=`${r.stageName} · ${fmt(vol,1)} ${r.metric?'L':'gal'} · tap each step as you go`;
+  $('mixSteps').innerHTML=doseRows(r).map(d=>`
+    <div class="mix-step" style="--dc:${d.color}">
+      <div class="ck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4 10-10"/></svg></div>
+      <div class="mn"><b>${d.name}</b><span>${d.sub}</span></div>
+      <div class="mv">${fmt(d.ml)}<i>ml</i></div>
+    </div>`).join('');
+  $('mixSteps').querySelectorAll('.mix-step').forEach(s=>
+    s.addEventListener('click',()=>s.classList.toggle('done')));
+  $('mixOvl').classList.add('show');
+}
 
-      function saveLogEntry(logEntry) {
-        const logEntries = JSON.parse(localStorage.getItem('logEntries')) || [];
-        logEntries.unshift(logEntry);
-        localStorage.setItem('logEntries', JSON.stringify(logEntries));
-      }
+/* ================= share ================= */
+function shareText(r){
+  const vol=r.metric?r.volL:r.volL/GAL;
+  let t=`Athena Batch Tank — ${r.stageName}\n`+
+    `${fmt(vol,1)} ${r.metric?'L':'gal'} · target EC ${r.ec.toFixed(1)}`+
+    (r.srcEc>0?` (source ${r.srcEc.toFixed(1)} → feed ${r.ecEff.toFixed(1)})`:'')+
+    ` · pH ${r.ph.toFixed(1)}\n\n`;
+  doseRows(r).forEach(d=>{ t+=`${d.name}: ${fmt(d.ml)} ml  (${d.sub})\n`; });
+  t+=`\n${r.when.toLocaleString()}`;
+  return t;
+}
+function share(){
+  if(!lastResult) return;
+  const txt=shareText(lastResult);
+  if(navigator.share){ navigator.share({title:'Batch tank dosage',text:txt}).catch(()=>copy(txt)); }
+  else copy(txt);
+}
+function copy(t){ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject())
+  .then(()=>toast('Copied to clipboard')).catch(()=>toast('Copy not available')); }
 
-      function deleteLogEntry(event) {
-        const id = event.target.getAttribute('data-id');
-        let logEntries = JSON.parse(localStorage.getItem('logEntries')) || [];
-        logEntries = logEntries.filter(entry => entry.id !== parseInt(id));
-        localStorage.setItem('logEntries', JSON.stringify(logEntries));
-        event.target.parentElement.parentElement.remove();
-      }
+/* ================= top-up ================= */
+function topUp(){
+  const volL=rateCanon10Vol($('vol').value);
+  if(!isFinite(volL)){ toast('Enter tank size above first'); return; }
+  const cur=parseFloat($('tuEc').value);
+  if(!isFinite(cur)||cur<0){ toast('Enter the tank’s current EC'); return; }
+  if(S.stage==='flush'){ toast('Flush stage has no nutrient target'); return; }
+  S.srcEc=clampNum($('srcEc').value,0,1.5,0);
+  const tgt=Math.max(0,S.ec-S.srcEc), curEff=Math.max(0,cur-S.srcEc);
+  const out=$('tuOut'); out.classList.add('show');
+  if(Math.abs(tgt-curEff)<0.05){
+    out.innerHTML=`<div class="flag warn show" style="margin:0">Already on target (±0.05) — leave it.</div>`; return;
+  }
+  if(curEff>tgt){
+    const addL=volL*(curEff/tgt-1);
+    const disp=S.metric?addL:addL/GAL;
+    out.innerHTML=`<div class="dose" style="--dc:var(--accent2)">
+      <div class="nm"><b>Dilute with water</b><span>brings EC ${cur.toFixed(1)} → ${S.ec.toFixed(1)}</span></div>
+      <div class="v">${fmt(disp,1)}<i>${volUnit()}</i></div></div>
+      <div class="hint">New total volume ≈ ${fmt((volL+addL)/(S.metric?1:GAL),1)} ${volUnit()}. Re-dose Balance/Cleanse for the added water if needed.</div>`;
+    return;
+  }
+  const a=nutTotals(tgt,volL), b=nutTotals(curEff,volL);
+  const st=STAGES[S.stage];
+  out.innerHTML=`
+    <div class="dose" style="--dc:var(--accent)">
+      <div class="nm"><b>Add ${PART_LABEL[st.parts[0]]}</b><span>EC ${cur.toFixed(1)} → ${S.ec.toFixed(1)}</span></div>
+      <div class="v">${fmt(a.grow-b.grow)}<i>ml</i></div></div>
+    <div class="dose" style="--dc:var(--accent2)">
+      <div class="nm"><b>Add ${PART_LABEL[st.parts[1]]}</b><span>keep parts in ratio</span></div>
+      <div class="v">${fmt(a.core-b.core)}<i>ml</i></div></div>
+    <div class="hint">Dose one at a time, circulate, then re-check EC — top-ups drift with temperature and mixing.</div>`;
+}
 
-      function saveDefaultConfig() {
-        const growthStage = document.getElementById('growthStage').value;
-        const desiredPH = document.getElementById('desiredPH').value;
-        const ec = document.getElementById('ec').value;
-        const size = document.getElementById('size').value;
-        const balance = document.getElementById('balance').value;
-        const cleanse = document.getElementById('cleanse').value;
-        const coreFade = document.getElementById('coreFade').value;
-        const growBloom = document.getElementById('growBloom').value;
+/* ================= history ================= */
+function pushLog(r){
+  logs.unshift({
+    id:Date.now(), ts:r.when.toISOString(),
+    stage:r.stageName, metric:r.metric, volL:r.volL, ec:r.ec, srcEc:r.srcEc, ph:r.ph,
+    gb:r.gb, cf:r.cf, balProduct:r.balProduct,
+    doses:doseRows(r).map(d=>({name:d.name,ml:r1(d.ml),sub:d.sub}))
+  });
+  if(logs.length>200) logs.length=200;
+  renderLogs();
+}
+function renderLogs(){
+  const box=$('logList');
+  if(!logs.length){ box.innerHTML='<div class="empty" id="noLogs">No calculations yet.</div>'; return; }
+  box.innerHTML=logs.map(l=>{
+    const d=new Date(l.ts), vol=l.metric?l.volL:l.volL/GAL;
+    return `<div class="log" data-id="${l.id}">
+      <div class="log-h">
+        <div><div class="t">${l.stage} · ${fmt(vol,1)} ${l.metric?'L':'gal'} · EC ${(+l.ec).toFixed(1)}</div>
+        <div class="d">${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>
+        <button type="button" class="x" aria-label="Delete entry"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg></button>
+      </div>
+      <div class="log-b">${l.doses.map(x=>`<div class="row"><span>${x.name}</span><b>${fmt(x.ml)} ml</b></div>`).join('')}</div>
+    </div>`;
+  }).join('');
+  box.querySelectorAll('.log').forEach(el=>{
+    el.querySelector('.log-h').addEventListener('click',e=>{
+      if(e.target.closest('.x')) return;
+      el.classList.toggle('open');
+    });
+    el.querySelector('.x').addEventListener('click',()=>{
+      logs=logs.filter(l=>l.id!==+el.dataset.id); persist(); renderLogs();
+    });
+  });
+}
+function exportCsv(){
+  if(!logs.length){ toast('Nothing to export'); return; }
+  const head='Timestamp,Stage,Volume,Unit,Target EC,Source EC,pH,Balance product,'+
+    [...new Set(logs.flatMap(l=>l.doses.map(d=>d.name)))].join(',');
+  const names=head.split(',').slice(8);
+  const lines=logs.map(l=>{
+    const vol=l.metric?l.volL:l.volL/GAL;
+    const m=Object.fromEntries(l.doses.map(d=>[d.name,d.ml]));
+    return [`"${new Date(l.ts).toLocaleString()}"`,l.stage,r1(vol),l.metric?'L':'gal',l.ec,l.srcEc||0,l.ph,l.balProduct,
+      ...names.map(n=>m[n]??'')].join(',');
+  });
+  const blob=new Blob([head+'\n'+lines.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='batch_tank_log.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
 
-        const defaultConfig = { growthStage, desiredPH, ec, size, balance, cleanse, coreFade, growBloom };
-        localStorage.setItem('defaultConfig', JSON.stringify(defaultConfig));
-        alert('Default configuration saved!');
-      }
-
-      function loadDefaultConfig() {
-        const defaultConfig = JSON.parse(localStorage.getItem('defaultConfig'));
-        if (defaultConfig) {
-          document.getElementById('growthStage').value = defaultConfig.growthStage;
-          document.getElementById('desiredPH').value = defaultConfig.desiredPH;
-          document.getElementById('ec').value = defaultConfig.ec;
-          document.getElementById('size').value = defaultConfig.size;
-          document.getElementById('balance').value = defaultConfig.balance;
-          document.getElementById('cleanse').value = defaultConfig.cleanse;
-          document.getElementById('coreFade').value = defaultConfig.coreFade;
-          document.getElementById('growBloom').value = defaultConfig.growBloom;
-        } else {
-          // Set default values
-          document.getElementById('desiredPH').value = '6.0';
-          document.getElementById('ec').value = '3.0';
-          document.getElementById('coreFade').value = '226';
-          document.getElementById('growBloom').value = '226';
-          document.getElementById('cleanse').value = '5';
-        }
-      }
-
-      function loadLogEntries() {
-        const logEntries = JSON.parse(localStorage.getItem('logEntries')) || [];
-        logEntries.forEach(addLogEntry);
-      }
-
-      function resetForm() {
-        document.getElementById('dosageForm').reset();
-        document.getElementById('result').innerHTML = '';
-        // Reset defaults
-        document.getElementById('desiredPH').value = '6.0';
-        document.getElementById('ec').value = '3.0';
-        document.getElementById('coreFade').value = '226';
-        document.getElementById('growBloom').value = '226';
-        document.getElementById('cleanse').value = '5';
-      }
-
-      function clearLogs() {
-        localStorage.removeItem('logEntries');
-        document.getElementById('logEntries').innerHTML = '';
-        alert('Calculation logs cleared.');
-      }
-
-      // Set defaults based on growth stage
-      function setDefaultsByGrowthStage() {
-        const growthStage = document.getElementById('growthStage').value;
-        const desiredPH = document.getElementById('desiredPH');
-        const ec = document.getElementById('ec');
-
-        if (growthStage === 'pre-soak') {
-          desiredPH.value = '5.4';
-          ec.value = '2.5';
-        } else if (growthStage === 'clone') {
-          desiredPH.value = '5.6';
-          ec.value = '2.0';
-        } else if (growthStage === 'veg') {
-          desiredPH.value = '5.8';
-          ec.value = '3.0';
-        } else if (growthStage === 'flower') {
-          desiredPH.value = '6.1';
-          ec.value = '3.0';
-        } else if (growthStage === 'finishing') {
-          desiredPH.value = '6.2';
-          ec.value = '3.0';
-        }
-      }
-
-      // Share the result
-      function shareResult(resultContentHtml) {
-        const timestamp = new Date().toLocaleString();
-        const resultText = `Dosage Calculation (${timestamp}):\n` +
-          resultContentHtml.replace(/<[^>]*>?/gm, '').trim();
-
-        if (navigator.share) {
-          navigator.share({
-            title: 'Dosage Calculation',
-            text: resultText
-          }).then(() => {
-            console.log('Result shared successfully');
-          }).catch((error) => {
-            console.error('Error sharing:', error);
-            // Fallback to clipboard
-            navigator.clipboard.writeText(resultText).then(() => {
-              alert('Result copied to clipboard');
-            });
-          });
-        } else if (navigator.clipboard) {
-          navigator.clipboard.writeText(resultText).then(() => {
-            alert('Result copied to clipboard');
-          });
-        } else {
-          alert('Sharing not supported on this device');
-        }
-      }
-
-      // Export logs to CSV
-      function exportLogsToCSV() {
-        const logEntries = JSON.parse(localStorage.getItem('logEntries')) || [];
-        if (logEntries.length === 0) {
-          alert('No logs to export.');
-          return;
-        }
-
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Timestamp,Growth Stage,Desired pH,Target EC,Batch Tank Size (L),Balance Dosage (ml/10L),Cleanse Dosage (ml/10L),Core/Fade Ratio (g/L),Grow/Bloom Ratio (g/L),Results\n";
-
-        logEntries.forEach(entry => {
-          const dataString = `${entry.timestamp},${entry.inputs.growthStage},${entry.inputs.desiredPH},${entry.inputs.ec},${entry.inputs.size},${entry.inputs.balance},${entry.inputs.cleanse},${entry.inputs.coreFade},${entry.inputs.growBloom},${entry.resultContentHtml.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ')}`;
-          csvContent += dataString + "\n";
-        });
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement('a');
-        link.setAttribute('href', encodedUri);
-        link.setAttribute('download', 'dosage_calculation_logs.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-
-      // Added event listeners for buttons
-      document.addEventListener('DOMContentLoaded', () => {
-        generatePHOptions();
-        loadDefaultConfig();
-        loadLogEntries();
-
-        document.getElementById('calculateButton').addEventListener('click', calculateDosage);
-        document.getElementById('saveConfigButton').addEventListener('click', saveDefaultConfig);
-        document.getElementById('resetButton').addEventListener('click', resetForm);
-        document.getElementById('clearLogsButton').addEventListener('click', clearLogs);
-        document.getElementById('exportLogsButton').addEventListener('click', exportLogsToCSV);
-        document.getElementById('growthStage').addEventListener('change', setDefaultsByGrowthStage);
-
-        // Listen for fullscreen change to handle wake lock
-        document.addEventListener('fullscreenchange', () => {
-          if (!document.fullscreenElement) {
-            isFullscreen = false;
-            releaseWakeLock();
-            document.getElementById('fullscreenResult').classList.remove('active');
-          }
-        });
+/* ================= persistence ================= */
+function persist(){
+  localStorage.setItem('abt2.logs',JSON.stringify(logs));
+  localStorage.setItem('abt2.unit',S.metric?'m':'i');
+}
+function saveDefaults(){
+  S.volL=rateCanon10Vol($('vol').value);
+  S.ph=clampNum($('ph').value,5,7,5.8);
+  S.srcEc=clampNum($('srcEc').value,0,1.5,0);
+  localStorage.setItem('abt2.cfg',JSON.stringify({
+    stage:S.stage, ec:S.ec, ph:S.ph, srcEc:S.srcEc, volL:S.volL,
+    gb:S.gb, cf:S.cf, balProduct:S.balProduct, balRate10L:S.balRate10L,
+    proConc:S.proConc, cl10L:S.cl10L, metric:S.metric
+  }));
+  toast('Defaults saved');
+}
+function loadSaved(){
+  try{
+    const u=localStorage.getItem('abt2.unit'); if(u) S.metric=u==='m';
+    const c=JSON.parse(localStorage.getItem('abt2.cfg')||'null');
+    if(c){ Object.assign(S,{
+      stage:c.stage??S.stage, ec:c.ec??S.ec, ph:c.ph??S.ph, srcEc:c.srcEc??0,
+      volL:c.volL??NaN, gb:c.gb??S.gb, cf:c.cf??S.cf,
+      balProduct:c.balProduct??'blended',
+      balRate10L:Object.assign({blended:5,pro:5},c.balRate10L||{}),
+      proConc:c.proConc??120, cl10L:c.cl10L??9, metric:c.metric??S.metric }); }
+    logs=JSON.parse(localStorage.getItem('abt2.logs')||'[]');
+    if(!Array.isArray(logs)) logs=[];
+  }catch(e){ logs=[]; }
+  // migrate v1 logs once (best effort)
+  try{
+    if(!localStorage.getItem('abt2.migrated')){
+      const old=JSON.parse(localStorage.getItem('logEntries')||'[]');
+      old.forEach(o=>{
+        const i=o.inputs||{}, d=(o.result||{}).dosages||{};
+        const volL=i.isMetric?+i.size:+i.size*GAL;
+        if(!isFinite(volL)) return;
+        logs.push({id:o.id||Date.now()+Math.random(), ts:new Date(o.timestamp).toISOString(),
+          stage:i.growthStage||'?', metric:!!i.isMetric, volL, ec:+i.ec||0, srcEc:0, ph:+i.desiredPH||0,
+          gb:i.growBloom||'', cf:i.coreFade||'', balProduct:'blended',
+          doses:[{name:'Balance',ml:+d.balance||0,sub:''},{name:'Grow/Bloom',ml:+d.grow||0,sub:''},
+                 {name:'Core/Fade',ml:+d.core||0,sub:''},{name:d.cleanseLabel||'Cleanse',ml:+d.cleanse||0,sub:''}]});
       });
-    })();
-  </script>
+      logs.sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+      localStorage.setItem('abt2.migrated','1');
+      persist();
+    }
+  }catch(e){/* old data unreadable — skip */}
+}
+
+/* ================= events ================= */
+// unit toggle — canonical storage means toggling is pure presentation
+$('uMetric').addEventListener('click',()=>{ if(S.metric) return;
+  S.volL=rateCanon10Vol($('vol').value); S.metric=true; syncUnits(); persist(); });
+$('uImperial').addEventListener('click',()=>{ if(!S.metric) return;
+  S.volL=rateCanon10Vol($('vol').value); S.metric=false; syncUnits(); persist(); });
+
+// stage chips
+document.querySelectorAll('#stageChips .chip').forEach(c=>c.addEventListener('click',()=>{
+  S.stage=c.dataset.stage;
+  const st=STAGES[S.stage];
+  S.ec=st.ec||S.ec; S.ph=st.ph;
+  S.balRate10L[S.balProduct]=st.bal; S.cl10L=st.cl;
+  $('ph').value=st.ph;
+  syncStage(); syncEc(); syncBal(); syncClChips();
+  $('clRate').value=r1(rateDisp(S.cl10L));
+}));
+
+// EC slider
+$('ecSlide').addEventListener('input',e=>{ S.ec=+e.target.value; syncEc(); });
+
+// steppers
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{
+  const id=b.dataset.step, d=+b.dataset.d, el=$(id);
+  const stepv=id==='ph'?0.1:0.5;
+  const v=(parseFloat(el.value)||0)+d*stepv;
+  el.value=r1(Math.max(0,v));
+  el.dispatchEvent(new Event('change'));
+}));
+$('ph').addEventListener('change',()=>{ S.ph=clampNum($('ph').value,5,7,5.8); $('ph').value=S.ph.toFixed(1); });
+$('balRate').addEventListener('change',()=>{ S.balRate10L[S.balProduct]=Math.max(0,rateCanon(parseFloat($('balRate').value)||0)); });
+$('clRate').addEventListener('change',()=>{ S.cl10L=Math.max(0,rateCanon(parseFloat($('clRate').value)||0)); syncClChips(); });
+
+// balance product
+$('balBlend').addEventListener('click',()=>{ S.balProduct='blended'; syncBal(); });
+$('balPro').addEventListener('click',()=>{ S.balProduct='pro'; syncBal(); });
+$('proConc').addEventListener('change',e=>{ S.proConc=+e.target.value; });
+
+// balance dial-in
+$('balDialBtn').addEventListener('click',()=>{
+  const used=parseFloat($('balUsed').value), volL=rateCanon10Vol($('vol').value);
+  if(!isFinite(used)||used<0||!isFinite(volL)){ toast('Need total ml used + tank size'); return; }
+  const r10=used/volL*10;
+  S.balRate10L[S.balProduct]=r1(r10);
+  $('balRate').value=r1(rateDisp(r10));
+  toast(`Balance rate set: ${r1(rateDisp(r10))} ${rateUnit()}`);
+});
+
+// cleanse chips
+document.querySelectorAll('#clChips .chip').forEach(c=>c.addEventListener('click',()=>{
+  S.cl10L=+c.dataset.cl;
+  $('clRate').value=r1(rateDisp(S.cl10L));
+  syncClChips();
+}));
+
+// concentrates
+$('gbConc').addEventListener('change',e=>{ S.gb=e.target.value; });
+$('cfConc').addEventListener('change',e=>{ S.cf=e.target.value; });
+
+// main buttons
+$('calcBtn').addEventListener('click',calc);
+$('saveBtn').addEventListener('click',saveDefaults);
+$('resetBtn').addEventListener('click',()=>{
+  confirmBox('Reset all inputs to stage defaults?',()=>{
+    localStorage.removeItem('abt2.cfg');
+    Object.assign(S,{stage:'veg',ec:3,ph:5.8,srcEc:0,volL:NaN,gb:'226',cf:'226',
+      balProduct:'blended',balRate10L:{blended:5,pro:5},proConc:120,cl10L:9});
+    $('srcEc').value=0; $('ph').value='5.8'; $('tuEc').value=''; $('balUsed').value='';
+    syncAll(); toast('Reset');
+  });
+});
+$('mixBtn').addEventListener('click',openMix);
+$('shareBtn').addEventListener('click',share);
+$('mixClose').addEventListener('click',()=>$('mixOvl').classList.remove('show'));
+$('tuBtn').addEventListener('click',topUp);
+$('csvBtn').addEventListener('click',exportCsv);
+$('clearBtn').addEventListener('click',()=>{
+  if(!logs.length){ toast('History is already empty'); return; }
+  confirmBox('Delete all history? This cannot be undone.',()=>{ logs=[]; persist(); renderLogs(); toast('History cleared'); });
+});
+$('cfNo').addEventListener('click',()=>{ cfCb=null; $('cfOvl').classList.remove('show'); });
+$('cfYes').addEventListener('click',()=>{ if(cfCb) cfCb(); cfCb=null; $('cfOvl').classList.remove('show'); });
+[['cfOvl'],['mixOvl']].forEach(([id])=>$(id).addEventListener('click',e=>{ if(e.target.id===id) $(id).classList.remove('show'); }));
+
+/* ================= boot ================= */
+function syncAll(){ syncUnits(); syncStage(); syncEc(); syncBal(); syncClChips();
+  $('srcEc').value=S.srcEc; $('ph').value=S.ph.toFixed(1); }
+loadSaved();
+syncAll();
+renderLogs();
+
+// embed mode + iframe auto-height
+if(new URLSearchParams(location.search).has('embed')) document.documentElement.classList.add('embed');
+if(window.parent!==window){
+  const post=()=>parent.postMessage({type:'abt-height',height:document.documentElement.scrollHeight},'*');
+  new ResizeObserver(post).observe(document.body);
+  post();
+}
+})();
+</script>
 </body>
 </html>
