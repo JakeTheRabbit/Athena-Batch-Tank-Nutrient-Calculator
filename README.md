@@ -14,7 +14,10 @@ A precision dosing calculator for mixing [Athena Pro Line](https://support.athen
 
 - **Official Athena dosing chart, interpolated** — the chart anchors at EC 1.0 / 1.5 / 2.0 … 4.0; the calculator linearly interpolates between anchors so EC 2.7 gives a real dose instead of silently snapping to 2.5.
 - **Metric & Imperial** — liters/gallons toggle. All rates are stored canonically (liters, ml/10 L) and converted only for display, so switching units never changes the actual dose.
-- **Growth-stage presets** — Clone / Veg / Flower / Finish / Flush chips set pH, EC, Balance and Cleanse rates. Finish swaps Core → Fade, Flower swaps Grow → Bloom, Flush is RO + Cleanse only.
+- **Growth-stage presets** — Clone / Veg / Flower / Finish / Flush chips set pH, EC, Balance and Cleanse rates plus the usual product pair. Flush is RO + Cleanse only.
+- **Independent product toggles** — Pro Grow, Pro Bloom, Pro Core and Pro Fade are each individually switchable with their own stock strength. Turning both A-parts (Grow + Bloom) or both B-parts (Core + Fade) on splits that part's chart dose **50/50** for transition feeds.
+- **Stack & IPM dosing** — Stack as a drench additive (label: 1–2 ml/gal weekly, final veg week → flower week 3); IPM as a foliar **spray-tank** batch (60–90 ml/gal preventative, 90–120 active) with a hard warning that it never goes in the fertigation reservoir.
+- **Named recipes** — save the entire form (stage, EC, products, strengths, Balance, Cleanse, Stack/IPM) under a name in the browser; load or delete with one tap.
 - **Pro Balance & Blended Balance** — choose your pH buffer:
   - *Blended Balance* (liquid potassium silicate) — ml dosing, label range 2–5 ml/gal.
   - *Pro Balance* (dry potassium carbonate) — dose from a 40–120 g/L stock, with dry-gram equivalents shown.
