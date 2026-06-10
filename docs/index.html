@@ -26,7 +26,7 @@ html{scroll-behavior:smooth}
 html,body{background:var(--bg);color:var(--ink);
   font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
-body{min-height:100vh;line-height:1.5;padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+body{min-height:100vh;line-height:1.5;overflow-x:clip;padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
 .wrap{max-width:1080px;margin:0 auto}
 
 /* ---------- header ---------- */
@@ -68,12 +68,13 @@ header .tag{font-size:10.5px;color:var(--ink3);text-transform:uppercase;letter-s
 .hint{font-size:11px;color:var(--ink3);margin-top:6px;line-height:1.45}
 .hint b{color:var(--ink2);font-weight:600}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid2>*{min-width:0}
 @media(max-width:430px){.grid2.tight{grid-template-columns:1fr}}
 .fgroup{margin-bottom:16px}
 .fgroup:last-child{margin-bottom:0}
 
 input[type=number],select{
-  width:100%;font:inherit;font-size:16px;font-weight:600;color:var(--ink);
+  width:100%;min-width:0;font:inherit;font-size:16px;font-weight:600;color:var(--ink);
   background:rgba(0,0,0,.28);border:1px solid var(--hair);border-radius:10px;
   padding:10px 12px;outline:none;appearance:none;transition:border-color .15s,box-shadow .15s}
 input[type=number]:focus,select:focus{border-color:rgba(52,211,153,.5);box-shadow:0 0 0 3px rgba(52,211,153,.12)}
