@@ -348,8 +348,8 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
       <div class="grid2 fgroup">
         <div>
           <span class="lab">Target EC <b id="ecVal">3.0</b> <span id="ppmVal" style="color:var(--ink3);font-weight:600"></span></span>
-          <input type="range" id="ecSlide" min="0.5" max="4.5" step="0.1" value="3">
-          <div class="ends"><span>0.5</span><span>2.5</span><span>4.5</span></div>
+          <input type="range" id="ecSlide" min="0.5" max="4" step="0.1" value="3">
+          <div class="ends"><span>0.5</span><span>2.25</span><span>4.0</span></div>
         </div>
         <div>
           <span class="lab">Tank size <i class="info" data-tip="tank">i</i></span>
@@ -588,7 +588,7 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
       <div class="grid2 fgroup">
         <div>
           <span class="lab">Feed EC <b id="depEcVal">3.0</b></span>
-          <input type="range" id="depEc" min="0.5" max="4.5" step="0.1" value="3">
+          <input type="range" id="depEc" min="0.5" max="4" step="0.1" value="3">
         </div>
         <div>
           <span class="lab">Start date <i class="info" data-tip="depdate">i</i></span>
@@ -618,7 +618,7 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
         </div>
         <div>
           <span class="lab">Feed EC <b id="phEcVal">3.0</b> <i class="info" data-tip="phec">i</i></span>
-          <input type="range" id="phEc" min="0.5" max="4.5" step="0.1" value="3">
+          <input type="range" id="phEc" min="0.5" max="4" step="0.1" value="3">
         </div>
       </div>
       <div class="grid2 fgroup">
@@ -927,7 +927,7 @@ function nutTotals(ecEff,volL){
   const units=volL/10;
   return NUTS.filter(n=>S.products[n.k]).map(n=>{
     const g=lerpGPG(G10[n.table],ecEff)*units;       // grams for tank
-    const gl=CONC.find(o=>o.k===S.conc[n.k]).gl;
+    const gl=(CONC.find(o=>o.k===S.conc[n.k])||CONC[2]).gl;   // fall back to 226 g/L if a stored strength drifted out of range
     const ml=g/gl*1000;                              // ml of stock
     const rate10=ml/units;                           // ml per 10 L (display)
     return {k:n.k,name:n.name,color:n.color,rate:rate10,ml,g};
@@ -940,12 +940,12 @@ function nutTotals(ecEff,volL){
 function pushRecent(field,litres){
   if(!isFinite(litres)||litres<=0)return;
   const key=field+"__"+S.profile, rounded=Math.round(litres*100)/100;
-  let a=(recent[key]||[]).filter(v=>Math.abs(v-rounded)>0.01); a.unshift(rounded); a=a.slice(0,4);
+  let a=(Array.isArray(recent[key])?recent[key]:[]).filter(v=>isFinite(v)&&Math.abs(v-rounded)>0.01); a.unshift(rounded); a=a.slice(0,4);
   recent[key]=a; localStorage.setItem('abt3.recent',JSON.stringify(recent));
 }
 function renderRecent(boxId,field,inputId,recLitres){
   const box=$(boxId); if(!box)return;
-  const a=recent[field+"__"+S.profile]||[], items=[];
+  const src=recent[field+"__"+S.profile], a=(Array.isArray(src)?src:[]).filter(isFinite), items=[];
   if(recLitres!=null && !a.some(v=>Math.abs(v-recLitres)<0.01)) items.push({v:recLitres,r:true});
   a.forEach(v=>items.push({v}));
   if(!items.length){box.innerHTML='';return;}
@@ -1030,7 +1030,7 @@ function syncBal(){
 }
 function syncEc(){
   $('ecVal').textContent=S.ec.toFixed(1); $('ppmVal').textContent=ppmStr(S.ec);
-  const sl=$('ecSlide'); sl.value=S.ec; sl.style.setProperty('--fill',((S.ec-0.5)/4*100)+'%');
+  const sl=$('ecSlide'); sl.value=S.ec; sl.style.setProperty('--fill',((S.ec-0.5)/3.5*100)+'%');
 }
 function syncStage(){
   document.querySelectorAll('#stageChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.stage===S.stage));
@@ -1069,7 +1069,8 @@ function calcFeed(){
     ec:S.ec,srcEc:S.srcEc,ecEff,ph:S.ph,nuts,supp,balMode:S.balMode,
     balBlendMl,balBlend10:S.balBlend10,balProMl,balPro10:S.balPro10,proConc:S.proConc,
     balProG:balProMl*S.proConc/1000,bothG,bothLoad:S.bothLoad,clMl,cl10:S.cl10,
-    belowChart:nuts.length>0&&ecEff>0&&ecEff<0.5, advisory:!!st.advisory};
+    belowChart:nuts.length>0&&ecEff>0&&ecEff<0.5,
+    aboveChart:nuts.length>0&&ecEff>4, zeroEc:!flush&&S.ec>0&&ecEff<=0};
   renderFeed(lastFeed); pushLog(lastFeed); persist(); openSheet('resSheet');
 }
 function feedRows(r){
@@ -1083,7 +1084,7 @@ function feedRows(r){
     if(r.balProMl>0)rows.push({key:'balp',name:'Pro Balance stock',sub:`${fmt(f(r.balPro10))} ml/${u} · ≈${fmt(r.balProG)} g dry`,ml:r.balProMl,color:'#f5b642'});
   }
   rows.push({key:'cl',name:'Athena Cleanse',sub:`${fmt(f(r.cl10))} ml/${u}`,ml:r.clMl,color:'#26d0a8'});
-  (r.nuts||[]).forEach(n=>rows.push({key:n.k,name:n.name,sub:`${fmt(n.rate)} ml/${u} · ≈${fmt(n.g)} g`,ml:n.ml,color:n.color}));
+  (r.nuts||[]).forEach(n=>rows.push({key:n.k,name:n.name,sub:`${fmt(f(n.rate))} ml/${u} · ≈${fmt(n.g)} g`,ml:n.ml,color:n.color}));
   (r.supp||[]).forEach(s=>rows.push({key:s.key,name:s.name,sub:`${fmt(f(s.r10))} ml/${u}`,ml:s.ml,color:s.color}));
   return rows;
 }
@@ -1092,8 +1093,9 @@ function renderFeed(r){
   let h=`<div class="sumchips"><span class="pill"><b>${r.stageName}</b></span><span class="pill">${fmt(vol,1)} ${r.metric?'L':'gal'}</span>
     ${r.nuts.length?`<span class="pill">EC <b>${r.ecEff.toFixed(1)}</b>${r.srcEc>0?` (${r.ec.toFixed(1)}−${r.srcEc.toFixed(1)})`:''}</span><span class="pill">${ppmStr(r.ecEff)}</span>`:''}
     <span class="pill">pH <b>${r.ph.toFixed(1)}</b></span></div>`;
-  if(r.advisory)h+=`<div class="flag warn">Clone feed is advisory — Athena's schedule starts at Veg. For cuttings, a Cleanse dip (10 ml/gal) is the only published step.</div>`;
+  if(r.zeroEc)h+=`<div class="flag warn">Source EC (${r.srcEc.toFixed(1)}) ≥ target EC (${r.ec.toFixed(1)}) — nutrients compute to zero. Raise target EC or use lower-EC water.</div>`;
   if(r.belowChart)h+=`<div class="flag warn">EC below the chart (0.5) — dose extrapolated linearly. Verify with your meter.</div>`;
+  if(r.aboveChart)h+=`<div class="flag warn">EC above the chart (4.0) — dose held at the 4.0 rate. Verify with your meter.</div>`;
   if(r.stage==='flush')h+=`<div class="flag warn">Flush: RO water + Cleanse only. No nutrients, no Balance.</div>`;
   h+=feedRows(r).map(d=>`<div class="dose" style="--dc:${d.color}"><div class="nm"><b>${d.name}</b><span>${d.sub}</span></div><div class="v">${fmt(d.ml)}<i>ml</i></div></div>`).join('');
   $('resBody').innerHTML=h; $('resTitle').textContent='Feed dosage';
@@ -1109,6 +1111,7 @@ function topUp(){
   S.srcEc=clamp($('srcEc').value,0,1.5,0);
   const tgt=Math.max(0,S.ec-S.srcEc), curEff=Math.max(0,cur-S.srcEc);
   const out=$('tuOut'); out.style.display='block';
+  if(tgt<=0){out.innerHTML=`<div class="flag warn">Source EC (${S.srcEc.toFixed(1)}) ≥ target EC (${S.ec.toFixed(1)}) — no nutrient target to hit. Raise target EC or use lower-EC water.</div>`;return;}
   if(Math.abs(tgt-curEff)<0.05){out.innerHTML=`<div class="flag ok">On target (±0.05) — leave it.</div>`;return;}
   if(curEff>tgt){
     const addL=volL*(curEff/tgt-1);
@@ -1187,7 +1190,7 @@ function fillStockSelects(){
   $('stkStr').innerHTML=strOpts; $('depStr').innerHTML=strOpts;
   $('stkStr').value=S.stkStr; $('depStr').value=S.depStr;
   ['stkVolUnit','depVolUnit','depBatchUnit','depDailyUnit'].forEach(id=>$(id).textContent=volUnit());
-  $('depEcVal').textContent=S.depEc.toFixed(1); $('depEc').value=S.depEc; $('depEc').style.setProperty('--fill',((S.depEc-0.5)/4*100)+'%');
+  $('depEcVal').textContent=S.depEc.toFixed(1); $('depEc').value=S.depEc; $('depEc').style.setProperty('--fill',((S.depEc-0.5)/3.5*100)+'%');
   renderRecent('stkVolRecent','stkVol','stkVol',PROFILES[S.profile].stk);
 }
 function calcStkBuild(){
@@ -1221,13 +1224,13 @@ function calcDepletion(){
   const stockMl=stockL*1000, days=stockMl/mlPerDay, totalFeedL=stockMl/mlPerLfeed;
   $('depOut').style.display='block';
   const startStr=$('depDate').value; let refillTxt='';
-  if(startStr){const start=new Date(startStr+'T00:00:00');const refill=new Date(start.getTime()+Math.floor(days)*86400000);
+  if(startStr){const start=new Date(startStr+'T00:00:00');const refill=new Date(start);refill.setDate(refill.getDate()+Math.floor(days));  // calendar add avoids DST drift
     refillTxt=`<div class="tile wide"><div class="k">Refill on / around</div><div class="val">${refill.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</div></div>`;}
   $('depOut').innerHTML=`<div class="tiles">
     <div class="tile"><div class="k">Lasts</div><div class="val">${fmt(days,days>=10?0:1)}<i>days</i></div></div>
     <div class="tile"><div class="k">≈ Weeks</div><div class="val">${fmt(days/7,1)}<i>wk</i></div></div>
-    <div class="tile"><div class="k">Draw / day</div><div class="val sm">${fmt(mlPerDay/1000,2)}<i>L</i></div></div>
-    <div class="tile"><div class="k">Feed supported</div><div class="val sm">${fmt(totalFeedL,0)}<i>L</i></div></div>
+    <div class="tile"><div class="k">Draw / day</div><div class="val sm">${fmt(fromL(mlPerDay/1000),2)}<i>${volUnit()}</i></div></div>
+    <div class="tile"><div class="k">Feed supported</div><div class="val sm">${fmt(fromL(totalFeedL),0)}<i>${volUnit()}</i></div></div>
     ${refillTxt}
   </div>
   <div class="hint">${prod.name} @ ${gl} g/L, feeding EC ${S.depEc.toFixed(1)} at ${fmt(fromL(feedLpd),0)} ${volUnit()}/day → draw ≈ ${fmt(mlPerDay,0)} ml/day.${startStr?'':' Set a start date for a refill date.'}</div>`;
@@ -1270,7 +1273,7 @@ function logCal(){
 }
 function syncPh(){
   $('phVolUnit').textContent=volUnit();
-  $('phEcVal').textContent=S.phEc.toFixed(1); $('phEc').value=S.phEc; $('phEc').style.setProperty('--fill',((S.phEc-0.5)/4*100)+'%');
+  $('phEcVal').textContent=S.phEc.toFixed(1); $('phEc').value=S.phEc; $('phEc').style.setProperty('--fill',((S.phEc-0.5)/3.5*100)+'%');
   document.querySelectorAll('#phBalSeg button').forEach(b=>b.classList.toggle('on',b.dataset.b===S.phBal));
   const m=phModel(); $('phCalSub').textContent=m.cal?`${m.n} sample${m.n>1?'s':''}`:'seed model';
   renderRecent('phVolRecent','phVol','phVol',PROFILES[S.profile].vol);
@@ -1326,10 +1329,12 @@ function renderLogs(){
 }
 function exportCsv(){
   if(!logs.length){toast('Nothing to export');return;}
+  // quote/escape every cell + neutralise spreadsheet formula injection
+  const esc=v=>{let s=String(v??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;if(/[",\n]/.test(s))s='"'+s.replace(/"/g,'""')+'"';return s;};
   const names=[...new Set(logs.flatMap(l=>l.doses.map(d=>d.name)))];
-  const head='Timestamp,Stage,Volume,Unit,EC,SourceEC,pH,'+names.join(',');
+  const head=['Timestamp','Stage','Volume','Unit','EC','SourceEC','pH',...names].map(esc).join(',');
   const lines=logs.map(l=>{const vol=l.metric?l.volL:l.volL/GAL,m=Object.fromEntries(l.doses.map(d=>[d.name,d.ml]));
-    return [`"${new Date(l.ts).toLocaleString()}"`,l.stage,r1(vol),l.metric?'L':'gal',l.ec,l.srcEc,l.ph,...names.map(n=>m[n]??'')].join(',');});
+    return [new Date(l.ts).toLocaleString(),l.stage,r1(vol),l.metric?'L':'gal',l.ec,l.srcEc,l.ph,...names.map(n=>m[n]??'')].map(esc).join(',');});
   const blob=new Blob([head+'\n'+lines.join('\n')],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='athena_grow_log.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 }
@@ -1341,13 +1346,16 @@ function snapshot(){
     supp:JSON.parse(JSON.stringify(S.supp)),balMode:S.balMode,balBlend10:S.balBlend10,balPro10:S.balPro10,proConc:S.proConc,bothLoad:S.bothLoad,cl10:S.cl10,metric:S.metric};
 }
 function applyCfg(c){
-  if(!c)return;
+  if(!c||typeof c!=='object')return;
+  const num=(v,d)=>isFinite(+v)?+v:d;                 // coerce & default any numeric field
+  const sp=c.supp&&typeof c.supp==='object'?c.supp:{};
   Object.assign(S,{stage:STAGES[c.stage]?c.stage:S.stage,
-    ec:c.ec??S.ec,ph:c.ph??S.ph,srcEc:c.srcEc??0,volL:c.volL??NaN,
+    ec:num(c.ec,S.ec),ph:num(c.ph,S.ph),srcEc:num(c.srcEc,0),volL:isFinite(+c.volL)?+c.volL:NaN,
     products:Object.assign({grow:true,bloom:false,core:true,fade:false},c.products||{}),
     conc:Object.assign({grow:'226',bloom:'226',core:'226',fade:'226'},c.conc||{}),
-    supp:c.supp||S.supp,balMode:['blended','pro','both'].includes(c.balMode)?c.balMode:'blended',
-    balBlend10:c.balBlend10??5,balPro10:c.balPro10??5,proConc:c.proConc??120,bothLoad:c.bothLoad??26,cl10:c.cl10??5.3,metric:c.metric??S.metric});
+    supp:{camg:Object.assign({on:false,r10:10},sp.camg||{}),pk:Object.assign({on:false,r10:26},sp.pk||{})},
+    balMode:['blended','pro','both'].includes(c.balMode)?c.balMode:'blended',
+    balBlend10:num(c.balBlend10,13),balPro10:num(c.balPro10,13),proConc:num(c.proConc,120),bothLoad:num(c.bothLoad,26),cl10:num(c.cl10,9),metric:c.metric??S.metric});
 }
 function saveRecipe(){
   const name=$('rcpName').value.trim(); if(!name){toast('Name the recipe');$('rcpName').focus();return;}
@@ -1372,14 +1380,15 @@ function persist(){
   localStorage.setItem('abt3.state',JSON.stringify({metric:S.metric,profile:S.profile,ppm:S.ppm,phCal:S.phCal}));
 }
 function loadSaved(){
-  try{
-    const st=JSON.parse(localStorage.getItem('abt3.state')||'null');
-    if(st){S.metric=st.metric??true;S.profile=PROFILES[st.profile]?st.profile:'craft';S.ppm=st.ppm||500;S.phCal=st.phCal||{};}
-    recent=JSON.parse(localStorage.getItem('abt3.recent')||'{}')||{};
-    recipes=JSON.parse(localStorage.getItem('abt3.recipes')||'{}')||{};
-    logs=JSON.parse(localStorage.getItem('abt3.logs')||'[]'); if(!Array.isArray(logs))logs=[];
-    applyCfg(JSON.parse(localStorage.getItem('abt3.cfg')||'null'));
-  }catch(e){logs=[];recipes={};recent={};}
+  // per-key parse: one corrupt key must not wipe the others
+  const rd=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?f:v;}catch(e){return f;}};
+  const obj=v=>(v&&typeof v==='object'&&!Array.isArray(v))?v:null;
+  const st=obj(rd('abt3.state',null));
+  if(st){S.metric=st.metric??true;S.profile=PROFILES[st.profile]?st.profile:'craft';S.ppm=st.ppm||500;S.phCal=obj(st.phCal)||{};}
+  recent=obj(rd('abt3.recent',{}))||{};
+  recipes=obj(rd('abt3.recipes',{}))||{};
+  const lg=rd('abt3.logs',[]); logs=Array.isArray(lg)?lg:[];
+  try{applyCfg(obj(rd('abt3.cfg',null)));}catch(e){/* a bad cfg must not blank recipes/logs */}
 }
 function saveDefaults(){localStorage.setItem('abt3.cfg',JSON.stringify(snapshot()));toast('Defaults saved');}
 
@@ -1456,9 +1465,15 @@ function syncAll(){
 }
 
 /* ================= EVENTS ================= */
-$('uMetric').addEventListener('click',()=>{if(S.metric)return;captureVols();S.metric=true;syncAll();persist();});
-$('uImperial').addEventListener('click',()=>{if(!S.metric)return;captureVols();S.metric=false;syncAll();persist();});
-function captureVols(){S.volL=toL($('vol').value);S.folVolL=toL($('folVol').value);}
+$('uMetric').addEventListener('click',()=>{if(S.metric)return;captureVols();S.metric=true;syncAll();restoreTransientVols();persist();});
+$('uImperial').addEventListener('click',()=>{if(!S.metric)return;captureVols();S.metric=false;syncAll();restoreTransientVols();persist();});
+const TRANSIENT_VOLS=['stkVol','depVol','depBatch','depDaily','phVol'];
+let _tvL={};
+// snapshot transient volume inputs to canonical litres (call while old unit still active)
+function captureVols(){S.volL=toL($('vol').value);S.folVolL=toL($('folVol').value);
+  _tvL={}; TRANSIENT_VOLS.forEach(id=>{_tvL[id]=toL($(id).value);});}
+// rewrite them in the new unit after the flip (Stock/Depletion/pH tabs don't keep these in S)
+function restoreTransientVols(){TRANSIENT_VOLS.forEach(id=>{if(isFinite(_tvL[id]))$(id).value=+fromL(_tvL[id]).toFixed(2);});}
 document.querySelectorAll('#profRow .prof').forEach(p=>p.addEventListener('click',()=>{
   captureVols();
   S.profile=p.dataset.prof;
@@ -1505,13 +1520,13 @@ $('stkStr').addEventListener('change',e=>{S.stkStr=e.target.value;});
 $('stkBuildBtn').addEventListener('click',calcStkBuild);
 $('depProd').addEventListener('change',e=>{S.depProd=e.target.value;});
 $('depStr').addEventListener('change',e=>{S.depStr=e.target.value;});
-$('depEc').addEventListener('input',e=>{S.depEc=+e.target.value;$('depEcVal').textContent=S.depEc.toFixed(1);e.target.style.setProperty('--fill',((S.depEc-0.5)/4*100)+'%');});
+$('depEc').addEventListener('input',e=>{S.depEc=+e.target.value;$('depEcVal').textContent=S.depEc.toFixed(1);e.target.style.setProperty('--fill',((S.depEc-0.5)/3.5*100)+'%');});
 document.querySelectorAll('#depModeSeg button').forEach(b=>b.addEventListener('click',()=>{
   S.depMode=b.dataset.m;document.querySelectorAll('#depModeSeg button').forEach(x=>x.classList.toggle('on',x===b));
   $('depBatchWrap').style.display=S.depMode==='batch'?'':'none';$('depDailyWrap').style.display=S.depMode==='daily'?'':'none';
 }));
 $('depBtn').addEventListener('click',calcDepletion);
-$('phEc').addEventListener('input',e=>{S.phEc=+e.target.value;$('phEcVal').textContent=S.phEc.toFixed(1);e.target.style.setProperty('--fill',((S.phEc-0.5)/4*100)+'%');});
+$('phEc').addEventListener('input',e=>{S.phEc=+e.target.value;$('phEcVal').textContent=S.phEc.toFixed(1);e.target.style.setProperty('--fill',((S.phEc-0.5)/3.5*100)+'%');});
 document.querySelectorAll('#phBalSeg button').forEach(b=>b.addEventListener('click',()=>{S.phBal=b.dataset.b;syncPh();}));
 $('phBtn').addEventListener('click',calcPh);
 $('calBtn').addEventListener('click',logCal);
