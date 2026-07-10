@@ -2,388 +2,455 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Athena Batch Tank Calculator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0a0c10">
+<title>Athena Grow Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#0a0b0a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="Precision batch tank dosing calculator for Athena Pro Line nutrients. Scales feed-chart recipes to any tank size.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0c10'/%3E%3Cpath d='M16 5c4.5 6.2 7.5 10.4 7.5 14a7.5 7.5 0 1 1-15 0C8.5 15.4 11.5 11.2 16 5z' fill='%2334d399'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="description" content="Precision dosing calculator for the full Athena Pro Line & Blended nutrient, foliar and cleaning range. Feed tanks, foliar sprays, stock-tank planning, pH correction — garage to commercial scale.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0b0a'/%3E%3Cpath d='M16 5c4.6 6.3 7.6 10.6 7.6 14.2a7.6 7.6 0 1 1-15.2 0C8.4 15.6 11.4 11.3 16 5z' fill='%2300c46a'/%3E%3C/svg%3E">
 <style>
 :root{
   color-scheme:dark;
-  --bg:#0a0c10; --bg2:#0f1318; --card:#141a21; --card2:#19212a;
-  --hair:rgba(255,255,255,.08); --hair2:rgba(255,255,255,.14);
-  --ink:#e7ecf2; --ink2:#aab4c0; --ink3:#727d8a;
-  --accent:#34d399; --accent2:#22d3ee; --warn:#fbbf24; --bad:#f87171; --violet:#a78bfa;
-  --r:14px;
+  --bg:#0a0b0a; --bg2:#0f1210; --card:#141813; --card2:#1a201a;
+  --hair:rgba(255,255,255,.08); --hair2:rgba(255,255,255,.15);
+  --ink:#eaf1ea; --ink2:#a9b6ab; --ink3:#6f7d72;
+  --accent:#00c46a; --accent2:#26d0a8; --warn:#f5b642; --bad:#f2685f; --violet:#a889f0; --pink:#f472b6; --sky:#38bdf8; --orange:#fb923c;
+  --r:15px; --navh:64px; --barh:66px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 html,body{background:var(--bg);color:var(--ink);
   font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
-body{min-height:100vh;line-height:1.5;overflow-x:clip;padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
-.wrap{max-width:1080px;margin:0 auto}
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{min-height:100dvh;line-height:1.5;overflow-x:clip}
+.app{max-width:640px;margin:0 auto;padding:0 max(13px,env(safe-area-inset-left)) 0 max(13px,env(safe-area-inset-right))}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{letter-spacing:-.02em}
 
-/* ---------- header ---------- */
-header{display:flex;align-items:center;gap:12px;padding:6px 2px 16px}
-.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,rgba(52,211,153,.18),rgba(34,211,238,.12));
+/* ---------- top app bar ---------- */
+.topbar{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,var(--bg) 62%,rgba(10,11,10,.86));
+  backdrop-filter:blur(10px);padding:max(10px,env(safe-area-inset-top)) 2px 9px;display:flex;align-items:center;gap:11px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand .mk{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,rgba(0,196,106,.22),rgba(38,208,168,.12));
   border:1px solid var(--hair2);display:grid;place-items:center;flex:none}
-.logo svg{width:18px;height:18px}
-header h1{font-size:1.05rem;font-weight:800;letter-spacing:-.02em;line-height:1.15}
-header .tag{font-size:10.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
-.hspacer{flex:1}
+.brand .mk svg{width:17px;height:17px}
+.brand .tt b{font-size:14.5px;font-weight:800;display:block;line-height:1.1}
+.brand .tt span{font-size:9.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.09em;font-weight:700}
+.topbar .sp{flex:1}
+.uToggle{display:inline-flex;background:var(--bg2);border:1px solid var(--hair);border-radius:10px;padding:3px;gap:2px;flex:none}
+.uToggle button{font-size:12px;font-weight:700;padding:6px 11px;border:0;background:transparent;color:var(--ink2);border-radius:7px;transition:.15s}
+.uToggle button.on{background:linear-gradient(180deg,rgba(0,196,106,.24),rgba(0,196,106,.1));color:var(--accent);box-shadow:inset 0 0 0 1px rgba(0,196,106,.36)}
 
-/* ---------- segmented control ---------- */
-.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--hair);border-radius:11px;padding:3px;gap:2px}
-.seg button{font:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border:0;background:transparent;
-  color:var(--ink2);cursor:pointer;border-radius:8px;transition:background .15s,color .15s;white-space:nowrap}
-.seg button.on{background:linear-gradient(180deg,rgba(52,211,153,.22),rgba(52,211,153,.10));color:var(--accent);
-  box-shadow:inset 0 0 0 1px rgba(52,211,153,.35)}
-.seg.sm button{padding:5px 10px;font-size:11.5px}
+/* profile row */
+.profrow{display:flex;gap:7px;padding:2px 2px 12px;overflow-x:auto;scrollbar-width:none}
+.profrow::-webkit-scrollbar{display:none}
+.prof{flex:none;font-size:12px;font-weight:700;padding:7px 13px;border-radius:999px;background:var(--card2);
+  border:1px solid var(--hair);color:var(--ink2);transition:.15s;display:inline-flex;align-items:center;gap:7px}
+.prof.on{background:linear-gradient(180deg,rgba(0,196,106,.2),rgba(0,196,106,.07));border-color:rgba(0,196,106,.42);color:var(--accent)}
+.prof small{font-weight:600;color:var(--ink3);font-size:10px}
+.prof.on small{color:var(--accent2)}
 
-/* ---------- layout ---------- */
-.cols{display:grid;gap:14px;grid-template-columns:1fr;align-items:start}
-@media(min-width:1000px){
-  .cols{grid-template-columns:1fr 400px}
-  .rightcol{position:sticky;top:14px}
-}
+/* ---------- tab panels ---------- */
+main{padding-bottom:calc(var(--navh) + var(--barh) + env(safe-area-inset-bottom) + 14px)}
+.panel{display:none;animation:fade .22s ease both}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.phead{padding:4px 3px 13px}
+.phead h1{font-size:1.32rem;font-weight:800}
+.phead p{font-size:12px;color:var(--ink3);margin-top:3px;line-height:1.45}
 
 /* ---------- cards ---------- */
 .card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--hair);
-  border-radius:var(--r);box-shadow:0 10px 40px -22px rgba(0,0,0,.65);margin-bottom:14px;overflow:hidden}
-.chead{display:flex;align-items:center;gap:10px;padding:15px 17px 0}
-.chead h2{font-size:.95rem;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
-.chead h2::before{content:"";width:4px;height:1.05em;border-radius:3px;background:linear-gradient(180deg,var(--accent),var(--accent2));flex:none}
-.chead .sub{font-size:11.5px;color:var(--ink3);margin-left:auto;text-align:right}
-.cbody{padding:14px 17px 17px}
+  border-radius:var(--r);box-shadow:0 12px 40px -24px rgba(0,0,0,.7);margin-bottom:13px;overflow:hidden}
+.chead{display:flex;align-items:center;gap:10px;padding:14px 16px 0}
+.chead h2{font-size:.92rem;font-weight:700;display:flex;align-items:center;gap:9px}
+.chead h2::before{content:"";width:4px;height:1.02em;border-radius:3px;background:linear-gradient(180deg,var(--accent),var(--accent2));flex:none}
+.chead .sub{font-size:11px;color:var(--ink3);margin-left:auto;text-align:right}
+.cbody{padding:13px 16px 16px}
 
-/* ---------- form bits ---------- */
-.lab{display:block;font-size:10.5px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
-.lab b{color:var(--ink2)}
-.hint{font-size:11px;color:var(--ink3);margin-top:6px;line-height:1.45}
+/* ---------- form ---------- */
+.lab{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.lab b{color:var(--ink2);font-weight:700}
+.lab .info{width:15px;height:15px;border-radius:50%;border:1px solid var(--hair2);color:var(--ink3);font-size:10px;
+  display:inline-grid;place-items:center;cursor:pointer;flex:none;font-weight:700;font-style:normal}
+@media(hover:hover){.lab .info:hover{color:var(--accent);border-color:var(--accent)}}
+.hint{font-size:11px;color:var(--ink3);margin-top:7px;line-height:1.5}
 .hint b{color:var(--ink2);font-weight:600}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hint.warn{color:var(--warn)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .grid2>*{min-width:0}
-@media(max-width:430px){.grid2.tight{grid-template-columns:1fr}}
-.fgroup{margin-bottom:16px}
-.fgroup:last-child{margin-bottom:0}
+@media(max-width:400px){.grid2.tight{grid-template-columns:1fr}}
+.fgroup{margin-bottom:15px}.fgroup:last-child{margin-bottom:0}
+.sep{height:1px;background:var(--hair);margin:15px 0}
 
 input[type=number],input[type=text],select{
   width:100%;min-width:0;font:inherit;font-size:16px;font-weight:600;color:var(--ink);
-  background:rgba(0,0,0,.28);border:1px solid var(--hair);border-radius:10px;
-  padding:10px 12px;outline:none;appearance:none;transition:border-color .15s,box-shadow .15s}
-input[type=number]:focus,input[type=text]:focus,select:focus{border-color:rgba(52,211,153,.5);box-shadow:0 0 0 3px rgba(52,211,153,.12)}
+  background:rgba(0,0,0,.3);border:1px solid var(--hair);border-radius:11px;
+  padding:11px 12px;outline:none;appearance:none;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus{border-color:rgba(0,196,106,.5);box-shadow:0 0 0 3px rgba(0,196,106,.13)}
 input[type=number]::-webkit-inner-spin-button{display:none}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23727d8a' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236f7d72' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
 select option{background:var(--card);color:var(--ink)}
 .inwrap{position:relative}
 .inwrap .unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:600;color:var(--ink3);pointer-events:none}
-.inwrap input{padding-right:58px}
+.inwrap input{padding-right:54px}
 
-/* steppers */
-.step{display:flex;align-items:stretch;border:1px solid var(--hair);border-radius:10px;overflow:hidden;background:rgba(0,0,0,.28)}
-.step button{width:42px;border:0;background:transparent;color:var(--ink2);font-size:18px;font-weight:600;cursor:pointer;flex:none;transition:background .12s}
-.step button:active{background:rgba(52,211,153,.15);color:var(--accent)}
-@media(hover:hover){.step button:hover{background:rgba(255,255,255,.06);color:var(--ink)}}
-.step input{flex:1;min-width:0;border:0;background:transparent;text-align:center;border-radius:0;padding:10px 2px}
+/* steppers — big one-hand targets */
+.step{display:flex;align-items:stretch;border:1px solid var(--hair);border-radius:11px;overflow:hidden;background:rgba(0,0,0,.3)}
+.step button{width:48px;border:0;background:transparent;color:var(--ink2);font-size:20px;font-weight:600;flex:none;transition:.12s}
+.step button:active{background:rgba(0,196,106,.16);color:var(--accent)}
+.step input{flex:1;min-width:0;border:0;background:transparent;text-align:center;border-radius:0;padding:11px 2px}
 .step input:focus{box-shadow:none}
-.step .u{display:flex;align-items:center;font-size:10.5px;color:var(--ink3);font-weight:600;padding-right:10px;white-space:nowrap}
+.step .u{display:flex;align-items:center;font-size:10.5px;color:var(--ink3);font-weight:600;padding-right:11px;white-space:nowrap}
 
 /* slider */
-input[type=range]{width:100%;height:26px;background:transparent;appearance:none;cursor:pointer;margin-top:2px}
-input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:3px;
-  background:linear-gradient(90deg,var(--accent) var(--fill,50%),rgba(255,255,255,.10) var(--fill,50%))}
-input[type=range]::-webkit-slider-thumb{appearance:none;width:19px;height:19px;border-radius:50%;margin-top:-7px;
-  background:var(--ink);border:2px solid var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.5)}
-input[type=range]::-moz-range-track{height:5px;border-radius:3px;background:rgba(255,255,255,.10)}
-input[type=range]::-moz-range-progress{height:5px;border-radius:3px;background:var(--accent)}
-input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--ink);border:2px solid var(--accent)}
-.ends{display:flex;justify-content:space-between;font-size:10px;color:var(--ink3);margin-top:2px}
+input[type=range]{width:100%;height:30px;background:transparent;appearance:none;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent) var(--fill,50%),rgba(255,255,255,.11) var(--fill,50%))}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:24px;height:24px;border-radius:50%;margin-top:-9px;
+  background:var(--ink);border:3px solid var(--accent);box-shadow:0 2px 9px rgba(0,0,0,.55)}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:rgba(255,255,255,.11)}
+input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:var(--accent)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--ink);border:3px solid var(--accent)}
+.ends{display:flex;justify-content:space-between;font-size:10px;color:var(--ink3);margin-top:1px}
 
 /* chips */
 .chips{display:flex;gap:7px;flex-wrap:wrap}
-.chip{font:inherit;font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:999px;cursor:pointer;
-  background:var(--card2);border:1px solid var(--hair);color:var(--ink2);transition:all .15s}
-.chip.on{background:linear-gradient(180deg,rgba(52,211,153,.22),rgba(52,211,153,.08));
-  border-color:rgba(52,211,153,.45);color:var(--accent)}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips.scroll::-webkit-scrollbar{display:none}
+.chip{font-size:12.5px;font-weight:700;padding:9px 14px;border-radius:999px;
+  background:var(--card2);border:1px solid var(--hair);color:var(--ink2);transition:.15s;flex:none;white-space:nowrap}
+.chip.on{background:linear-gradient(180deg,rgba(0,196,106,.22),rgba(0,196,106,.08));border-color:rgba(0,196,106,.46);color:var(--accent)}
 @media(hover:hover){.chip:not(.on):hover{border-color:var(--hair2);color:var(--ink)}}
-.chip small{font-weight:500;opacity:.75;margin-left:4px}
-.chip .rx{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;margin-left:6px;
-  font-size:11px;line-height:1;color:var(--ink3)}
-@media(hover:hover){.chip .rx:hover{background:rgba(248,113,113,.2);color:var(--bad)}}
+.chip small{font-weight:500;opacity:.72;margin-left:4px;font-size:10.5px}
+.chip .rx{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;margin-left:6px;font-size:11px;color:var(--ink3)}
 
-/* nutrient product rows */
+/* recent-value chips */
+.recent{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.recent .rc{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:8px;background:rgba(0,196,106,.07);
+  border:1px dashed rgba(0,196,106,.3);color:var(--accent2)}
+.recent .rl{font-size:10px;color:var(--ink3);align-self:center;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-right:1px}
+
+/* product rows */
 .prow{display:flex;align-items:center;gap:9px;margin-bottom:9px}
 .prow:last-child{margin-bottom:0}
-.ptg{font:inherit;font-size:12.5px;font-weight:700;padding:9px 13px;border-radius:11px;cursor:pointer;
-  background:var(--card2);border:1px solid var(--hair);color:var(--ink3);transition:all .15s;
-  display:inline-flex;align-items:center;gap:8px;flex:none;width:138px}
-.ptg i{width:8px;height:8px;border-radius:50%;background:var(--ink3);opacity:.4;flex:none;transition:all .15s}
+.ptg{font-size:12.5px;font-weight:700;padding:10px 13px;border-radius:11px;
+  background:var(--card2);border:1px solid var(--hair);color:var(--ink3);transition:.15s;
+  display:inline-flex;align-items:center;gap:8px;flex:none;width:140px}
+.ptg i{width:8px;height:8px;border-radius:50%;background:var(--ink3);opacity:.4;flex:none;transition:.15s}
 .ptg.on{color:var(--ink);border-color:var(--pc,var(--accent))}
 .ptg.on i{background:var(--pc,var(--accent));opacity:1;box-shadow:0 0 8px var(--pc,var(--accent))}
-.ptg small{margin-left:auto;font-size:9.5px;font-weight:600;color:var(--pc)}
-.prow select{flex:1;padding-top:8px;padding-bottom:8px;font-size:14px}
-.prow select:disabled{opacity:.3}
-
-.sep{height:1px;background:var(--hair);margin:16px 0}
+.ptg .sp{margin-left:auto;font-size:9.5px;font-weight:700;color:var(--pc)}
+.prow select{flex:1;padding-top:9px;padding-bottom:9px;font-size:14px}
+.prow select:disabled{opacity:.32}
 
 /* buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:13.5px;font-weight:700;
-  height:44px;padding:0 16px;border-radius:11px;border:1px solid var(--hair);background:var(--card2);color:var(--ink);
-  cursor:pointer;transition:all .15s;white-space:nowrap}
-@media(hover:hover){.btn:hover{border-color:var(--hair2);background:#1d2630}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px;font-weight:700;
+  height:46px;padding:0 16px;border-radius:12px;border:1px solid var(--hair);background:var(--card2);color:var(--ink);transition:.15s;white-space:nowrap}
 .btn:active{transform:translateY(1px)}
-.btn.primary{background:linear-gradient(135deg,#0ea66f,#0d9488);border-color:rgba(52,211,153,.4);color:#fff;
-  box-shadow:0 6px 24px -10px rgba(16,185,129,.55)}
-@media(hover:hover){.btn.primary:hover{background:linear-gradient(135deg,#10b981,#0ea5a4)}}
-.btn.ghost{background:transparent}
-.btn.danger{color:var(--bad)}
-.btn.full{width:100%}
-.btn.sm{height:36px;font-size:12px;padding:0 12px;border-radius:9px}
-.btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.btnrow{display:flex;gap:9px;flex-wrap:wrap}
-.btnrow .btn{flex:1}
+.btn.primary{background:linear-gradient(135deg,#00b45f,#0d9488);border-color:rgba(0,196,106,.42);color:#fff;box-shadow:0 8px 26px -12px rgba(0,196,106,.6)}
+.btn.ghost{background:transparent}.btn.danger{color:var(--bad)}.btn.full{width:100%}
+.btn.sm{height:38px;font-size:12px;padding:0 12px;border-radius:10px}
+.btn svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btnrow{display:flex;gap:9px;flex-wrap:wrap}.btnrow .btn{flex:1}
 
-/* ---------- results ---------- */
-.sumchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px}
-.sumchips .pill{font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--card2);
-  border:1px solid var(--hair);color:var(--ink2)}
+/* seg */
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--hair);border-radius:11px;padding:3px;gap:2px}
+.seg button{font-size:12px;font-weight:700;padding:8px 13px;border:0;background:transparent;color:var(--ink2);border-radius:8px;transition:.15s;white-space:nowrap}
+.seg button.on{background:linear-gradient(180deg,rgba(0,196,106,.22),rgba(0,196,106,.09));color:var(--accent);box-shadow:inset 0 0 0 1px rgba(0,196,106,.34)}
+.seg.sm button{padding:6px 10px;font-size:11.5px}
+
+/* results / dose rows */
+.sumchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.sumchips .pill{font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--card2);border:1px solid var(--hair);color:var(--ink2)}
 .sumchips .pill b{color:var(--ink)}
-.dose{display:flex;align-items:center;gap:13px;padding:11px 13px;border:1px solid var(--hair);
-  border-radius:12px;margin-bottom:9px;background:rgba(0,0,0,.18);position:relative;overflow:hidden}
+.dose{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid var(--hair);border-radius:12px;margin-bottom:8px;background:rgba(0,0,0,.2);position:relative;overflow:hidden}
 .dose::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--dc,var(--accent))}
 .dose .nm{flex:1;min-width:0}
 .dose .nm b{font-size:13px;font-weight:700;display:block}
 .dose .nm span{font-size:10.5px;color:var(--ink3);display:block;margin-top:1px}
-.dose .v{font-size:1.45rem;font-weight:800;letter-spacing:-.02em;white-space:nowrap;color:var(--dc,var(--accent))}
+.dose .v{font-size:1.4rem;font-weight:800;white-space:nowrap;color:var(--dc,var(--accent))}
 .dose .v i{font-style:normal;font-size:11px;font-weight:600;color:var(--ink3);margin-left:3px}
-.dose.muted{opacity:.45}
-.empty{color:var(--ink3);font-size:12.5px;text-align:center;padding:26px 10px;line-height:1.6}
-.flag{font-size:10.5px;font-weight:600;border-radius:7px;padding:6px 10px;margin-bottom:11px;line-height:1.45;display:none}
-.flag.show{display:block}
-.flag.warn{background:rgba(251,191,36,.09);border:1px solid rgba(251,191,36,.25);color:var(--warn)}
+.empty{color:var(--ink3);font-size:12.5px;text-align:center;padding:24px 10px;line-height:1.6}
+.flag{font-size:11px;font-weight:600;border-radius:9px;padding:8px 11px;margin-bottom:10px;line-height:1.5}
+.flag.warn{background:rgba(245,182,66,.09);border:1px solid rgba(245,182,66,.26);color:var(--warn)}
+.flag.bad{background:rgba(242,104,95,.09);border:1px solid rgba(242,104,95,.28);color:var(--bad)}
+.flag.ok{background:rgba(0,196,106,.09);border:1px solid rgba(0,196,106,.26);color:var(--accent)}
 
-/* topup result */
-.tu-out{margin-top:12px;display:none}
-.tu-out.show{display:block}
+/* KPI tiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:rgba(0,0,0,.22);border:1px solid var(--hair);border-radius:12px;padding:12px 13px}
+.tile .k{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em}
+.tile .val{font-size:1.5rem;font-weight:800;margin-top:3px;color:var(--accent)}
+.tile .val i{font-style:normal;font-size:11px;color:var(--ink3);font-weight:600;margin-left:3px}
+.tile .val.sm{font-size:1.12rem}
+.tile.wide{grid-column:1/-1}
 
-/* ---------- history ---------- */
-.log{border:1px solid var(--hair);border-radius:11px;margin-bottom:9px;overflow:hidden;background:rgba(0,0,0,.15)}
-.log-h{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;user-select:none}
-.log-h .t{font-size:12px;font-weight:600}
-.log-h .d{font-size:10.5px;color:var(--ink3)}
-.log-h .x{margin-left:auto;flex:none;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;
-  border:1px solid transparent;color:var(--ink3);cursor:pointer;background:transparent}
-@media(hover:hover){.log-h .x:hover{color:var(--bad);border-color:var(--hair)}}
+/* ---------- bottom nav ---------- */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--navh) + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);background:rgba(11,13,11,.92);backdrop-filter:blur(14px);
+  border-top:1px solid var(--hair);display:flex;justify-content:space-around;align-items:stretch}
+.nav button{flex:1;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink3);transition:.15s;position:relative}
+.nav button svg{width:23px;height:23px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.nav button span{font-size:9.5px;font-weight:700;letter-spacing:.01em}
+.nav button.on{color:var(--accent)}
+.nav button.on::before{content:"";position:absolute;top:0;width:26px;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
+
+/* ---------- sticky action bar ---------- */
+.actbar{position:fixed;left:0;right:0;bottom:calc(var(--navh) + env(safe-area-inset-bottom));z-index:45;
+  padding:9px max(13px,env(safe-area-inset-left)) 9px max(13px,env(safe-area-inset-right));
+  background:linear-gradient(180deg,rgba(10,11,10,0),rgba(10,11,10,.82) 34%);pointer-events:none;display:none}
+.actbar.on{display:block}
+.actbar .inner{max-width:640px;margin:0 auto;pointer-events:auto}
+.actbar .btn{height:50px;font-size:15px;box-shadow:0 10px 30px -10px rgba(0,196,106,.55)}
+
+/* ---------- slide-up sheet ---------- */
+.sheet{position:fixed;inset:0;z-index:70;display:none}
+.sheet.on{display:block}
+.sheet .scrim{position:absolute;inset:0;background:rgba(3,5,3,.66);backdrop-filter:blur(3px);animation:fade .2s both}
+.sheet .body{position:absolute;left:0;right:0;bottom:0;max-height:90dvh;overflow-y:auto;
+  background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--hair2);border-bottom:0;
+  border-radius:22px 22px 0 0;box-shadow:0 -20px 60px -10px rgba(0,0,0,.7);animation:slideup .28s cubic-bezier(.2,.9,.3,1) both;
+  padding:8px max(16px,env(safe-area-inset-left)) calc(20px + env(safe-area-inset-bottom))}
+.sheet .grab{width:38px;height:4px;border-radius:3px;background:var(--hair2);margin:8px auto 12px}
+.sheet .sh{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.sheet .sh h3{font-size:1.05rem;font-weight:800}
+.sheet .sh .x{margin-left:auto;width:34px;height:34px;border-radius:9px;border:1px solid var(--hair);background:var(--card2);display:grid;place-items:center;color:var(--ink2)}
+.sheet .sh .x svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
+
+/* mix step */
+.mix-step{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--hair);border-radius:13px;margin-bottom:8px;background:rgba(0,0,0,.2);transition:opacity .2s}
+.mix-step .ck{width:27px;height:27px;border-radius:8px;border:2px solid var(--hair2);flex:none;display:grid;place-items:center;transition:.15s}
+.mix-step .ck svg{width:14px;height:14px;stroke:#052014;stroke-width:3;fill:none;stroke-linecap:round;opacity:0}
+.mix-step.done .ck{background:var(--accent);border-color:var(--accent)}
+.mix-step.done .ck svg{opacity:1}
+.mix-step .mn{flex:1;min-width:0}.mix-step .mn b{display:block;font-size:13.5px}.mix-step .mn span{font-size:10.5px;color:var(--ink3)}
+.mix-step .mv{font-size:1.45rem;font-weight:800;color:var(--dc,var(--accent));white-space:nowrap}
+.mix-step .mv i{font-style:normal;font-size:11px;color:var(--ink3);font-weight:600;margin-left:2px}
+.mix-step.done{opacity:.42}.mix-step.done .mn b{text-decoration:line-through}
+.ordnote{font-size:11px;color:var(--ink3);line-height:1.55;margin-top:10px}
+
+/* history log */
+.log{border:1px solid var(--hair);border-radius:12px;margin-bottom:8px;overflow:hidden;background:rgba(0,0,0,.16)}
+.log-h{display:flex;align-items:center;gap:10px;padding:11px 12px;user-select:none}
+.log-h .t{font-size:12px;font-weight:700}.log-h .d{font-size:10px;color:var(--ink3);margin-top:1px}
+.log-h .x{margin-left:auto;flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:8px;color:var(--ink3);background:transparent;border:1px solid transparent}
 .log-h .x svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round}
 .log-b{display:none;padding:2px 12px 12px;font-size:12px}
 .log.open .log-b{display:block}
 .log-b .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--hair)}
-.log-b .row:last-child{border-bottom:0}
-.log-b .row span{color:var(--ink2)}
-.log-b .row b{font-weight:700}
+.log-b .row:last-child{border-bottom:0}.log-b .row span{color:var(--ink2)}
 
-/* ---------- overlays ---------- */
-.ovl{position:fixed;inset:0;background:rgba(4,6,10,.78);backdrop-filter:blur(5px);z-index:60;
-  display:none;align-items:center;justify-content:center;padding:16px}
-.ovl.show{display:flex}
-.ovl .box{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--hair2);border-radius:18px;
-  width:100%;max-width:430px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px -20px rgba(0,0,0,.8);
-  padding:20px}
-.ovl .box h3{font-size:1rem;font-weight:800;margin-bottom:4px}
-.ovl .box .sub2{font-size:12px;color:var(--ink3);margin-bottom:14px}
-/* mix mode */
-.mix-step{display:flex;align-items:center;gap:13px;padding:13px;border:1px solid var(--hair);border-radius:13px;
-  margin-bottom:9px;cursor:pointer;user-select:none;transition:opacity .2s;background:rgba(0,0,0,.18)}
-.mix-step .ck{width:26px;height:26px;border-radius:8px;border:2px solid var(--hair2);flex:none;display:grid;place-items:center;transition:all .15s}
-.mix-step .ck svg{width:14px;height:14px;stroke:#06281c;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
-.mix-step.done .ck{background:var(--accent);border-color:var(--accent)}
-.mix-step.done .ck svg{opacity:1}
-.mix-step .mn{flex:1;min-width:0}
-.mix-step .mn b{display:block;font-size:13.5px}
-.mix-step .mn span{font-size:10.5px;color:var(--ink3)}
-.mix-step .mv{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;color:var(--dc,var(--accent));white-space:nowrap}
-.mix-step .mv i{font-style:normal;font-size:11px;color:var(--ink3);font-weight:600;margin-left:3px}
-.mix-step.done{opacity:.4}
-.mix-step.done .mn b{text-decoration:line-through}
-.ordnote{font-size:11px;color:var(--ink3);line-height:1.5;margin-top:11px}
+/* tooltip popover */
+.tipwrap{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:22px}
+.tipwrap.on{display:flex}
+.tipwrap .scrim{position:absolute;inset:0;background:rgba(3,5,3,.5)}
+.tipwrap .box{position:relative;background:var(--card);border:1px solid var(--hair2);border-radius:16px;max-width:360px;padding:18px 18px 16px;box-shadow:0 24px 60px -12px rgba(0,0,0,.7);animation:fade .2s both}
+.tipwrap .box h4{font-size:14px;font-weight:800;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.tipwrap .box p{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.tipwrap .box p+p{margin-top:8px}
+.tipwrap .box .close{margin-top:14px;width:100%}
+
+/* tour */
+.tour{position:fixed;inset:0;z-index:100;display:none}
+.tour.on{display:block}
+.tour .scrim{position:absolute;inset:0;background:rgba(3,5,3,.72);backdrop-filter:blur(2px)}
+.tour .pop{position:absolute;left:50%;bottom:calc(var(--navh) + 22px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  width:min(420px,calc(100vw - 32px));background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--hair2);
+  border-radius:18px;padding:18px;box-shadow:0 24px 70px -14px rgba(0,0,0,.8);animation:fade .25s both}
+.tour .pop .step{font-size:10px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+.tour .pop h3{font-size:1.12rem;font-weight:800;margin:5px 0 7px}
+.tour .pop p{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.tour .pop .row{display:flex;align-items:center;gap:10px;margin-top:15px}
+.tour .pop .dots{display:flex;gap:5px;flex:1}
+.tour .pop .dots i{width:7px;height:7px;border-radius:50%;background:var(--hair2)}
+.tour .pop .dots i.on{background:var(--accent);width:18px;border-radius:4px}
+.tour .halo{position:absolute;border:2px solid var(--accent);border-radius:14px;box-shadow:0 0 0 4px rgba(0,196,106,.2),0 0 0 9999px rgba(3,5,3,.72);
+  transition:all .3s cubic-bezier(.2,.9,.3,1);pointer-events:none;display:none}
+.tour .halo.on{display:block}
 
 /* toast */
-#toast{position:fixed;left:50%;bottom:max(22px,env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+#toast{position:fixed;left:50%;bottom:calc(var(--navh) + 20px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);
   background:var(--card2);border:1px solid var(--hair2);color:var(--ink);font-size:12.5px;font-weight:600;
-  padding:10px 18px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.6);z-index:80;opacity:0;
-  transition:opacity .25s,transform .25s;pointer-events:none;max-width:88vw;text-align:center}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  padding:11px 18px;border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.6);z-index:110;opacity:0;transition:.25s;pointer-events:none;max-width:88vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)}
 
-footer{font-size:10.5px;color:var(--ink3);text-align:center;padding:18px 12px 6px;line-height:1.7}
-footer a{color:var(--ink2);text-decoration:none;border-bottom:1px dotted var(--ink3)}
+/* misc */
+.ref{border:1px solid var(--hair);border-radius:12px;padding:12px 13px;margin-bottom:9px;background:rgba(0,0,0,.16)}
+.ref h4{font-size:12.5px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.ref h4 .dot{width:8px;height:8px;border-radius:50%;flex:none}
+.ref p{font-size:11.5px;color:var(--ink2);line-height:1.55}
+.ref .rt{font-size:11px;color:var(--ink3);margin-top:5px}
+.ref .rt b{color:var(--accent2);font-weight:700}
+/* embed mode (?embed) — bare tools for iframing into another site */
+.embed .topbar,.embed .profrow{display:none}
+.embed footer{display:none}
 
-::-webkit-scrollbar{width:8px;height:8px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#27313c;border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:var(--ink3)}
-
-/* embed mode (?embed) */
-.embed header,.embed footer{display:none}
-.embed body{padding:8px}
-
+footer{font-size:10px;color:var(--ink3);text-align:center;padding:8px 12px 4px;line-height:1.7}
+footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:none}
+.disc{font-size:10.5px;color:var(--ink3);text-align:center;line-height:1.6;padding:10px 8px}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:#28322a;border-radius:4px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-.rise{animation:rise .3s ease both}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="app">
 
-<header>
-  <div class="logo"><svg viewBox="0 0 32 32"><path d="M16 4c4.8 6.6 8 11 8 14.9A8 8 0 1 1 8 18.9C8 15 11.2 10.6 16 4z" fill="#34d399"/></svg></div>
-  <div>
-    <h1>Batch Tank Calculator</h1>
-    <div class="tag">Athena Pro Line</div>
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <div class="brand">
+    <div class="mk"><svg viewBox="0 0 32 32"><path d="M16 4c4.9 6.7 8 11.2 8 15.1A8 8 0 1 1 8 19.1C8 15.2 11.1 10.7 16 4z" fill="#00c46a"/></svg></div>
+    <div class="tt"><b>Grow Calculator</b><span>Athena range · unofficial</span></div>
   </div>
-  <div class="hspacer"></div>
-  <div class="seg" role="group" aria-label="Unit system">
+  <div class="sp"></div>
+  <div class="uToggle" role="group" aria-label="Units">
     <button type="button" id="uMetric" class="on">Metric</button>
     <button type="button" id="uImperial">Imperial</button>
   </div>
-</header>
+</div>
 
-<div class="cols">
-<div class="leftcol">
+<!-- profile selector -->
+<div class="profrow" id="profRow">
+  <button type="button" class="prof" data-prof="garage"><span>Garage</span><small>&lt;200 L</small></button>
+  <button type="button" class="prof on" data-prof="craft"><span>Craft</span><small>200–1000 L</small></button>
+  <button type="button" class="prof" data-prof="commercial"><span>Commercial</span><small>1000 L+</small></button>
+</div>
 
-  <!-- ============ RECIPE ============ -->
+<main>
+
+<!-- ============================================================= -->
+<!-- ============ FEED (reservoir nutrient mix) ============ -->
+<!-- ============================================================= -->
+<section class="panel on" id="tab-feed">
+  <div class="phead"><h1>Feed tank</h1><p>Reservoir nutrient batch — scales any recipe to your tank. Foliar sprays live in their own tab.</p></div>
+
   <div class="card">
     <div class="chead"><h2>Recipe</h2><div class="sub" id="stageSub">Mother &amp; Veg</div></div>
     <div class="cbody">
 
       <div class="fgroup">
-        <span class="lab">Growth stage</span>
-        <div class="chips" id="stageChips">
+        <span class="lab">Growth stage <i class="info" data-tip="stage">i</i></span>
+        <div class="chips scroll" id="stageChips">
           <button type="button" class="chip" data-stage="clone">Clone</button>
           <button type="button" class="chip on" data-stage="veg">Veg</button>
           <button type="button" class="chip" data-stage="flower">Flower</button>
-          <button type="button" class="chip" data-stage="finish">Finish<small>Fade</small></button>
+          <button type="button" class="chip" data-stage="finish">Finish</button>
           <button type="button" class="chip" data-stage="flush">Flush</button>
         </div>
       </div>
 
       <div class="grid2 fgroup">
         <div>
-          <span class="lab">Target EC <b id="ecVal">3.0</b></span>
-          <input type="range" id="ecSlide" min="1" max="4" step="0.1" value="3" list="ecTicks">
-          <datalist id="ecTicks"><option value="1"></option><option value="1.5"></option><option value="2"></option><option value="2.5"></option><option value="3"></option><option value="3.5"></option><option value="4"></option></datalist>
-          <div class="ends"><span>1.0</span><span>2.5</span><span>4.0</span></div>
+          <span class="lab">Target EC <b id="ecVal">3.0</b> <span id="ppmVal" style="color:var(--ink3);font-weight:600"></span></span>
+          <input type="range" id="ecSlide" min="0.5" max="4.5" step="0.1" value="3">
+          <div class="ends"><span>0.5</span><span>2.5</span><span>4.5</span></div>
         </div>
         <div>
-          <span class="lab">Desired pH</span>
-          <div class="step">
-            <button type="button" data-step="ph" data-d="-1" aria-label="pH down">−</button>
-            <input type="number" id="ph" inputmode="decimal" step="0.1" min="5.0" max="7.0" value="5.8">
-            <button type="button" data-step="ph" data-d="1" aria-label="pH up">+</button>
+          <span class="lab">Tank size <i class="info" data-tip="tank">i</i></span>
+          <div class="inwrap">
+            <input type="number" id="vol" inputmode="decimal" min="0" placeholder="e.g. 100">
+            <span class="unit" id="volUnit">L</span>
           </div>
-          <div class="hint">Logged only — dose Balance to hit it.</div>
+          <div class="recent" id="volRecent"></div>
         </div>
       </div>
 
       <div class="grid2 fgroup">
         <div>
-          <span class="lab">Tank size</span>
-          <div class="inwrap">
-            <input type="number" id="vol" inputmode="decimal" min="0" placeholder="e.g. 100">
-            <span class="unit" id="volUnit">L</span>
-          </div>
-        </div>
-        <div>
-          <span class="lab">Source water EC</span>
+          <span class="lab">Source water EC <i class="info" data-tip="src">i</i></span>
           <div class="inwrap">
             <input type="number" id="srcEc" inputmode="decimal" step="0.1" min="0" max="1.5" value="0">
             <span class="unit">mS/cm</span>
           </div>
-          <div class="hint">RO = 0. Tap/bore water EC is subtracted from target before dosing.</div>
+        </div>
+        <div>
+          <span class="lab">Target pH <i class="info" data-tip="ph">i</i></span>
+          <div class="step">
+            <button type="button" data-step="ph" data-d="-1" aria-label="pH down">−</button>
+            <input type="number" id="ph" inputmode="decimal" step="0.1" min="5.0" max="7.0" value="5.8">
+            <button type="button" data-step="ph" data-d="1" aria-label="pH up">+</button>
+          </div>
         </div>
       </div>
 
       <div class="sep"></div>
 
       <div class="fgroup" id="prodRows">
-        <span class="lab">Nutrients · dosed by EC chart</span>
-        <div class="prow" data-p="grow">
-          <button type="button" class="ptg" style="--pc:#34d399"><i></i>Pro Grow<small class="sp"></small></button>
-          <select class="pconc" aria-label="Pro Grow stock strength"></select>
-        </div>
-        <div class="prow" data-p="bloom">
-          <button type="button" class="ptg" style="--pc:#f472b6"><i></i>Pro Bloom<small class="sp"></small></button>
-          <select class="pconc" aria-label="Pro Bloom stock strength"></select>
-        </div>
-        <div class="prow" data-p="core">
-          <button type="button" class="ptg" style="--pc:#22d3ee"><i></i>Pro Core<small class="sp"></small></button>
-          <select class="pconc" aria-label="Pro Core stock strength"></select>
-        </div>
-        <div class="prow" data-p="fade">
-          <button type="button" class="ptg" style="--pc:#fb923c"><i></i>Pro Fade<small class="sp"></small></button>
-          <select class="pconc" aria-label="Pro Fade stock strength"></select>
-        </div>
-        <div class="hint">Stage picks the usual pair — toggle any product on/off. Both A-parts (Grow + Bloom) or both B-parts (Core + Fade) on = <b>50/50 transition split</b> of that part's chart dose. Stock strengths can differ per product.</div>
+        <span class="lab">Base nutrients · dosed by EC chart <i class="info" data-tip="mix">i</i></span>
+        <!-- rows injected by JS from NUTS registry -->
+      </div>
+
+      <div class="hint" id="mixNote">Stage picks the products. Athena runs a <b>hard Grow→Bloom switch</b> (never both at once) and swaps Core→Fade for the last 2 weeks — so A-parts and B-parts are pick-one.</div>
+
+      <div class="sep"></div>
+
+      <div class="fgroup" id="suppGroup">
+        <span class="lab">Supplements <i class="info" data-tip="supp">i</i></span>
+        <div id="suppRows"><!-- injected --></div>
       </div>
 
       <div class="sep"></div>
 
       <!-- balance -->
       <div class="fgroup">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;flex-wrap:wrap">
-          <span class="lab" style="margin:0">Balance · pH buffer</span>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap">
+          <span class="lab" style="margin:0">Balance · pH buffer <i class="info" data-tip="balance">i</i></span>
           <div class="seg sm" role="group" aria-label="Balance product">
             <button type="button" id="balBlend" class="on">Blended <small>liquid</small></button>
             <button type="button" id="balPro">Pro <small>dry</small></button>
+            <button type="button" id="balBoth">Both</button>
           </div>
         </div>
-        <div class="grid2 tight">
-          <div>
-            <span class="lab">Rate <b id="balRateU">ml / 10 L</b></span>
+        <div class="grid2 tight" id="balGrid">
+          <div id="balBlendWrap">
+            <span class="lab">Blended rate <b id="balRateU">ml / 10 L</b></span>
             <div class="step">
-              <button type="button" data-step="balRate" data-d="-1" aria-label="Balance rate down">−</button>
+              <button type="button" data-step="balRate" data-d="-1">−</button>
               <input type="number" id="balRate" inputmode="decimal" step="0.5" min="0" value="5">
-              <button type="button" data-step="balRate" data-d="1" aria-label="Balance rate up">+</button>
+              <button type="button" data-step="balRate" data-d="1">+</button>
+            </div>
+          </div>
+          <div id="balProWrap" style="display:none">
+            <span class="lab">Pro rate <b id="balProRateU">ml / 10 L</b></span>
+            <div class="step">
+              <button type="button" data-step="balProRate" data-d="-1">−</button>
+              <input type="number" id="balProRate" inputmode="decimal" step="0.5" min="0" value="5">
+              <button type="button" data-step="balProRate" data-d="1">+</button>
             </div>
           </div>
           <div id="proConcWrap" style="display:none">
-            <span class="lab">Pro Balance stock <b id="proConcU">g / L</b></span>
+            <span class="lab">Pro stock <b>g / L</b></span>
             <select id="proConc">
               <option value="40">40 g/L · ⅓ lb/gal</option>
               <option value="80">80 g/L · ⅔ lb/gal</option>
               <option value="120" selected>120 g/L · 1 lb/gal</option>
             </select>
           </div>
-          <div id="balDialWrap">
-            <span class="lab">Dial-in from last tank</span>
-            <div style="display:flex;gap:7px">
-              <div class="inwrap" style="flex:1">
-                <input type="number" id="balUsed" inputmode="decimal" min="0" placeholder="total used">
-                <span class="unit">ml</span>
-              </div>
-              <button type="button" class="btn sm" id="balDialBtn">Set rate</button>
+          <div id="bothLoadWrap" style="display:none">
+            <span class="lab">Pro powder into Blended <b>g / L</b> <i class="info" data-tip="bothload">i</i></span>
+            <div class="step">
+              <button type="button" data-step="bothLoad" data-d="-1">−</button>
+              <input type="number" id="bothLoad" inputmode="decimal" step="1" min="0" max="48" value="26">
+              <button type="button" data-step="bothLoad" data-d="1">+</button>
             </div>
           </div>
         </div>
-        <div class="hint" id="balHint">Blended Balance: liquid potassium silicate buffer — typically 2–5 ml/gal (5–13 ml/10 L). Add to water <b>before</b> nutrients, dose to target pH.</div>
+        <div class="hint" id="balHint"></div>
       </div>
 
       <div class="sep"></div>
 
-      <!-- cleanse -->
+      <!-- cleanse in reservoir -->
       <div class="fgroup">
-        <span class="lab">Athena Cleanse · hypochlorous <b id="clRateU">ml / 10 L</b></span>
+        <span class="lab">Cleanse · in reservoir <i class="info" data-tip="cleanse">i</i></span>
         <div class="grid2 tight">
           <div class="step">
-            <button type="button" data-step="clRate" data-d="-1" aria-label="Cleanse rate down">−</button>
+            <button type="button" data-step="clRate" data-d="-1">−</button>
             <input type="number" id="clRate" inputmode="decimal" step="0.5" min="0" value="9">
-            <button type="button" data-step="clRate" data-d="1" aria-label="Cleanse rate up">+</button>
+            <button type="button" data-step="clRate" data-d="1">+</button>
           </div>
           <div class="chips" id="clChips">
             <button type="button" class="chip" data-cl="3">Light</button>
@@ -392,151 +459,303 @@ footer a{color:var(--ink2);text-decoration:none;border-bottom:1px dotted var(--i
             <button type="button" class="chip" data-cl="26">Flush</button>
           </div>
         </div>
-        <div class="hint">Label: 2–5 ml/gal maintenance · 5–10 ml/gal reset &amp; final flush.</div>
-      </div>
-
-      <div class="sep"></div>
-
-      <div class="grid2 tight fgroup">
-        <div>
-          <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
-            <button type="button" class="ptg" id="stackOn" style="--pc:#fb7185;width:auto"><i></i>Stack</button>
-            <span class="lab" style="margin:0">rate <b id="stackRateU">ml / 10 L</b></span>
-          </div>
-          <div class="step" id="stackStep">
-            <button type="button" data-step="stackRate" data-d="-1" aria-label="Stack rate down">−</button>
-            <input type="number" id="stackRate" inputmode="decimal" step="0.5" min="0" value="4">
-            <button type="button" data-step="stackRate" data-d="1" aria-label="Stack rate up">+</button>
-          </div>
-          <div class="hint">Drench 1–2 ml/gal weekly, final veg week → flower wk 3. Organic — shake before dosing. Foliar rate is 7 ml/gal.</div>
-        </div>
-        <div>
-          <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
-            <button type="button" class="ptg" id="ipmOn" style="--pc:#f87171;width:auto"><i></i>IPM</button>
-            <span class="lab" style="margin:0">rate <b id="ipmRateU">ml / 10 L</b></span>
-          </div>
-          <div class="step" id="ipmStep">
-            <button type="button" data-step="ipmRate" data-d="-1" aria-label="IPM rate down">−</button>
-            <input type="number" id="ipmRate" inputmode="decimal" step="5" min="0" value="198">
-            <button type="button" data-step="ipmRate" data-d="1" aria-label="IPM rate up">+</button>
-          </div>
-          <div class="hint"><b style="color:var(--warn)">Foliar spray tank only — never the fertigation reservoir.</b> Prevent 60–90 ml/gal 2×/wk · active 90–120 ml/gal 3×/wk. Spray lights-off.</div>
-        </div>
-      </div>
-
-      <div class="sep"></div>
-
-      <button type="button" class="btn primary full" id="calcBtn">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-        Calculate dosage
-      </button>
-      <div class="btnrow" style="margin-top:9px">
-        <button type="button" class="btn sm ghost" id="saveBtn">
-          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
-          Save defaults</button>
-        <button type="button" class="btn sm ghost" id="resetBtn">
-          <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-          Reset</button>
-      </div>
-
-      <div class="sep"></div>
-
-      <div class="fgroup">
-        <span class="lab">Saved recipes</span>
-        <div style="display:flex;gap:7px">
-          <input type="text" id="rcpName" placeholder="name — e.g. F2 wk3 flower" maxlength="40" style="flex:1">
-          <button type="button" class="btn sm" id="rcpSave">Save recipe</button>
-        </div>
-        <div class="chips" id="rcpList" style="margin-top:9px"></div>
-        <div class="hint">Saves every input above to this browser. Tap a recipe to load it, ✕ to delete.</div>
       </div>
     </div>
   </div>
 
-  <!-- ============ TOP-UP ============ -->
+  <!-- top-up running tank -->
   <div class="card">
     <div class="chead"><h2>Top-up running tank</h2><div class="sub">what-if</div></div>
     <div class="cbody">
       <div class="grid2">
         <div>
           <span class="lab">Tank EC now</span>
-          <div class="inwrap">
-            <input type="number" id="tuEc" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 2.4">
-            <span class="unit">mS/cm</span>
-          </div>
+          <div class="inwrap"><input type="number" id="tuEc" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 2.4"><span class="unit">mS/cm</span></div>
         </div>
-        <div style="display:flex;align-items:flex-end">
-          <button type="button" class="btn full" id="tuBtn">Calc adjustment</button>
-        </div>
+        <div style="display:flex;align-items:flex-end"><button type="button" class="btn full" id="tuBtn">Calc adjustment</button></div>
       </div>
-      <div class="hint">Uses tank size, target EC &amp; concentrates above. Tells you what to add to bump EC up — or how much water to dilute with if you're over.</div>
-      <div class="tu-out" id="tuOut"></div>
+      <div class="hint">Uses the tank size, target EC &amp; products above. Tells you what to add to raise EC — or how much water to dilute if you're over.</div>
+      <div id="tuOut" style="margin-top:11px;display:none"></div>
     </div>
   </div>
 
-</div>
-<div class="rightcol">
-
-  <!-- ============ RESULTS ============ -->
-  <div class="card" id="resCard">
-    <div class="chead"><h2>Dosage</h2><div class="sub" id="resStamp"></div></div>
-    <div class="cbody">
-      <div id="resBody"><div class="empty">Set your tank size and hit <b>Calculate</b>.<br>Doses scale to any volume.</div></div>
-      <div class="btnrow" id="resActions" style="display:none;margin-top:4px">
-        <button type="button" class="btn" id="mixBtn">
-          <svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M21 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h11"/></svg>
-          Mix mode</button>
-        <button type="button" class="btn" id="shareBtn">
-          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-          Share</button>
-      </div>
-    </div>
+  <div class="btnrow" style="margin-bottom:12px">
+    <button type="button" class="btn sm ghost" id="saveBtn"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Save defaults</button>
+    <button type="button" class="btn sm ghost" id="rcpOpenBtn"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Recipes</button>
+    <button type="button" class="btn sm ghost" id="resetBtn"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Reset</button>
   </div>
+</section>
 
-  <!-- ============ HISTORY ============ -->
+<!-- ============================================================= -->
+<!-- ============ FOLIAR (spray tank) ============ -->
+<!-- ============================================================= -->
+<section class="panel" id="tab-foliar">
+  <div class="phead"><h1>Foliar spray</h1><p>Separate spray tank — IPM, Stack foliar, Cleanse foliar. <b style="color:var(--warn)">Never goes in the fertigation reservoir.</b></p></div>
+
   <div class="card">
-    <div class="chead">
-      <h2>History</h2>
-      <div class="sub">
-        <button type="button" class="btn sm ghost" id="csvBtn" style="height:30px">CSV</button>
-        <button type="button" class="btn sm ghost danger" id="clearBtn" style="height:30px">Clear</button>
-      </div>
-    </div>
+    <div class="chead"><h2>Spray tank</h2><div class="sub" id="folProfSub"></div></div>
     <div class="cbody">
-      <div id="logList"><div class="empty" id="noLogs">No calculations yet.</div></div>
+      <div class="fgroup">
+        <span class="lab">Spray volume <i class="info" data-tip="folvol">i</i></span>
+        <div class="inwrap"><input type="number" id="folVol" inputmode="decimal" min="0" placeholder="e.g. 5"><span class="unit" id="folVolUnit">L</span></div>
+        <div class="recent" id="folVolRecent"></div>
+      </div>
+
+      <div class="fgroup">
+        <span class="lab">Preset <i class="info" data-tip="folpreset">i</i></span>
+        <div class="chips scroll" id="folPresetChips"><!-- injected --></div>
+      </div>
+
+      <div class="sep"></div>
+      <div class="fgroup" id="folRows"><span class="lab">Products &amp; rates</span><!-- injected --></div>
     </div>
   </div>
 
-</div>
-</div>
+  <div class="card">
+    <div class="chead"><h2>Spray SOP</h2></div>
+    <div class="cbody" id="folSop"><!-- injected --></div>
+  </div>
+</section>
 
-<footer>
-  Independent tool — not affiliated with or endorsed by Athena. Verify every mix.<br>
-  Rates from the <a href="https://support.athenaag.com/hc/en-us/articles/17190427112859-Pro-Line-Feed-Schedules" target="_blank" rel="noopener">Athena Pro Line feed schedules</a> ·
-  <a href="https://github.com/JakeTheRabbit/Athena-Batch-Tank-Nutrient-Calculator" target="_blank" rel="noopener">source</a>
-</footer>
-</div>
+<!-- ============================================================= -->
+<!-- ============ STOCK (concentrate + depletion) ============ -->
+<!-- ============================================================= -->
+<section class="panel" id="tab-stock">
+  <div class="phead"><h1>Stock tanks</h1><p>Build concentrate stocks for dosing pumps, and plan how long each tank lasts before a refill.</p></div>
 
-<!-- confirm -->
-<div class="ovl" id="cfOvl" role="dialog" aria-modal="true">
-  <div class="box">
-    <h3>Confirm</h3>
-    <div class="sub2" id="cfMsg"></div>
-    <div class="btnrow">
-      <button type="button" class="btn" id="cfNo">Cancel</button>
-      <button type="button" class="btn primary" id="cfYes">Confirm</button>
+  <div class="card">
+    <div class="chead"><h2>Concentrate builder</h2><div class="sub">A/B stock</div></div>
+    <div class="cbody">
+      <div class="fgroup">
+        <span class="lab">Product <i class="info" data-tip="stockprod">i</i></span>
+        <select id="stkProd"><!-- injected --></select>
+      </div>
+      <div class="grid2 fgroup">
+        <div>
+          <span class="lab">Stock tank size</span>
+          <div class="inwrap"><input type="number" id="stkVol" inputmode="decimal" min="0" placeholder="e.g. 200"><span class="unit" id="stkVolUnit">L</span></div>
+          <div class="recent" id="stkVolRecent"></div>
+        </div>
+        <div>
+          <span class="lab">Target strength <i class="info" data-tip="stockstr">i</i></span>
+          <select id="stkStr"><!-- injected --></select>
+        </div>
+      </div>
+      <button type="button" class="btn primary full" id="stkBuildBtn">Calculate stock</button>
+      <div id="stkBuildOut" style="margin-top:12px;display:none"></div>
     </div>
   </div>
+
+  <div class="card">
+    <div class="chead"><h2>Tank life / refill date</h2><div class="sub">depletion</div></div>
+    <div class="cbody">
+      <div class="grid2 fgroup">
+        <div>
+          <span class="lab">Stock tank size</span>
+          <div class="inwrap"><input type="number" id="depVol" inputmode="decimal" min="0" placeholder="e.g. 200"><span class="unit" id="depVolUnit">L</span></div>
+        </div>
+        <div>
+          <span class="lab">Stock strength <b>g / L</b></span>
+          <select id="depStr"><!-- injected --></select>
+        </div>
+      </div>
+      <div class="fgroup">
+        <span class="lab">Product in this tank</span>
+        <select id="depProd"><!-- injected --></select>
+      </div>
+      <div class="sep"></div>
+      <div class="fgroup">
+        <span class="lab">How do you feed? <i class="info" data-tip="depmode">i</i></span>
+        <div class="seg sm" id="depModeSeg"><button type="button" data-m="batch" class="on">Batches / day</button><button type="button" data-m="daily">Litres / day</button></div>
+      </div>
+      <div class="grid2 fgroup" id="depBatchWrap">
+        <div>
+          <span class="lab">Batch tank size</span>
+          <div class="inwrap"><input type="number" id="depBatch" inputmode="decimal" min="0" placeholder="e.g. 1000"><span class="unit" id="depBatchUnit">L</span></div>
+        </div>
+        <div>
+          <span class="lab">Batches per day</span>
+          <div class="step"><button type="button" data-step="depBpd" data-d="-1">−</button><input type="number" id="depBpd" inputmode="decimal" step="0.5" min="0" value="1"><button type="button" data-step="depBpd" data-d="1">+</button></div>
+        </div>
+      </div>
+      <div class="fgroup" id="depDailyWrap" style="display:none">
+        <span class="lab">Feed volume per day</span>
+        <div class="inwrap"><input type="number" id="depDaily" inputmode="decimal" min="0" placeholder="e.g. 1000"><span class="unit" id="depDailyUnit">L</span></div>
+      </div>
+      <div class="grid2 fgroup">
+        <div>
+          <span class="lab">Feed EC <b id="depEcVal">3.0</b></span>
+          <input type="range" id="depEc" min="0.5" max="4.5" step="0.1" value="3">
+        </div>
+        <div>
+          <span class="lab">Start date <i class="info" data-tip="depdate">i</i></span>
+          <input type="date" id="depDate">
+        </div>
+      </div>
+      <button type="button" class="btn primary full" id="depBtn">Calculate tank life</button>
+      <div id="depOut" style="margin-top:12px;display:none"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- ============ pH (correction estimator) ============ -->
+<!-- ============================================================= -->
+<section class="panel" id="tab-ph">
+  <div class="phead"><h1>pH correction</h1><p>Estimate how much Balance to add to hit your target pH. Learns from your own tanks to get sharper over time.</p></div>
+
+  <div class="card">
+    <div class="chead"><h2>How much Balance?</h2><div class="sub">estimate</div></div>
+    <div class="cbody">
+      <div class="grid2 fgroup">
+        <div>
+          <span class="lab">Tank size</span>
+          <div class="inwrap"><input type="number" id="phVol" inputmode="decimal" min="0" placeholder="e.g. 100"><span class="unit" id="phVolUnit">L</span></div>
+          <div class="recent" id="phVolRecent"></div>
+        </div>
+        <div>
+          <span class="lab">Feed EC <b id="phEcVal">3.0</b> <i class="info" data-tip="phec">i</i></span>
+          <input type="range" id="phEc" min="0.5" max="4.5" step="0.1" value="3">
+        </div>
+      </div>
+      <div class="grid2 fgroup">
+        <div>
+          <span class="lab">Current pH</span>
+          <div class="step"><button type="button" data-step="phCur" data-d="-1">−</button><input type="number" id="phCur" inputmode="decimal" step="0.1" min="3" max="9" value="5.2"><button type="button" data-step="phCur" data-d="1">+</button></div>
+        </div>
+        <div>
+          <span class="lab">Target pH</span>
+          <div class="step"><button type="button" data-step="phTgt" data-d="-1">−</button><input type="number" id="phTgt" inputmode="decimal" step="0.1" min="3" max="9" value="5.8"><button type="button" data-step="phTgt" data-d="1">+</button></div>
+        </div>
+      </div>
+      <div class="fgroup">
+        <span class="lab">Balance product</span>
+        <div class="seg sm" id="phBalSeg"><button type="button" data-b="blended" class="on">Blended liquid</button><button type="button" data-b="pro">Pro dry stock</button></div>
+      </div>
+      <button type="button" class="btn primary full" id="phBtn">Estimate Balance</button>
+      <div id="phOut" style="margin-top:12px;display:none"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chead"><h2>Calibrate <i class="info" data-tip="phcal" style="margin-left:4px">i</i></h2><div class="sub" id="phCalSub">seed model</div></div>
+    <div class="cbody">
+      <div class="hint" style="margin-top:0">After a real correction, log what actually happened — the estimator tunes to your water &amp; products for this profile.</div>
+      <div class="grid2 fgroup" style="margin-top:11px">
+        <div><span class="lab">Balance added</span><div class="inwrap"><input type="number" id="calMl" inputmode="decimal" min="0" placeholder="ml"><span class="unit">ml</span></div></div>
+        <div><span class="lab">pH moved to</span><div class="step"><button type="button" data-step="calTo" data-d="-1">−</button><input type="number" id="calTo" inputmode="decimal" step="0.1" placeholder="new pH"><button type="button" data-step="calTo" data-d="1">+</button></div></div>
+      </div>
+      <button type="button" class="btn full" id="calBtn">Log this correction</button>
+      <div class="hint" id="calStatus" style="margin-top:9px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- ============ MORE (clean / recipes / history / tour / settings) ============ -->
+<!-- ============================================================= -->
+<section class="panel" id="tab-more">
+  <div class="phead"><h1>More</h1><p>Cleaning protocols, saved recipes, history, settings and the walkthrough.</p></div>
+
+  <div class="card">
+    <div class="chead"><h2>Cleaning &amp; sanitation</h2><div class="sub">Cleanse</div></div>
+    <div class="cbody" id="cleanRef"><!-- injected --></div>
+  </div>
+
+  <div class="card">
+    <div class="chead"><h2>Saved recipes</h2></div>
+    <div class="cbody">
+      <div style="display:flex;gap:7px">
+        <input type="text" id="rcpName" placeholder="name — e.g. F2 wk3 flower" maxlength="40" style="flex:1">
+        <button type="button" class="btn sm" id="rcpSave">Save</button>
+      </div>
+      <div class="chips" id="rcpList" style="margin-top:10px"></div>
+      <div class="hint">Saves the Feed-tab recipe to this browser. Tap to load, ✕ to delete.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chead"><h2>History</h2><div class="sub"><button type="button" class="btn sm ghost" id="csvBtn" style="height:30px">CSV</button> <button type="button" class="btn sm ghost danger" id="clearBtn" style="height:30px">Clear</button></div></div>
+    <div class="cbody"><div id="logList"><div class="empty">No calculations yet.</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="chead"><h2>Settings</h2></div>
+    <div class="cbody">
+      <div class="fgroup">
+        <span class="lab">PPM scale <i class="info" data-tip="ppm">i</i></span>
+        <div class="seg sm" id="ppmSeg"><button type="button" data-s="500" class="on">500 (US / Hanna)</button><button type="button" data-s="700">700 (EU / Truncheon)</button></div>
+      </div>
+      <button type="button" class="btn full" id="tourBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>Replay walkthrough</button>
+    </div>
+  </div>
+
+  <div class="disc" id="discBox"></div>
+  <footer>
+    Independent tool — not affiliated with, endorsed by, or sponsored by Athena Agriculture. All product names are trademarks of their owners. Always verify every mix against the official label.<br>
+    <a href="https://github.com/JakeTheRabbit/Athena-Batch-Tank-Nutrient-Calculator" target="_blank" rel="noopener">source</a>
+  </footer>
+</section>
+
+</main>
 </div>
 
-<!-- mix mode -->
-<div class="ovl" id="mixOvl" role="dialog" aria-modal="true">
-  <div class="box">
-    <h3>Mix mode</h3>
-    <div class="sub2" id="mixSub"></div>
-    <div id="mixSteps"></div>
-    <div class="ordnote">Order: Cleanse → Balance → Grow → Bloom → Core → Fade → Stack last (organic — shake well). Let each addition fully dissolve &amp; circulate before the next. <b style="color:var(--warn)">Never combine concentrates undiluted.</b> IPM belongs in the foliar spray tank only. Check pH last.</div>
-    <button type="button" class="btn primary full" id="mixClose" style="margin-top:14px">Done</button>
+<!-- ============ BOTTOM NAV ============ -->
+<nav class="nav" id="nav">
+  <button type="button" class="on" data-tab="feed"><svg viewBox="0 0 24 24"><path d="M5 3h14l-1 8a6 6 0 0 1-12 0z"/><path d="M8 21h8M12 17v4"/></svg><span>Feed</span></button>
+  <button type="button" data-tab="foliar"><svg viewBox="0 0 24 24"><path d="M12 2s6 5 6 11a6 6 0 0 1-12 0c0-6 6-11 6-11z"/><path d="M9 20h6"/></svg><span>Foliar</span></button>
+  <button type="button" data-tab="stock"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="13" rx="2"/><path d="M5 12h14M9 8V4h6v4"/></svg><span>Stock</span></button>
+  <button type="button" data-tab="ph"><svg viewBox="0 0 24 24"><path d="M7 3v6l-3 6a3 3 0 0 0 3 4h10a3 3 0 0 0 3-4l-3-6V3"/><path d="M6 3h12M9 15h.01M13 17h.01"/></svg><span>pH</span></button>
+  <button type="button" data-tab="more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>More</span></button>
+</nav>
+
+<!-- sticky action bar (Feed & Foliar) -->
+<div class="actbar" id="actbar"><div class="inner"><button type="button" class="btn primary full" id="calcBtn"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span id="calcBtnLabel">Calculate dosage</span></button></div></div>
+
+<!-- result sheet -->
+<div class="sheet" id="resSheet"><div class="scrim" data-close></div><div class="body">
+  <div class="grab"></div>
+  <div class="sh"><h3 id="resTitle">Dosage</h3><div class="sub" id="resStamp" style="font-size:11px;color:var(--ink3)"></div><button type="button" class="x" data-close><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div id="resBody"></div>
+  <div class="btnrow" id="resActions" style="margin-top:10px">
+    <button type="button" class="btn" id="mixBtn"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M21 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h11"/></svg>Mix mode</button>
+    <button type="button" class="btn" id="shareBtn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Share</button>
+  </div>
+</div></div>
+
+<!-- mix-mode sheet -->
+<div class="sheet" id="mixSheet"><div class="scrim" data-close></div><div class="body">
+  <div class="grab"></div>
+  <div class="sh"><h3>Mix mode</h3><div class="sub" id="mixSub" style="font-size:11px;color:var(--ink3)"></div><button type="button" class="x" data-close><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div id="mixSteps"></div>
+  <div class="ordnote" id="mixOrder"></div>
+  <button type="button" class="btn primary full" id="mixDone" style="margin-top:13px">Done</button>
+</div></div>
+
+<!-- confirm sheet -->
+<div class="sheet" id="cfSheet"><div class="scrim" data-close></div><div class="body">
+  <div class="grab"></div>
+  <div class="sh"><h3 id="cfTitle">Confirm</h3><button type="button" class="x" data-close><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <p id="cfMsg" style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:14px"></p>
+  <div class="btnrow"><button type="button" class="btn" data-close>Cancel</button><button type="button" class="btn primary" id="cfYes">Confirm</button></div>
+</div></div>
+
+<!-- tooltip -->
+<div class="tipwrap" id="tipwrap"><div class="scrim" data-close></div><div class="box"><h4 id="tipTitle"></h4><div id="tipBody"></div><button type="button" class="btn primary close" data-close>Got it</button></div></div>
+
+<!-- tour -->
+<div class="tour" id="tour">
+  <div class="scrim"></div>
+  <div class="halo" id="tourHalo"></div>
+  <div class="pop">
+    <div class="step" id="tourStep">Step 1 of 6</div>
+    <h3 id="tourTitle"></h3>
+    <p id="tourBody"></p>
+    <div class="row">
+      <div class="dots" id="tourDots"></div>
+      <button type="button" class="btn sm ghost" id="tourSkip">Skip</button>
+      <button type="button" class="btn sm primary" id="tourNext">Next</button>
+    </div>
   </div>
 </div>
 
@@ -546,634 +765,782 @@ footer a{color:var(--ink2);text-decoration:none;border-bottom:1px dotted var(--i
 'use strict';
 (function(){
 
-/* ================= constants ================= */
-const GAL = 3.78541;                       // L per US gallon
-const ANCH = [1,1.5,2,2.5,3,3.5,4];        // EC anchors of the Athena dosing chart
+/* ============================================================
+   DATA REGISTRY — cross-verified against Athena's official Feed
+   Schedule (doc A01.004), Pro Dosage Guidelines (A01.002/S5),
+   store.athenaag.com and support.athenaag.com KB articles.
+   Base dosing uses Athena's grams-per-gallon reference (linear in
+   EC), divided by stock strength — exact at any strength.
+   Items marked SEED are conservative and labelled in-app.
+   ============================================================ */
+const GAL = 3.78541;                                  // L per US gallon
+const ECA = [0.5,1,1.5,2,2.5,3,3.5,4];                // EC anchors (mS/cm)
 
-// Official Athena Pro Line dosing chart — ml per 10 L (metric) / ml per gal (imperial)
-// at each EC anchor, per concentrate strength. Values verbatim from Athena's chart.
-const DOSE = {
-  metric: {
-    "113": {grow:[54,83,114,146,179,214,249], core:[32,50,69,88,108,128,149]},
-    "226": {grow:[27,42,57,73,90,107,124],    core:[16,25,34,44,54,64,75]},
-    "240": {grow:[25,38,55,71,85,102,119],    core:[15,23,33,43,51,61,72]},
-    "282": {grow:[21,33,46,59,72,86,100],     core:[13,20,27,35,43,51,60]}
-  },
-  imperial: {
-    "1":   {grow:[19,30,41,52,64,76,89],      core:[11,18,24,31,38,46,53]},
-    "2":   {grow:[10,15,20,26,32,38,44],      core:[6,9,12,16,19,23,27]},
-    "2.2": {grow:[9,14,19,24,30,36,42],       core:[5.5,8.5,11,15,18,21.5,25]},
-    "2.5": {grow:[8,12,16,21,26,30,36],       core:[5,7,10,13,15,18,21]}
-  }
+/* Grams of product per 10 L of finished reservoir, by target EC. Verbatim from
+   Athena's Metric Dosage Reference Guide (doc A01.004) "measuring by weight"
+   master. ml of stock = grams × (vol/10) × 1000 / stock-g/L — this reproduces
+   BOTH Athena's metric (226 g/L) and imperial (240 g/L) published ml tables exactly. */
+const G10 = {
+  A:[2.8,6.1,9.4,12.9,16.5,20.3,24.1,28.1],   // Grow / Bloom
+  B:[1.7,3.6,5.7,7.7,9.9,12.2,14.5,16.9]      // Core / Fade
 };
-const M2I = {"113":"1","226":"2","240":"2.2","282":"2.5"};
-const I2M = {"1":"113","2":"226","2.2":"240","2.5":"282"};
-const CONC_OPTS = [
-  {m:"113", gl:113, mLab:"113 g/L", iLab:"1 lb/gal"},
-  {m:"226", gl:226, mLab:"226 g/L", iLab:"2 lb/gal"},
-  {m:"240", gl:240, mLab:"240 g/L", iLab:"2.2 lb/gal"},
-  {m:"282", gl:282, mLab:"282 g/L", iLab:"2.5 lb/gal"}
+
+/* Stock concentrate strengths (g/L). Labels show BOTH bases to kill the
+   per-gallon vs per-4L confusion. 226=2lb/4L(metric std), 240=2lb/gal(imperial std). */
+const CONC = [
+  {k:"113", gl:113, lab:"113 g/L · 1 lb / 4 L"},
+  {k:"120", gl:120, lab:"120 g/L · 1 lb / gal"},
+  {k:"226", gl:226, lab:"226 g/L · 2 lb / 4 L"},
+  {k:"240", gl:240, lab:"240 g/L · 2 lb / gal"},
+  {k:"282", gl:282, lab:"282 g/L · 2.5 lb / 4 L"},
+  {k:"300", gl:300, lab:"300 g/L · 2.5 lb / gal · agitate"}
 ];
 
-const STAGES = {
-  clone:  {name:"Clone",        ph:5.6, ec:2.0, bal:5, cl:3,  on:["grow","core"]},
-  veg:    {name:"Mother & Veg", ph:5.8, ec:3.0, bal:5, cl:9,  on:["grow","core"]},
-  flower: {name:"Flower",       ph:5.8, ec:3.0, bal:5, cl:9,  on:["bloom","core"]},
-  finish: {name:"Finish",       ph:5.8, ec:3.0, bal:5, cl:9,  on:["bloom","fade"]},
-  flush:  {name:"Flush",        ph:6.0, ec:0,   bal:0, cl:26, on:[]}
-};
-// chart-driven nutrient products; A-parts share the grow table, B-parts the core table
+/* Base nutrients. table = grams column (A/B). Parts are mutually exclusive:
+   Athena runs a hard Grow→Bloom switch and swaps Core→Fade — never blended. */
 const NUTS = [
-  {k:"grow",  name:"Pro Grow",  table:"grow", part:"A", color:"#34d399"},
-  {k:"bloom", name:"Pro Bloom", table:"grow", part:"A", color:"#f472b6"},
-  {k:"core",  name:"Pro Core",  table:"core", part:"B", color:"#22d3ee"},
-  {k:"fade",  name:"Pro Fade",  table:"core", part:"B", color:"#fb923c"}
+  {k:"grow",  name:"Pro Grow",  table:"A", part:"A", color:"#00c46a"},
+  {k:"bloom", name:"Pro Bloom", table:"A", part:"A", color:"#f472b6"},
+  {k:"core",  name:"Pro Core",  table:"B", part:"B", color:"#38bdf8"},
+  {k:"fade",  name:"Pro Fade",  table:"B", part:"B", color:"#fb923c"}
 ];
 
-/* ================= state =================
-   Canonical units everywhere: liters, ml per 10 L.
-   Imperial exists only at the presentation layer.        */
-const S = {
-  metric: true,
-  stage: "veg",
-  ec: 3.0,
-  ph: 5.8,
-  srcEc: 0,
-  volL: NaN,                                            // canonical liters
-  products: {grow:true, bloom:false, core:true, fade:false},
-  conc: {grow:"226", bloom:"226", core:"226", fade:"226"},  // stock strength per product (metric key)
-  balProduct: "blended",                                // blended | pro
-  balRate10L: {blended:5, pro:5},                       // remembered per product
-  proConc: 120,                                         // g/L of Pro Balance stock
-  cl10L: 9,                                             // cleanse ml/10L
-  stack: {on:false, r10:4},                             // ~1.5 ml/gal drench
-  ipm:   {on:false, r10:198}                            // ~75 ml/gal foliar tank
+/* Supplements dosed at a fixed rate (ml per 10 L), volume-scaled. */
+const SUPP = [
+  {k:"camg", name:"CaMg",        color:"#22d3ee", def:6.6, note:"Cal-Mag-Fe for RO water / inert media. ~2–3 ml/gal every week."},
+  {k:"pk",   name:"PK 0-4-5",    color:"#a78bfa", def:26,  note:"No-nitrogen P-K booster. Flower <b>from week 3</b>, ~4–15 ml/gal ramp."}
+];
+
+/* Growth stages, verbatim from Athena's Pro Program (with Fade) feed schedule.
+   Pro runs a single EC-3.0 program: clone EC 2.0 on Bloom+Core, veg on Grow+Core,
+   flower on Bloom+Core, finish swaps Core→Fade. ec = default target EC (slider
+   overrides); ph = mid of Athena's band; cl = reservoir Cleanse ml/10L. */
+const STAGES = {
+  clone:  {name:"Clone / Cutting", ec:2.0, ph:5.6, cl:2.6, on:["bloom","core"]},
+  veg:    {name:"Mother & Veg",    ec:3.0, ph:6.0, cl:9,   on:["grow","core"]},
+  flower: {name:"Flower",          ec:3.0, ph:6.0, cl:9,   on:["bloom","core"]},
+  finish: {name:"Finish / Fade",   ec:3.0, ph:6.2, cl:9,   on:["bloom","fade"]},
+  flush:  {name:"Flush",           ec:0,   ph:6.2, cl:26,  on:[]}
 };
-let lastResult = null;
-let logs = [];
-let recipes = {};
-let cfCb = null;
 
-/* ================= helpers ================= */
-const $ = id => document.getElementById(id);
-const r1 = n => Math.round(n*10)/10;
-function fmt(n,d){ if(!isFinite(n)) return "—";
-  if(d===undefined) d = n>=100?0:1;
+/* Foliar / spray-tank products — ml per 10 L of spray water.
+   IPM rebranded IPW (Integrated Plant Wash) — same formula. */
+const FOLIAR = [
+  {k:"ipm",     name:"Athena IPM / IPW", color:"#f2685f", def:238,
+   note:"Spray lights-off, saturate media first, dry 3–4 h. Prevention 50–90 ml/gal · pressure 90–120 ml/gal. Root-drench option 5–10 ml/gal (compatible with fertilizer)."},
+  {k:"stackf",  name:"Stack (foliar)",   color:"#fb7185", def:18.5,
+   note:"~7 ml/gal. Organic — shake well. Final veg week → flower wk 3. Tank-mixes with IPM."},
+  {k:"cleansef",name:"Cleanse (surface)",color:"#a889f0", def:26,
+   note:"Surface / tool wipe ~10 ml/gal. Heavy sanitation up to ~10% v/v (100 ml/L) — aggressive oxidiser, test first. SEED.", seed:true}
+];
+const FOL_PRESETS = [
+  {id:"ipm_prev",  name:"IPM · preventative", only:["ipm"],           set:{ipm:238}},
+  {id:"ipm_press", name:"IPM · pressure",     only:["ipm"],           set:{ipm:317}},
+  {id:"ipm_stack", name:"IPM + Stack",        only:["ipm","stackf"],  set:{ipm:238,stackf:18.5}},
+  {id:"stack",     name:"Stack foliar",       only:["stackf"],        set:{stackf:18.5}},
+  {id:"cleanse",   name:"Cleanse wipe-down",  only:["cleansef"],      set:{cleansef:26}}
+];
+
+/* Cleanse reservoir/flush use-cases (ml/10L). */
+const CLEANSE_USE = [
+  {name:"In every irrigation", r10:5.3,  color:"#00c46a", note:"Running dose in the feed tank — 2 ml/gal every feed."},
+  {name:"Maintenance",         r10:9,    color:"#26d0a8", note:"General reservoir upkeep — 2–5 ml/gal."},
+  {name:"Severe / reset",      r10:20,   color:"#38bdf8", note:"Heavy scale/biofilm — 5–10 ml/gal."},
+  {name:"Final flush",         r10:26,   color:"#f5b642", note:"Flush stage, RO + Cleanse — 10 ml/gal. Coco last 3 days, rockwool last day."},
+  {name:"Clone dip",           r10:26,   color:"#a889f0", note:"Dip fresh cuttings — 10 ml/gal."}
+];
+/* Clean Line — separate between-crop sanitation products (protocol reference). */
+const CLEANLINE = [
+  {name:"Renew · line de-scale", color:"#38bdf8", note:"Charge system, flush lines (not drippers), <b>dwell 12–24 h</b>, flush. Clear drippers at 1–2 oz/gal. Needs Viton/Aflas seals — not for Netaflex/venturi."},
+  {name:"Reset · sterilise",     color:"#00c46a", note:"Flush the system with <b>1 oz/gal</b> Reset after Renew, then rinse and refill with nutrients."},
+  {name:"Perafoam + Reset · surfaces", color:"#f5b642", note:"Between cycles: foam surfaces, leave <b>30–60 min</b>, scrub optional, rinse. Air 5–10 CFM @ 50 psi."}
+];
+
+/* Stock strengths for builder/depletion (g/L). */
+const STOCK_STR = [
+  {k:"113", gl:113, lab:"113 g/L · 1 lb/4 L"},
+  {k:"120", gl:120, lab:"120 g/L · 1 lb/gal · Dosatron"},
+  {k:"226", gl:226, lab:"226 g/L · 2 lb/4 L · metric std"},
+  {k:"240", gl:240, lab:"240 g/L · 2 lb/gal · imperial std"},
+  {k:"282", gl:282, lab:"282 g/L · 2.5 lb/4 L · agitate"},
+  {k:"300", gl:300, lab:"300 g/L · 2.5 lb/gal · agitate"}
+];
+
+const PROFILES = {
+  garage:     {name:"Garage",     vol:20,   stk:20,  batch:20,   note:"Small tent / garage."},
+  craft:      {name:"Craft",      vol:200,  stk:200, batch:200,  note:"Room-scale craft grow."},
+  commercial: {name:"Commercial", vol:1000, stk:1000,batch:1000, note:"Commercial stock tanks."}
+};
+
+/* pH estimator seed. Athena publishes NO fixed ml/pH — their method is to
+   titrate in 1 ml/gal increments and record. This tool does that math and
+   learns per-profile from logged corrections. Seed = rough starting point. */
+const PH_SEED = { blended:{k:4.0, alpha:0.35}, pro:{k:3.0, alpha:0.35} };
+
+/* ================= STATE ================= */
+const S = {
+  metric:true, profile:"craft", ppm:500,
+  stage:"veg", ec:3.0, ph:6.0, srcEc:0, volL:NaN,
+  products:{grow:true,bloom:false,core:true,fade:false},
+  conc:{grow:"226",bloom:"226",core:"226",fade:"226"},
+  supp:{camg:{on:false,r10:10}, pk:{on:false,r10:26}},
+  balMode:"blended", balBlend10:13, balPro10:13, proConc:120, bothLoad:26,
+  cl10:9,
+  folVolL:NaN, folProducts:{ipm:true,stackf:false,cleansef:false}, folR10:{},
+  stkProd:"grow", stkStr:"240",
+  depProd:"grow", depStr:"240", depMode:"batch", depBpd:1, depEc:3.0,
+  phEc:3.0, phBal:"blended", phCal:{}
+};
+let lastFeed=null, lastFoliar=null, logs=[], recipes={}, cfCb=null, recent={};
+let lastResultForMix=null, lastMixKind='feed';
+
+/* ================= HELPERS ================= */
+const $=id=>document.getElementById(id);
+const r1=n=>Math.round(n*10)/10;
+const clamp=(v,lo,hi,d)=>{const n=parseFloat(v);return isFinite(n)?Math.min(hi,Math.max(lo,n)):d;};
+function fmt(n,d){ if(!isFinite(n))return"—"; if(d===undefined)d=Math.abs(n)>=100?0:1;
   return n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:d}); }
-function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show');
-  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2600); }
-function confirmBox(msg,cb){ $('cfMsg').textContent=msg; cfCb=cb; $('cfOvl').classList.add('show'); }
-const dispVol  = () => S.metric ? S.volL : S.volL/GAL;
-const volUnit  = () => S.metric ? "L" : "gal";
-const rateUnit = () => S.metric ? "ml / 10 L" : "ml / gal";
-const rateDisp = r10 => S.metric ? r10 : r10*GAL/10;       // ml/10L -> ml/gal
-const rateCanon= rd  => S.metric ? rd  : rd*10/GAL;        // display -> ml/10L
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2500);}
+const volUnit=()=>S.metric?"L":"gal";
+const rateUnit=()=>S.metric?"ml / 10 L":"ml / gal";
+const rateDisp=r10=>S.metric?r10:r10*GAL/10;          // ml/10L -> ml/gal
+const rateCanon=rd=>S.metric?rd:rd*10/GAL;            // display -> ml/10L
+const toL=v=>{const n=parseFloat(v);return isFinite(n)&&n>0?(S.metric?n:n*GAL):NaN;};
+const fromL=l=>S.metric?l:l/GAL;
+function ppmStr(ec){return isFinite(ec)&&ec>0?`≈ ${fmt(ec*S.ppm,0)} ppm`:"";}
 
-/* Interpolated chart lookup. table = array at anchors; ec in mS/cm.
-   Below 1.0 extrapolates linearly through origin (flagged by caller). */
-function lerpDose(table, ec){
-  if(ec<=0) return 0;
-  if(ec < ANCH[0]) return table[0]*ec/ANCH[0];
-  if(ec >= ANCH[ANCH.length-1]) return table[ANCH.length-1];
-  for(let i=0;i<ANCH.length-1;i++){
-    if(ec<=ANCH[i+1]){
-      const t=(ec-ANCH[i])/(ANCH[i+1]-ANCH[i]);
-      return table[i]+(table[i+1]-table[i])*t;
-    }
-  }
-  return table[ANCH.length-1];
+/* linear interpolation over EC anchors; below 0.5 extrapolates through origin */
+function lerpGPG(tbl,ec){
+  if(ec<=0)return 0;
+  if(ec<ECA[0])return tbl[0]*ec/ECA[0];
+  if(ec>=ECA[ECA.length-1])return tbl[ECA.length-1];
+  for(let i=0;i<ECA.length-1;i++){ if(ec<=ECA[i+1]){
+    const t=(ec-ECA[i])/(ECA[i+1]-ECA[i]); return tbl[i]+(tbl[i+1]-tbl[i])*t; } }
+  return tbl[ECA.length-1];
 }
-
-/* Per-product totals for a given effective EC and volume (canonical L).
-   Two products of the same part enabled = 50/50 split of that part's chart dose. */
-function nutTotals(ecEff, volL){
-  const sys = S.metric?'metric':'imperial';
-  const mult = S.metric ? volL/10 : volL/GAL;   // chart rows are per-10L or per-gal
-  const enabled = NUTS.filter(n=>S.products[n.k]);
-  return enabled.map(n=>{
-    const share = enabled.filter(x=>x.part===n.part).length===2 ? 0.5 : 1;
-    const key = S.metric ? S.conc[n.k] : M2I[S.conc[n.k]];
-    const rate = lerpDose(DOSE[sys][key][n.table], ecEff)*share;
-    const ml = rate*mult;
-    return {k:n.k, name:n.name, color:n.color, share, rate, ml,
-            g: ml*CONC_OPTS.find(o=>o.m===S.conc[n.k]).gl/1000};
+/* per-product totals at effective EC & volume (L). grams from the per-10L master;
+   ml = grams / stock-strength. Reproduces Athena's published ml tables exactly. */
+function nutTotals(ecEff,volL){
+  const units=volL/10;
+  return NUTS.filter(n=>S.products[n.k]).map(n=>{
+    const g=lerpGPG(G10[n.table],ecEff)*units;       // grams for tank
+    const gl=CONC.find(o=>o.k===S.conc[n.k]).gl;
+    const ml=g/gl*1000;                              // ml of stock
+    const rate10=ml/units;                           // ml per 10 L (display)
+    return {k:n.k,name:n.name,color:n.color,rate:rate10,ml,g};
   });
 }
 
-/* ================= UI sync ================= */
-function fillConcSelects(){
+/* ================= RECENT VALUES =================
+   Stored in canonical LITRES per profile; converted at render so the
+   chips stay correct when the unit system flips. */
+function pushRecent(field,litres){
+  if(!isFinite(litres)||litres<=0)return;
+  const key=field+"__"+S.profile, rounded=Math.round(litres*100)/100;
+  let a=(recent[key]||[]).filter(v=>Math.abs(v-rounded)>0.01); a.unshift(rounded); a=a.slice(0,4);
+  recent[key]=a; localStorage.setItem('abt3.recent',JSON.stringify(recent));
+}
+function renderRecent(boxId,field,inputId,recLitres){
+  const box=$(boxId); if(!box)return;
+  const a=recent[field+"__"+S.profile]||[], items=[];
+  if(recLitres!=null && !a.some(v=>Math.abs(v-recLitres)<0.01)) items.push({v:recLitres,r:true});
+  a.forEach(v=>items.push({v}));
+  if(!items.length){box.innerHTML='';return;}
+  box.innerHTML='<span class="rl">Recent</span>'+items.map(it=>`<button type="button" class="rc" data-v="${it.v}">${it.r?'★ ':''}${fmt(fromL(it.v),1)}</button>`).join('');
+  box.querySelectorAll('.rc').forEach(b=>b.addEventListener('click',()=>{
+    const el=$(inputId); el.value=+fromL(+b.dataset.v).toFixed(2); el.dispatchEvent(new Event('change')); el.dispatchEvent(new Event('input'));
+  }));
+}
+
+/* ================= FEED TAB ================= */
+function buildProdRows(){
+  const box=$('prodRows'); box.querySelectorAll('.prow').forEach(e=>e.remove());
+  NUTS.forEach(n=>{
+    const row=document.createElement('div'); row.className='prow'; row.dataset.p=n.k;
+    row.innerHTML=`<button type="button" class="ptg" style="--pc:${n.color}"><i></i>${n.name}<small class="sp"></small></button><select class="pconc" aria-label="${n.name} stock"></select>`;
+    box.appendChild(row);
+    row.querySelector('.ptg').addEventListener('click',()=>toggleProduct(n.k));
+    row.querySelector('.pconc').addEventListener('change',e=>{S.conc[n.k]=e.target.value;});
+  });
+}
+/* mutually exclusive within a part (hard switch), toggle off if re-tapped */
+function toggleProduct(k){
+  const part=NUTS.find(n=>n.k===k).part;
+  if(S.products[k]){ S.products[k]=false; }
+  else { NUTS.filter(n=>n.part===part).forEach(n=>S.products[n.k]=(n.k===k)); }
+  syncProducts();
+}
+function buildSupp(){
+  const box=$('suppRows'); box.innerHTML='';
+  SUPP.forEach(s=>{
+    const row=document.createElement('div'); row.className='prow'; row.dataset.s=s.k;
+    row.innerHTML=`<button type="button" class="ptg" style="--pc:${s.color}"><i></i>${s.name}</button>
+      <div class="step" style="flex:1"><button type="button" data-sstep="${s.k}" data-d="-1">−</button><input type="number" class="supprate" inputmode="decimal" step="0.5" min="0"><button type="button" data-sstep="${s.k}" data-d="1">+</button></div>`;
+    box.appendChild(row);
+    const note=document.createElement('div'); note.className='hint'; note.style.margin='-2px 0 9px'; note.innerHTML=s.note; box.appendChild(note);
+    row.querySelector('.ptg').addEventListener('click',()=>{S.supp[s.k].on=!S.supp[s.k].on;syncSupp();});
+    const inp=row.querySelector('.supprate');
+    inp.addEventListener('change',()=>{S.supp[s.k].r10=Math.max(0,rateCanon(parseFloat(inp.value)||0));});
+    row.querySelectorAll('[data-sstep]').forEach(b=>b.addEventListener('click',()=>{
+      const step=parseFloat(inp.step)||0.5; inp.value=r1(Math.max(0,(parseFloat(inp.value)||0)+(+b.dataset.d)*step)); inp.dispatchEvent(new Event('change')); syncSupp();
+    }));
+  });
+}
+function syncSupp(){
+  document.querySelectorAll('#suppRows .prow').forEach(row=>{
+    const k=row.dataset.s, on=S.supp[k].on;
+    row.querySelector('.ptg').classList.toggle('on',on);
+    const inp=row.querySelector('.supprate'); inp.value=r1(rateDisp(S.supp[k].r10)); inp.disabled=!on; row.style.opacity=on?'1':'.55';
+  });
+}
+function fillConc(){
   document.querySelectorAll('#prodRows .prow').forEach(row=>{
-    const k=row.dataset.p, el=row.querySelector('.pconc');
-    el.innerHTML='';
-    CONC_OPTS.forEach(o=>{
-      const op=document.createElement('option');
-      op.value=o.m; op.textContent=(S.metric?o.mLab:o.iLab)+' stock';
-      el.appendChild(op);
-    });
+    const k=row.dataset.p, el=row.querySelector('.pconc'); el.innerHTML='';
+    CONC.forEach(o=>{const op=document.createElement('option');op.value=o.k;op.textContent=o.lab;el.appendChild(op);});
     el.value=S.conc[k];
   });
 }
 function syncProducts(){
-  const enabled=NUTS.filter(n=>S.products[n.k]);
   document.querySelectorAll('#prodRows .prow').forEach(row=>{
-    const k=row.dataset.p, on=S.products[k];
-    row.querySelector('.ptg').classList.toggle('on',on);
-    row.querySelector('.pconc').disabled=!on;
-    const part=NUTS.find(n=>n.k===k).part;
-    row.querySelector('.sp').textContent=
-      on && enabled.filter(x=>x.part===part).length===2 ? '50/50' : '';
+    const k=row.dataset.p, is=S.products[k];
+    row.querySelector('.ptg').classList.toggle('on',is);
+    row.querySelector('.pconc').disabled=!is;
+    row.querySelector('.sp').textContent='';
   });
-}
-function syncExtras(){
-  $('stackOn').classList.toggle('on',S.stack.on);
-  $('ipmOn').classList.toggle('on',S.ipm.on);
-  $('stackStep').style.opacity=S.stack.on?'1':'.35';
-  $('ipmStep').style.opacity=S.ipm.on?'1':'.35';
-  $('stackRate').value=r1(rateDisp(S.stack.r10));
-  $('ipmRate').value=Math.round(rateDisp(S.ipm.r10));
-  $('stackRateU').textContent=rateUnit();
-  $('ipmRateU').textContent=rateUnit();
-}
-function syncUnits(){
-  $('uMetric').classList.toggle('on',S.metric);
-  $('uImperial').classList.toggle('on',!S.metric);
-  $('volUnit').textContent=volUnit();
-  $('vol').value = isFinite(S.volL)? +dispVol().toFixed(2) : '';
-  $('vol').placeholder = S.metric?'e.g. 100':'e.g. 25';
-  $('balRateU').textContent=rateUnit();
-  $('clRateU').textContent=rateUnit();
-  $('balRate').value = r1(rateDisp(S.balRate10L[S.balProduct]));
-  $('clRate').value  = r1(rateDisp(S.cl10L));
-  fillConcSelects();
-  syncExtras();
-  // cleanse chip labels show converted value
-  document.querySelectorAll('#clChips .chip').forEach(c=>{
-    const v=+c.dataset.cl;
-    c.querySelector('small')?.remove();
-    const s=document.createElement('small');
-    s.textContent=r1(rateDisp(v))+' ml';
-    c.appendChild(s);
-  });
-}
-function syncStage(){
-  document.querySelectorAll('#stageChips .chip').forEach(c=>
-    c.classList.toggle('on',c.dataset.stage===S.stage));
-  const st=STAGES[S.stage];
-  $('stageSub').textContent=st.name;
-  const isFlush=S.stage==='flush';
-  $('ecSlide').disabled=isFlush;
-  $('prodRows').style.opacity=isFlush?'.4':'1';
-  $('prodRows').style.pointerEvents=isFlush?'none':'';
-}
-function syncEc(){
-  $('ecVal').textContent=S.ec.toFixed(1);
-  const sl=$('ecSlide');
-  sl.value=S.ec;
-  sl.style.setProperty('--fill',((S.ec-1)/3*100)+'%');
 }
 function syncBal(){
-  $('balBlend').classList.toggle('on',S.balProduct==='blended');
-  $('balPro').classList.toggle('on',S.balProduct==='pro');
-  $('proConcWrap').style.display=S.balProduct==='pro'?'':'none';
-  $('balRate').value=r1(rateDisp(S.balRate10L[S.balProduct]));
-  $('balHint').innerHTML = S.balProduct==='blended'
-    ? 'Blended Balance: liquid potassium silicate buffer — typically 2–5 ml/gal (5–13 ml/10 L). Add to water <b>before</b> nutrients, dose to target pH.'
-    : 'Pro Balance: dry potassium carbonate pH-up, mixed as a stock at 40–120 g/L. Dose the stock to target pH — grams shown in results. <b>Mixing the stock runs hot; let it cool first.</b>';
+  $('balBlend').classList.toggle('on',S.balMode==='blended');
+  $('balPro').classList.toggle('on',S.balMode==='pro');
+  $('balBoth').classList.toggle('on',S.balMode==='both');
+  const showB=S.balMode!=='pro', showP=S.balMode==='pro';
+  $('balBlendWrap').style.display=showB?'':'none';
+  $('balProWrap').style.display=showP?'':'none';
+  $('proConcWrap').style.display=showP?'':'none';
+  $('bothLoadWrap').style.display=S.balMode==='both'?'':'none';
+  $('balRateU').textContent=rateUnit(); $('balProRateU').textContent=rateUnit();
+  $('balRate').value=r1(rateDisp(S.balBlend10)); $('balProRate').value=r1(rateDisp(S.balPro10)); $('bothLoad').value=S.bothLoad;
+  $('balHint').innerHTML = S.balMode==='pro'
+    ? 'Pro Balance: dry potassium-carbonate pH-up, mixed as a stock at 40–120 g/L and dosed to target pH. For venturi/Netaflex. <b>Exothermic when mixed — let it cool; corrosive to aluminium.</b>'
+    : S.balMode==='both'
+    ? 'Combined stock (Athena procedure): dissolve Pro Balance powder <b>into</b> your Blended Balance liquid to boost pH-up. <b>Never exceed 48 g/L (180 g/gal).</b> Dose the combined liquid first, before nutrients.'
+    : 'Blended Balance: liquid potassium-silicate buffer (also feeds Si), ~2–10 ml/gal. Add to water <b>first</b>, especially RO — then dose to target pH. Not for venturi/Netaflex.';
 }
-function syncClChips(){
-  document.querySelectorAll('#clChips .chip').forEach(c=>
-    c.classList.toggle('on',Math.abs(+c.dataset.cl-S.cl10L)<0.26));
+function syncEc(){
+  $('ecVal').textContent=S.ec.toFixed(1); $('ppmVal').textContent=ppmStr(S.ec);
+  const sl=$('ecSlide'); sl.value=S.ec; sl.style.setProperty('--fill',((S.ec-0.5)/4*100)+'%');
 }
-
-/* ================= calculate ================= */
-function calc(){
-  S.volL = rateCanon10Vol($('vol').value);
-  if(!isFinite(S.volL)||S.volL<=0){ toast('Enter a tank size first'); $('vol').focus(); return; }
-  S.ph=clampNum($('ph').value,5,7,5.8);
-  S.srcEc=clampNum($('srcEc').value,0,1.5,0);
-
-  const st=STAGES[S.stage];
-  const isFlush=S.stage==='flush';
-  const ecEff=isFlush?0:Math.max(0,S.ec-S.srcEc);
-  const nuts=isFlush?[]:nutTotals(ecEff,S.volL);
-
-  const balMl=S.balRate10L[S.balProduct]*S.volL/10;
-  const clMl=S.cl10L*S.volL/10;
-
-  lastResult={
-    when:new Date(), stage:S.stage, stageName:st.name,
-    metric:S.metric, volL:S.volL, ec:S.ec, srcEc:S.srcEc, ecEff, ph:S.ph,
-    nuts,
-    balProduct:S.balProduct, balMl, balG:S.balProduct==='pro'?balMl*S.proConc/1000:null,
-    clMl, cl10L:S.cl10L, bal10L:S.balRate10L[S.balProduct],
-    stackOn:!isFlush&&S.stack.on, stackMl:S.stack.r10*S.volL/10, stack10L:S.stack.r10,
-    ipmOn:!isFlush&&S.ipm.on, ipmMl:S.ipm.r10*S.volL/10, ipm10L:S.ipm.r10,
-    belowChart:nuts.length>0 && ecEff>0 && ecEff<1
-  };
-  renderResult(lastResult);
-  pushLog(lastResult);
-  persist();
-  if(window.innerWidth<1000) $('resCard').scrollIntoView({behavior:'smooth',block:'start'});
+function syncStage(){
+  document.querySelectorAll('#stageChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.stage===S.stage));
+  const st=STAGES[S.stage]; $('stageSub').textContent=st.name;
+  const flush=S.stage==='flush';
+  $('ecSlide').disabled=flush;
+  $('prodRows').style.opacity=flush?'.4':'1'; $('prodRows').style.pointerEvents=flush?'none':'';
+  $('suppGroup').style.opacity=flush?'.4':'1'; $('suppGroup').style.pointerEvents=flush?'none':'';
+}
+function syncClChips(){document.querySelectorAll('#clChips .chip').forEach(c=>c.classList.toggle('on',Math.abs(+c.dataset.cl-S.cl10)<0.4));}
+function syncFeedUnits(){
+  $('volUnit').textContent=volUnit();
+  $('vol').value=isFinite(S.volL)?+fromL(S.volL).toFixed(2):'';
+  $('vol').placeholder=S.metric?'e.g. 100':'e.g. 25';
+  $('clRate').value=r1(rateDisp(S.cl10));
+  fillConc(); syncBal(); syncSupp();
+  document.querySelectorAll('#clChips .chip').forEach(c=>{c.querySelector('small')?.remove();const s=document.createElement('small');s.textContent=r1(rateDisp(+c.dataset.cl))+' ml';c.appendChild(s);});
+  renderRecent('volRecent','vol','vol',PROFILES[S.profile].vol);
 }
 
-function clampNum(v,lo,hi,dflt){ const n=parseFloat(v); return isFinite(n)?Math.min(hi,Math.max(lo,n)):dflt; }
-function rateCanon10Vol(v){ const n=parseFloat(v); if(!isFinite(n)||n<=0) return NaN; return S.metric?n:n*GAL; }
-
-function doseRows(r){
-  const u=r.metric?'10 L':'gal', f=v=>r.metric?v:v*GAL/10;
-  const rows=[];
-  rows.push({key:'cl', name:'Athena Cleanse', sub:`${fmt(f(r.cl10L))} ml/${u}`, ml:r.clMl, color:'var(--violet)'});
-  if(r.stage==='flush') return rows;
-  rows.push({key:'bal', name:r.balProduct==='pro'?'Pro Balance stock':'Blended Balance',
-    sub:`${fmt(f(r.bal10L))} ml/${u}`+(r.balG!=null?` · ≈${fmt(r.balG)} g dry`:''),
-    ml:r.balMl, color:'var(--warn)'});
-  (r.nuts||[]).forEach(n=>rows.push({key:n.k, name:n.name,
-    sub:`${fmt(n.rate)} ml/${u} · ≈${fmt(n.g)} g${n.share===0.5?' · 50/50 split':''}`,
-    ml:n.ml, color:n.color}));
-  if(r.stackOn) rows.push({key:'stack', name:'Stack',
-    sub:`${fmt(f(r.stack10L))} ml/${u} · shake well`, ml:r.stackMl, color:'#fb7185'});
-  if(r.ipmOn) rows.push({key:'ipm', name:'IPM (foliar tank)',
-    sub:`${fmt(f(r.ipm10L))} ml/${u} · spray only`, ml:r.ipmMl, color:'#f87171'});
+function calcFeed(){
+  S.volL=toL($('vol').value);
+  if(!isFinite(S.volL)){toast('Enter a tank size first');$('vol').focus();return;}
+  S.ph=clamp($('ph').value,5,7,5.8); S.srcEc=clamp($('srcEc').value,0,1.5,0);
+  pushRecent('vol',S.volL);
+  const st=STAGES[S.stage], flush=S.stage==='flush';
+  const ecEff=flush?0:Math.max(0,S.ec-S.srcEc);
+  const nuts=flush?[]:nutTotals(ecEff,S.volL);
+  const mult=S.volL/10;
+  const supp=flush?[]:SUPP.filter(s=>S.supp[s.k].on).map(s=>({key:s.k,name:s.name,color:s.color,r10:S.supp[s.k].r10,ml:S.supp[s.k].r10*mult}));
+  const balBlendMl=(S.balMode!=='pro')?S.balBlend10*mult:0;
+  const balProMl  =(S.balMode==='pro')?S.balPro10*mult:0;
+  const bothG     =(S.balMode==='both')?S.bothLoad*(balBlendMl/1000):0;   // g Pro powder in combined stock
+  const clMl=S.cl10*mult;
+  lastFeed={when:new Date(),stage:S.stage,stageName:st.name,metric:S.metric,volL:S.volL,
+    ec:S.ec,srcEc:S.srcEc,ecEff,ph:S.ph,nuts,supp,balMode:S.balMode,
+    balBlendMl,balBlend10:S.balBlend10,balProMl,balPro10:S.balPro10,proConc:S.proConc,
+    balProG:balProMl*S.proConc/1000,bothG,bothLoad:S.bothLoad,clMl,cl10:S.cl10,
+    belowChart:nuts.length>0&&ecEff>0&&ecEff<0.5, advisory:!!st.advisory};
+  renderFeed(lastFeed); pushLog(lastFeed); persist(); openSheet('resSheet');
+}
+function feedRows(r){
+  const u=r.metric?'10 L':'gal', f=v=>r.metric?v:v*GAL/10, rows=[];
+  if(r.stage==='flush')  // RO + Cleanse only — no Balance, no nutrients
+    return [{key:'cl',name:'Athena Cleanse',sub:`${fmt(f(r.cl10))} ml/${u}`,ml:r.clMl,color:'#26d0a8'}];
+  if(r.balMode==='both' && r.balBlendMl>0)
+    rows.push({key:'balc',name:'Balance (combined)',sub:`${fmt(f(r.balBlend10))} ml/${u} · +${fmt(r.bothG)} g Pro powder in stock`,ml:r.balBlendMl,color:'#f5b642'});
+  else{
+    if(r.balBlendMl>0)rows.push({key:'balb',name:'Blended Balance',sub:`${fmt(f(r.balBlend10))} ml/${u}`,ml:r.balBlendMl,color:'#f5b642'});
+    if(r.balProMl>0)rows.push({key:'balp',name:'Pro Balance stock',sub:`${fmt(f(r.balPro10))} ml/${u} · ≈${fmt(r.balProG)} g dry`,ml:r.balProMl,color:'#f5b642'});
+  }
+  rows.push({key:'cl',name:'Athena Cleanse',sub:`${fmt(f(r.cl10))} ml/${u}`,ml:r.clMl,color:'#26d0a8'});
+  (r.nuts||[]).forEach(n=>rows.push({key:n.k,name:n.name,sub:`${fmt(n.rate)} ml/${u} · ≈${fmt(n.g)} g`,ml:n.ml,color:n.color}));
+  (r.supp||[]).forEach(s=>rows.push({key:s.key,name:s.name,sub:`${fmt(f(s.r10))} ml/${u}`,ml:s.ml,color:s.color}));
   return rows;
 }
-
-function renderResult(r){
-  const vol=r.metric?r.volL:r.volL/GAL;
-  let h=`<div class="sumchips rise">
-    <span class="pill"><b>${r.stageName}</b></span>
-    <span class="pill">${fmt(vol,1)} ${r.metric?'L':'gal'}</span>
-    ${r.nuts.length?`<span class="pill">EC <b>${r.ecEff.toFixed(1)}</b>${r.srcEc>0?` <span style="color:var(--ink3)">(${r.ec.toFixed(1)}−${r.srcEc.toFixed(1)} src)</span>`:''}</span>`:''}
-    <span class="pill">pH <b>${r.ph.toFixed(1)}</b></span>
-  </div>`;
-  if(r.belowChart) h+=`<div class="flag warn show">EC below the Athena chart (1.0) — dose extrapolated linearly. Verify with your meter.</div>`;
-  if(r.stage==='flush') h+=`<div class="flag warn show">Flush: plain RO water + Cleanse only. No nutrients, no Balance.</div>`;
-  if(r.ipmOn) h+=`<div class="flag warn show">IPM is a foliar product — this mix is a spray tank. Never inject IPM into the fertigation reservoir.</div>`;
-  h+=doseRows(r).map((d,i)=>`
-    <div class="dose rise" style="--dc:${d.color};animation-delay:${i*40}ms">
-      <div class="nm"><b>${d.name}</b><span>${d.sub}</span></div>
-      <div class="v">${fmt(d.ml)}<i>ml</i></div>
-    </div>`).join('');
-  $('resBody').innerHTML=h;
-  $('resActions').style.display='flex';
-  $('resStamp').textContent=r.when.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+function renderFeed(r){
+  const vol=fromL(r.volL);
+  let h=`<div class="sumchips"><span class="pill"><b>${r.stageName}</b></span><span class="pill">${fmt(vol,1)} ${r.metric?'L':'gal'}</span>
+    ${r.nuts.length?`<span class="pill">EC <b>${r.ecEff.toFixed(1)}</b>${r.srcEc>0?` (${r.ec.toFixed(1)}−${r.srcEc.toFixed(1)})`:''}</span><span class="pill">${ppmStr(r.ecEff)}</span>`:''}
+    <span class="pill">pH <b>${r.ph.toFixed(1)}</b></span></div>`;
+  if(r.advisory)h+=`<div class="flag warn">Clone feed is advisory — Athena's schedule starts at Veg. For cuttings, a Cleanse dip (10 ml/gal) is the only published step.</div>`;
+  if(r.belowChart)h+=`<div class="flag warn">EC below the chart (0.5) — dose extrapolated linearly. Verify with your meter.</div>`;
+  if(r.stage==='flush')h+=`<div class="flag warn">Flush: RO water + Cleanse only. No nutrients, no Balance.</div>`;
+  h+=feedRows(r).map(d=>`<div class="dose" style="--dc:${d.color}"><div class="nm"><b>${d.name}</b><span>${d.sub}</span></div><div class="v">${fmt(d.ml)}<i>ml</i></div></div>`).join('');
+  $('resBody').innerHTML=h; $('resTitle').textContent='Feed dosage';
+  $('resStamp').textContent=r.when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  $('resActions').style.display='flex'; lastResultForMix=r; lastMixKind='feed';
 }
-
-/* ================= mix mode ================= */
-function openMix(){
-  if(!lastResult) return;
-  const r=lastResult, vol=r.metric?r.volL:r.volL/GAL;
-  $('mixSub').textContent=`${r.stageName} · ${fmt(vol,1)} ${r.metric?'L':'gal'} · tap each step as you go`;
-  $('mixSteps').innerHTML=doseRows(r).map(d=>`
-    <div class="mix-step" style="--dc:${d.color}">
-      <div class="ck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4 10-10"/></svg></div>
-      <div class="mn"><b>${d.name}</b><span>${d.sub}</span></div>
-      <div class="mv">${fmt(d.ml)}<i>ml</i></div>
-    </div>`).join('');
-  $('mixSteps').querySelectorAll('.mix-step').forEach(s=>
-    s.addEventListener('click',()=>s.classList.toggle('done')));
-  $('mixOvl').classList.add('show');
-}
-
-/* ================= share ================= */
-function shareText(r){
-  const vol=r.metric?r.volL:r.volL/GAL;
-  let t=`Athena Batch Tank — ${r.stageName}\n`+
-    `${fmt(vol,1)} ${r.metric?'L':'gal'} · target EC ${r.ec.toFixed(1)}`+
-    (r.srcEc>0?` (source ${r.srcEc.toFixed(1)} → feed ${r.ecEff.toFixed(1)})`:'')+
-    ` · pH ${r.ph.toFixed(1)}\n\n`;
-  doseRows(r).forEach(d=>{ t+=`${d.name}: ${fmt(d.ml)} ml  (${d.sub})\n`; });
-  t+=`\n${r.when.toLocaleString()}`;
-  return t;
-}
-function share(){
-  if(!lastResult) return;
-  const txt=shareText(lastResult);
-  if(navigator.share){ navigator.share({title:'Batch tank dosage',text:txt}).catch(()=>copy(txt)); }
-  else copy(txt);
-}
-function copy(t){ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject())
-  .then(()=>toast('Copied to clipboard')).catch(()=>toast('Copy not available')); }
-
-/* ================= top-up ================= */
 function topUp(){
-  const volL=rateCanon10Vol($('vol').value);
-  if(!isFinite(volL)){ toast('Enter tank size above first'); return; }
+  const volL=toL($('vol').value);
+  if(!isFinite(volL)){toast('Enter tank size above first');return;}
   const cur=parseFloat($('tuEc').value);
-  if(!isFinite(cur)||cur<0){ toast('Enter the tank’s current EC'); return; }
-  if(S.stage==='flush'){ toast('Flush stage has no nutrient target'); return; }
-  S.srcEc=clampNum($('srcEc').value,0,1.5,0);
+  if(!isFinite(cur)||cur<0){toast('Enter the tank’s current EC');return;}
+  if(S.stage==='flush'){toast('Flush has no nutrient target');return;}
+  S.srcEc=clamp($('srcEc').value,0,1.5,0);
   const tgt=Math.max(0,S.ec-S.srcEc), curEff=Math.max(0,cur-S.srcEc);
-  const out=$('tuOut'); out.classList.add('show');
-  if(Math.abs(tgt-curEff)<0.05){
-    out.innerHTML=`<div class="flag warn show" style="margin:0">Already on target (±0.05) — leave it.</div>`; return;
-  }
+  const out=$('tuOut'); out.style.display='block';
+  if(Math.abs(tgt-curEff)<0.05){out.innerHTML=`<div class="flag ok">On target (±0.05) — leave it.</div>`;return;}
   if(curEff>tgt){
     const addL=volL*(curEff/tgt-1);
-    const disp=S.metric?addL:addL/GAL;
-    out.innerHTML=`<div class="dose" style="--dc:var(--accent2)">
-      <div class="nm"><b>Dilute with water</b><span>brings EC ${cur.toFixed(1)} → ${S.ec.toFixed(1)}</span></div>
-      <div class="v">${fmt(disp,1)}<i>${volUnit()}</i></div></div>
-      <div class="hint">New total volume ≈ ${fmt((volL+addL)/(S.metric?1:GAL),1)} ${volUnit()}. Re-dose Balance/Cleanse for the added water if needed.</div>`;
-    return;
+    out.innerHTML=`<div class="dose" style="--dc:#26d0a8"><div class="nm"><b>Dilute with water</b><span>EC ${cur.toFixed(1)} → ${S.ec.toFixed(1)}</span></div><div class="v">${fmt(fromL(addL),1)}<i>${volUnit()}</i></div></div><div class="hint">New volume ≈ ${fmt(fromL(volL+addL),1)} ${volUnit()}. Re-dose Balance/Cleanse for the added water.</div>`;return;
   }
-  const a=nutTotals(tgt,volL), b=nutTotals(curEff,volL);
-  if(!a.length){ toast('Enable at least one nutrient product'); out.classList.remove('show'); return; }
-  out.innerHTML=a.map((n,i)=>`
-    <div class="dose" style="--dc:${n.color}">
-      <div class="nm"><b>Add ${n.name}</b><span>${i===0?`EC ${cur.toFixed(1)} → ${S.ec.toFixed(1)}`:'keep parts in ratio'}</span></div>
-      <div class="v">${fmt(n.ml-b[i].ml)}<i>ml</i></div></div>`).join('')+
-    `<div class="hint">Dose one at a time, circulate, then re-check EC — top-ups drift with temperature and mixing.</div>`;
+  const a=nutTotals(tgt,volL),b=nutTotals(curEff,volL);
+  if(!a.length){toast('Enable at least one nutrient');out.style.display='none';return;}
+  out.innerHTML=a.map((n,i)=>`<div class="dose" style="--dc:${n.color}"><div class="nm"><b>Add ${n.name}</b><span>${i===0?`EC ${cur.toFixed(1)} → ${S.ec.toFixed(1)}`:'keep ratio'}</span></div><div class="v">${fmt(n.ml-b[i].ml)}<i>ml</i></div></div>`).join('')+`<div class="hint">Dose one at a time, circulate, re-check EC.</div>`;
 }
 
-/* ================= history ================= */
-function pushLog(r){
-  logs.unshift({
-    id:Date.now(), ts:r.when.toISOString(),
-    stage:r.stageName, metric:r.metric, volL:r.volL, ec:r.ec, srcEc:r.srcEc, ph:r.ph,
-    balProduct:r.balProduct,
-    doses:doseRows(r).map(d=>({name:d.name,ml:r1(d.ml),sub:d.sub}))
+/* ================= FOLIAR TAB ================= */
+function buildFoliar(){
+  $('folPresetChips').innerHTML=FOL_PRESETS.map(p=>`<button type="button" class="chip" data-preset="${p.id}">${p.name}</button>`).join('');
+  $('folPresetChips').querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+    const p=FOL_PRESETS.find(x=>x.id===c.dataset.preset);
+    FOLIAR.forEach(f=>S.folProducts[f.k]=p.only.includes(f.k));
+    Object.assign(S.folR10,p.set); syncFoliar();
+    $('folPresetChips').querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===c));
+  }));
+  const box=$('folRows'); box.querySelectorAll('.prow,.hint').forEach(e=>e.remove());
+  FOLIAR.forEach(f=>{
+    if(S.folR10[f.k]===undefined)S.folR10[f.k]=f.def;
+    const row=document.createElement('div'); row.className='prow'; row.dataset.f=f.k;
+    row.innerHTML=`<button type="button" class="ptg" style="--pc:${f.color}"><i></i>${f.name}</button><div class="step" style="flex:1"><button type="button" data-fstep="${f.k}" data-d="-1">−</button><input type="number" class="folrate" inputmode="decimal" step="0.5" min="0"><button type="button" data-fstep="${f.k}" data-d="1">+</button></div>`;
+    box.appendChild(row);
+    const note=document.createElement('div'); note.className='hint'; note.style.margin='-2px 0 9px'; note.innerHTML=(f.seed?'<b style="color:var(--warn)">SEED — confirm vs label.</b> ':'')+f.note; box.appendChild(note);
+    row.querySelector('.ptg').addEventListener('click',()=>{S.folProducts[f.k]=!S.folProducts[f.k];syncFoliar();clearPreset();});
+    const inp=row.querySelector('.folrate');
+    inp.addEventListener('change',()=>{S.folR10[f.k]=Math.max(0,rateCanon(parseFloat(inp.value)||0));clearPreset();});
+    row.querySelectorAll('[data-fstep]').forEach(b=>b.addEventListener('click',()=>{const step=parseFloat(inp.step)||0.5;inp.value=r1(Math.max(0,(parseFloat(inp.value)||0)+(+b.dataset.d)*step));inp.dispatchEvent(new Event('change'));}));
   });
-  if(logs.length>200) logs.length=200;
-  renderLogs();
+  $('folSop').innerHTML=`
+    <div class="ref"><h4><span class="dot" style="background:#f2685f"></span>Kept out of your feed tank</h4><p>This app keeps IPM &amp; foliar sprays here, separate from the reservoir. (Athena also publishes an IPM <b>root-drench</b> at 5–10 ml/gal if you choose to run it in fertigation — it's compatible with the feed.)</p></div>
+    <div class="ref"><h4><span class="dot" style="background:#fb7185"></span>Spray procedure</h4><p>RO water · shake products · <b>fans off</b> · <b>saturate the substrate with feed first</b> (a hydrated plant won't uptake IPM and burn) · spray lights-off, both leaf surfaces to full coverage · <b>dry 3–4 h</b> before high-intensity lights.</p></div>
+    <div class="ref"><h4><span class="dot" style="background:#a889f0"></span>Timing</h4><p>Preventative 2×/week · pressure 3×/week (e.g. spray 2 days, off 1, repeat). IPM + Stack tank-mix is compatible. Don't spray Stack past flower week 3.</p></div>`;
+  $('folProfSub').textContent=PROFILES[S.profile].name;
+}
+function clearPreset(){$('folPresetChips').querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));}
+function syncFoliar(){
+  $('folVolUnit').textContent=volUnit();
+  $('folVol').value=isFinite(S.folVolL)?+fromL(S.folVolL).toFixed(2):'';
+  $('folVol').placeholder=S.metric?'e.g. 5':'e.g. 1';
+  document.querySelectorAll('#folRows .prow').forEach(row=>{
+    const k=row.dataset.f;
+    row.querySelector('.ptg').classList.toggle('on',S.folProducts[k]);
+    const inp=row.querySelector('.folrate'); inp.value=r1(rateDisp(S.folR10[k])); inp.disabled=!S.folProducts[k];
+    row.style.opacity=S.folProducts[k]?'1':'.5';
+  });
+  renderRecent('folVolRecent','folVol','folVol',5);
+}
+function calcFoliar(){
+  S.folVolL=toL($('folVol').value);
+  if(!isFinite(S.folVolL)){toast('Enter a spray volume');$('folVol').focus();return;}
+  pushRecent('folVol',S.folVolL);
+  const on=FOLIAR.filter(f=>S.folProducts[f.k]);
+  if(!on.length){toast('Turn on at least one product');return;}
+  const mult=S.folVolL/10;
+  const rows=on.map(f=>({key:f.k,name:f.name,color:f.color,sub:`${fmt(rateDisp(S.folR10[f.k]))} ml/${S.metric?'10 L':'gal'}`,ml:S.folR10[f.k]*mult}));
+  lastFoliar={when:new Date(),metric:S.metric,volL:S.folVolL,rows,stageName:'Foliar spray'};
+  let h=`<div class="sumchips"><span class="pill"><b>Foliar spray</b></span><span class="pill">${fmt(fromL(S.folVolL),1)} ${volUnit()}</span></div>
+    <div class="flag ok">Spray tank — separate from the feed reservoir. Saturate substrate first, spray lights-off, dry 3–4 h.</div>`;
+  h+=rows.map(d=>`<div class="dose" style="--dc:${d.color}"><div class="nm"><b>${d.name}</b><span>${d.sub}</span></div><div class="v">${fmt(d.ml)}<i>ml</i></div></div>`).join('');
+  $('resBody').innerHTML=h; $('resTitle').textContent='Foliar dosage';
+  $('resStamp').textContent=lastFoliar.when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  $('resActions').style.display='flex'; lastResultForMix=lastFoliar; lastMixKind='foliar';
+  pushLog({when:lastFoliar.when,stageName:'Foliar',metric:S.metric,volL:S.folVolL,ec:0,srcEc:0,ph:0,_foliar:rows});
+  persist(); openSheet('resSheet');
+}
+
+/* ================= STOCK TAB ================= */
+function fillStockSelects(){
+  const prodOpts=NUTS.map(n=>`<option value="${n.k}">${n.name}</option>`).join('');
+  $('stkProd').innerHTML=prodOpts; $('depProd').innerHTML=prodOpts;
+  $('stkProd').value=S.stkProd; $('depProd').value=S.depProd;
+  const strOpts=STOCK_STR.map(s=>`<option value="${s.k}">${s.lab}</option>`).join('');
+  $('stkStr').innerHTML=strOpts; $('depStr').innerHTML=strOpts;
+  $('stkStr').value=S.stkStr; $('depStr').value=S.depStr;
+  ['stkVolUnit','depVolUnit','depBatchUnit','depDailyUnit'].forEach(id=>$(id).textContent=volUnit());
+  $('depEcVal').textContent=S.depEc.toFixed(1); $('depEc').value=S.depEc; $('depEc').style.setProperty('--fill',((S.depEc-0.5)/4*100)+'%');
+  renderRecent('stkVolRecent','stkVol','stkVol',PROFILES[S.profile].stk);
+}
+function calcStkBuild(){
+  const volL=toL($('stkVol').value);
+  if(!isFinite(volL)){toast('Enter stock tank size');$('stkVol').focus();return;}
+  pushRecent('stkVol',volL);
+  const gl=+S.stkStr, prod=NUTS.find(n=>n.k===S.stkProd), g=gl*volL, kg=g/1000;
+  const agit=gl>=300;
+  $('stkBuildOut').style.display='block';
+  $('stkBuildOut').innerHTML=`<div class="tiles">
+    <div class="tile wide"><div class="k">${prod.name} to add</div><div class="val">${fmt(kg,kg>=10?1:2)}<i>kg</i></div></div>
+    <div class="tile"><div class="k">Grams</div><div class="val sm">${fmt(g,0)}<i>g</i></div></div>
+    <div class="tile"><div class="k">Strength</div><div class="val sm">${gl}<i>g/L</i></div></div>
+  </div>
+  <div class="hint">Fill to <b>80%</b> with RO water → add ${fmt(kg,2)} kg ${prod.name} while agitating → top to ${fmt(fromL(volL),1)} ${volUnit()} → mix until fully dissolved.${agit?' <b style="color:var(--warn)">At 300 g/L keep the tank agitated — near the solubility limit.</b>':''} Keep every concentrate in its <b>own</b> tank — never combine concentrates.</div>`;
+}
+function calcDepletion(){
+  const stockL=toL($('depVol').value);
+  if(!isFinite(stockL)){toast('Enter stock tank size');$('depVol').focus();return;}
+  const gl=+S.depStr, prod=NUTS.find(n=>n.k===S.depProd);
+  let feedLpd;
+  if(S.depMode==='batch'){
+    const bl=toL($('depBatch').value), bpd=parseFloat($('depBpd').value)||0;
+    if(!isFinite(bl)||bpd<=0){toast('Enter batch size & batches/day');return;}
+    feedLpd=bl*bpd;
+  }else{ feedLpd=toL($('depDaily').value); if(!isFinite(feedLpd)){toast('Enter daily feed volume');return;} }
+  const gPerLfeed=lerpGPG(G10[prod.table],S.depEc)/10; // grams product per L feed
+  const mlPerLfeed=gPerLfeed/gl*1000;                  // ml stock per L feed
+  const mlPerDay=mlPerLfeed*feedLpd;
+  if(mlPerDay<=0){toast('Not dosed at that EC');return;}
+  const stockMl=stockL*1000, days=stockMl/mlPerDay, totalFeedL=stockMl/mlPerLfeed;
+  $('depOut').style.display='block';
+  const startStr=$('depDate').value; let refillTxt='';
+  if(startStr){const start=new Date(startStr+'T00:00:00');const refill=new Date(start.getTime()+Math.floor(days)*86400000);
+    refillTxt=`<div class="tile wide"><div class="k">Refill on / around</div><div class="val">${refill.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</div></div>`;}
+  $('depOut').innerHTML=`<div class="tiles">
+    <div class="tile"><div class="k">Lasts</div><div class="val">${fmt(days,days>=10?0:1)}<i>days</i></div></div>
+    <div class="tile"><div class="k">≈ Weeks</div><div class="val">${fmt(days/7,1)}<i>wk</i></div></div>
+    <div class="tile"><div class="k">Draw / day</div><div class="val sm">${fmt(mlPerDay/1000,2)}<i>L</i></div></div>
+    <div class="tile"><div class="k">Feed supported</div><div class="val sm">${fmt(totalFeedL,0)}<i>L</i></div></div>
+    ${refillTxt}
+  </div>
+  <div class="hint">${prod.name} @ ${gl} g/L, feeding EC ${S.depEc.toFixed(1)} at ${fmt(fromL(feedLpd),0)} ${volUnit()}/day → draw ≈ ${fmt(mlPerDay,0)} ml/day.${startStr?'':' Set a start date for a refill date.'}</div>`;
+}
+
+/* ================= pH TAB ================= */
+function phKey(){return S.profile+'__'+S.phBal;}
+function phModel(){const seed=PH_SEED[S.phBal],cal=S.phCal[phKey()];return (cal&&cal.n>0)?{k:cal.k,alpha:seed.alpha,n:cal.n,cal:true}:{k:seed.k,alpha:seed.alpha,n:0,cal:false};}
+function estBalanceMl(volL,ec,dpH){const m=phModel();return dpH*(volL/10)*m.k*(1+m.alpha*ec);}
+function calcPh(){
+  const volL=toL($('phVol').value);
+  if(!isFinite(volL)){toast('Enter tank size');$('phVol').focus();return;}
+  pushRecent('phVol',volL);
+  const cur=clamp($('phCur').value,3,9,5.2), tgt=clamp($('phTgt').value,3,9,5.8);
+  $('phOut').style.display='block';
+  if(tgt<=cur){$('phOut').innerHTML=`<div class="flag warn">Target is at/below current pH. Balance only raises pH. To lower pH, dilute or add feed acid per your SOP.</div>`;return;}
+  const dpH=tgt-cur, ml=estBalanceMl(volL,S.phEc,dpH), m=phModel();
+  const g=S.phBal==='pro'?ml*S.proConc/1000:null, per10=ml/(volL/10), perGal=per10*GAL/10;
+  $('phOut').innerHTML=`<div class="tiles">
+    <div class="tile wide"><div class="k">Add ${S.phBal==='pro'?'Pro Balance stock':'Blended Balance'}</div><div class="val">${fmt(ml)}<i>ml</i></div></div>
+    <div class="tile"><div class="k">Rate</div><div class="val sm">${fmt(perGal,1)}<i>ml/gal</i></div></div>
+    <div class="tile"><div class="k">pH move</div><div class="val sm">${cur.toFixed(1)}→${tgt.toFixed(1)}</div></div>
+    ${g!=null?`<div class="tile wide"><div class="k">≈ dry Balance</div><div class="val sm">${fmt(g)}<i>g</i></div></div>`:''}
+  </div>
+  <div class="flag ${m.cal?'ok':'warn'}">${m.cal?`Tuned to your <b>${PROFILES[S.profile].name}</b> profile from ${m.n} logged correction${m.n>1?'s':''}.`:'Seed estimate — Athena publishes no fixed ml/pH (it depends on your water &amp; recipe).'} Add in <b>~1 ml/gal increments</b>, stir, re-read — then log it below to sharpen the next estimate. This is Athena's own titrate-and-record method.</div>`;
+  $('calMl').value=Math.round(ml); $('calTo').value=tgt.toFixed(1); S._phCalCtx={volL,ec:S.phEc,cur};
+}
+function logCal(){
+  const ctx=S._phCalCtx; if(!ctx){toast('Estimate first, then log');return;}
+  const ml=parseFloat($('calMl').value), to=parseFloat($('calTo').value);
+  if(!isFinite(ml)||ml<=0||!isFinite(to)){toast('Enter ml added and new pH');return;}
+  const dpH=to-ctx.cur; if(dpH<=0){toast('New pH must be above old pH');return;}
+  const seed=PH_SEED[S.phBal], kRaw=ml/((ctx.volL/10)*dpH*(1+seed.alpha*ctx.ec));
+  if(kRaw<seed.k/10||kRaw>seed.k*10){toast('That reading looks off (10× from expected) — not logged');return;}
+  const key=phKey(), prev=S.phCal[key]||{k:seed.k,n:0}, n=prev.n+1, k=(prev.k*prev.n+kRaw)/n;
+  S.phCal[key]={k,n}; persist();
+  $('phCalSub').textContent=`${n} sample${n>1?'s':''}`;
+  $('calStatus').innerHTML=`<span style="color:var(--accent)">Logged.</span> Model for ${PROFILES[S.profile].name}/${S.phBal} → k <b>${k.toFixed(2)}</b> (${n} sample${n>1?'s':''}). Re-estimate to use it.`;
+  toast('Calibration saved');
+}
+function syncPh(){
+  $('phVolUnit').textContent=volUnit();
+  $('phEcVal').textContent=S.phEc.toFixed(1); $('phEc').value=S.phEc; $('phEc').style.setProperty('--fill',((S.phEc-0.5)/4*100)+'%');
+  document.querySelectorAll('#phBalSeg button').forEach(b=>b.classList.toggle('on',b.dataset.b===S.phBal));
+  const m=phModel(); $('phCalSub').textContent=m.cal?`${m.n} sample${m.n>1?'s':''}`:'seed model';
+  renderRecent('phVolRecent','phVol','phVol',PROFILES[S.profile].vol);
+}
+
+/* ================= CLEAN REF (More) ================= */
+function buildClean(){
+  const u=S.metric?'10 L':'gal';
+  $('cleanRef').innerHTML=
+    `<div class="hint" style="margin:0 0 11px">Reservoir Cleanse dosing lives on the <b>Feed</b> tab. Below: the other Cleanse use-cases, plus Athena's separate <b>Clean Line</b> for between-crop sanitation.</div>`+
+    CLEANSE_USE.map(c=>`<div class="ref"><h4><span class="dot" style="background:${c.color}"></span>${c.name} · ${fmt(rateDisp(c.r10))} ml/${u}</h4><p>${c.note}</p><div class="rt">100 L → <b>${fmt(c.r10*10)} ml</b> · 1000 L → <b>${fmt(c.r10*100)} ml</b></div></div>`).join('')+
+    `<div class="lab" style="margin:14px 0 8px">Clean Line · between crops</div>`+
+    CLEANLINE.map(c=>`<div class="ref"><h4><span class="dot" style="background:${c.color}"></span>${c.name}</h4><p>${c.note}</p></div>`).join('')+
+    `<div class="ref"><h4><span class="dot" style="background:#6f7d72"></span>Biosis · microbe inoculant</h4><p>6-strain beneficial soil package. <b>Rate not published</b> here — follow the physical label. Never co-dose with Cleanse (oxidiser kills microbes).</p></div>`;
+}
+
+/* ================= MIX MODE ================= */
+function openMix(){
+  if(!lastResultForMix)return;
+  const r=lastResultForMix, rows=lastMixKind==='feed'?feedRows(r):r.rows, vol=fromL(r.volL);
+  $('mixSub').textContent=`${r.stageName} · ${fmt(vol,1)} ${r.metric?'L':'gal'} · tap each step`;
+  $('mixSteps').innerHTML=rows.map(d=>`<div class="mix-step" style="--dc:${d.color}"><div class="ck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4 10-10"/></svg></div><div class="mn"><b>${d.name}</b><span>${d.sub}</span></div><div class="mv">${fmt(d.ml)}<i>ml</i></div></div>`).join('');
+  $('mixSteps').querySelectorAll('.mix-step').forEach(s=>s.addEventListener('click',()=>s.classList.toggle('done')));
+  $('mixOrder').innerHTML=lastMixKind==='feed'
+    ? '<b>Balance is always first</b> (buffers RO water). Then Cleanse → base nutrients (Core, then Grow/Bloom) → Fade → CaMg/PK. <b>Never combine concentrates undiluted.</b> Let each dissolve &amp; circulate, then check pH last.'
+    : 'Foliar: fill clean RO water → saturate substrate with feed first → add each product with agitation → spray lights-off → dry 3–4 h. Keep out of the fertigation reservoir.';
+  openSheet('mixSheet');
+}
+function shareText(){
+  const r=lastResultForMix; if(!r)return'';
+  const rows=lastMixKind==='feed'?feedRows(r):r.rows, vol=fromL(r.volL);
+  let t=`${lastMixKind==='feed'?'Athena Feed':'Athena Foliar'} — ${r.stageName}\n${fmt(vol,1)} ${r.metric?'L':'gal'}`;
+  if(lastMixKind==='feed')t+=` · EC ${r.ec.toFixed(1)} · pH ${r.ph.toFixed(1)}`;
+  t+=`\n\n`; rows.forEach(d=>t+=`${d.name}: ${fmt(d.ml)} ml  (${d.sub})\n`);
+  return t+`\n${r.when.toLocaleString()}`;
+}
+
+/* ================= HISTORY ================= */
+function pushLog(r){
+  const doses=r._foliar?r._foliar.map(d=>({name:d.name,ml:r1(d.ml),sub:d.sub})):feedRows(r).map(d=>({name:d.name,ml:r1(d.ml),sub:d.sub}));
+  logs.unshift({id:Date.now(),ts:r.when.toISOString(),stage:r.stageName,metric:r.metric,volL:r.volL,ec:r.ec||0,srcEc:r.srcEc||0,ph:r.ph||0,doses});
+  if(logs.length>200)logs.length=200; renderLogs();
 }
 function renderLogs(){
   const box=$('logList');
-  if(!logs.length){ box.innerHTML='<div class="empty" id="noLogs">No calculations yet.</div>'; return; }
-  box.innerHTML=logs.map(l=>{
-    const d=new Date(l.ts), vol=l.metric?l.volL:l.volL/GAL;
-    return `<div class="log" data-id="${l.id}">
-      <div class="log-h">
-        <div><div class="t">${l.stage} · ${fmt(vol,1)} ${l.metric?'L':'gal'} · EC ${(+l.ec).toFixed(1)}</div>
-        <div class="d">${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>
-        <button type="button" class="x" aria-label="Delete entry"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg></button>
-      </div>
-      <div class="log-b">${l.doses.map(x=>`<div class="row"><span>${x.name}</span><b>${fmt(x.ml)} ml</b></div>`).join('')}</div>
-    </div>`;
-  }).join('');
+  if(!logs.length){box.innerHTML='<div class="empty">No calculations yet.</div>';return;}
+  box.innerHTML=logs.map(l=>{const d=new Date(l.ts),vol=l.metric?l.volL:l.volL/GAL;
+    return `<div class="log" data-id="${l.id}"><div class="log-h"><div><div class="t">${l.stage} · ${fmt(vol,1)} ${l.metric?'L':'gal'}${l.ec?` · EC ${(+l.ec).toFixed(1)}`:''}</div><div class="d">${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div><button type="button" class="x" aria-label="Delete"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg></button></div><div class="log-b">${l.doses.map(x=>`<div class="row"><span>${x.name}</span><b>${fmt(x.ml)} ml</b></div>`).join('')}</div></div>`;}).join('');
   box.querySelectorAll('.log').forEach(el=>{
-    el.querySelector('.log-h').addEventListener('click',e=>{
-      if(e.target.closest('.x')) return;
-      el.classList.toggle('open');
-    });
-    el.querySelector('.x').addEventListener('click',()=>{
-      logs=logs.filter(l=>l.id!==+el.dataset.id); persist(); renderLogs();
-    });
+    el.querySelector('.log-h').addEventListener('click',e=>{if(e.target.closest('.x'))return;el.classList.toggle('open');});
+    el.querySelector('.x').addEventListener('click',()=>{logs=logs.filter(l=>l.id!==+el.dataset.id);persist();renderLogs();});
   });
 }
 function exportCsv(){
-  if(!logs.length){ toast('Nothing to export'); return; }
-  const head='Timestamp,Stage,Volume,Unit,Target EC,Source EC,pH,Balance product,'+
-    [...new Set(logs.flatMap(l=>l.doses.map(d=>d.name)))].join(',');
-  const names=head.split(',').slice(8);
-  const lines=logs.map(l=>{
-    const vol=l.metric?l.volL:l.volL/GAL;
-    const m=Object.fromEntries(l.doses.map(d=>[d.name,d.ml]));
-    return [`"${new Date(l.ts).toLocaleString()}"`,l.stage,r1(vol),l.metric?'L':'gal',l.ec,l.srcEc||0,l.ph,l.balProduct,
-      ...names.map(n=>m[n]??'')].join(',');
-  });
+  if(!logs.length){toast('Nothing to export');return;}
+  const names=[...new Set(logs.flatMap(l=>l.doses.map(d=>d.name)))];
+  const head='Timestamp,Stage,Volume,Unit,EC,SourceEC,pH,'+names.join(',');
+  const lines=logs.map(l=>{const vol=l.metric?l.volL:l.volL/GAL,m=Object.fromEntries(l.doses.map(d=>[d.name,d.ml]));
+    return [`"${new Date(l.ts).toLocaleString()}"`,l.stage,r1(vol),l.metric?'L':'gal',l.ec,l.srcEc,l.ph,...names.map(n=>m[n]??'')].join(',');});
   const blob=new Blob([head+'\n'+lines.join('\n')],{type:'text/csv'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download='batch_tank_log.csv';
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='athena_grow_log.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 }
 
-/* ================= persistence ================= */
-function persist(){
-  localStorage.setItem('abt2.logs',JSON.stringify(logs));
-  localStorage.setItem('abt2.unit',S.metric?'m':'i');
-}
+/* ================= RECIPES ================= */
 function snapshot(){
-  S.volL=rateCanon10Vol($('vol').value);
-  S.ph=clampNum($('ph').value,5,7,5.8);
-  S.srcEc=clampNum($('srcEc').value,0,1.5,0);
-  return {
-    stage:S.stage, ec:S.ec, ph:S.ph, srcEc:S.srcEc, volL:S.volL,
-    products:{...S.products}, conc:{...S.conc},
-    balProduct:S.balProduct, balRate10L:{...S.balRate10L},
-    proConc:S.proConc, cl10L:S.cl10L,
-    stack:{...S.stack}, ipm:{...S.ipm}, metric:S.metric
-  };
+  S.volL=toL($('vol').value); S.ph=clamp($('ph').value,5,7,5.8); S.srcEc=clamp($('srcEc').value,0,1.5,0);
+  return {stage:S.stage,ec:S.ec,ph:S.ph,srcEc:S.srcEc,volL:S.volL,products:{...S.products},conc:{...S.conc},
+    supp:JSON.parse(JSON.stringify(S.supp)),balMode:S.balMode,balBlend10:S.balBlend10,balPro10:S.balPro10,proConc:S.proConc,bothLoad:S.bothLoad,cl10:S.cl10,metric:S.metric};
 }
 function applyCfg(c){
-  if(!c) return;
-  Object.assign(S,{
-    stage:STAGES[c.stage]?c.stage:S.stage, ec:c.ec??S.ec, ph:c.ph??S.ph, srcEc:c.srcEc??0,
-    volL:c.volL??NaN,
-    products:Object.assign({grow:true,bloom:false,core:true,fade:false},c.products||legacyProducts(c)),
-    conc:Object.assign({grow:'226',bloom:'226',core:'226',fade:'226'},c.conc||legacyConc(c)),
-    balProduct:c.balProduct==='pro'?'pro':'blended',
-    balRate10L:Object.assign({blended:5,pro:5},c.balRate10L||{}),
-    proConc:c.proConc??120, cl10L:c.cl10L??9,
-    stack:Object.assign({on:false,r10:4},c.stack||{}),
-    ipm:Object.assign({on:false,r10:198},c.ipm||{}),
-    metric:c.metric??S.metric
-  });
+  if(!c)return;
+  Object.assign(S,{stage:STAGES[c.stage]?c.stage:S.stage,
+    ec:c.ec??S.ec,ph:c.ph??S.ph,srcEc:c.srcEc??0,volL:c.volL??NaN,
+    products:Object.assign({grow:true,bloom:false,core:true,fade:false},c.products||{}),
+    conc:Object.assign({grow:'226',bloom:'226',core:'226',fade:'226'},c.conc||{}),
+    supp:c.supp||S.supp,balMode:['blended','pro','both'].includes(c.balMode)?c.balMode:'blended',
+    balBlend10:c.balBlend10??5,balPro10:c.balPro10??5,proConc:c.proConc??120,bothLoad:c.bothLoad??26,cl10:c.cl10??5.3,metric:c.metric??S.metric});
 }
-// pre-product-rows configs stored gb/cf concentrate keys only
-function legacyProducts(c){
-  if(!STAGES[c.stage]) return null;
-  const on={grow:false,bloom:false,core:false,fade:false};
-  STAGES[c.stage].on.forEach(k=>on[k]=true);
-  return on;
-}
-function legacyConc(c){
-  if(!c.gb&&!c.cf) return null;
-  return {grow:c.gb||'226', bloom:c.gb||'226', core:c.cf||'226', fade:c.cf||'226'};
-}
-function saveDefaults(){
-  localStorage.setItem('abt2.cfg',JSON.stringify(snapshot()));
-  toast('Defaults saved');
-}
-/* recipes */
 function saveRecipe(){
-  const name=$('rcpName').value.trim();
-  if(!name){ toast('Give the recipe a name'); $('rcpName').focus(); return; }
-  recipes[name]=snapshot();
-  const names=Object.keys(recipes);
-  if(names.length>50) delete recipes[names[0]];
-  localStorage.setItem('abt2.recipes',JSON.stringify(recipes));
-  renderRecipes();
-  toast(`Recipe “${name}” saved`);
+  const name=$('rcpName').value.trim(); if(!name){toast('Name the recipe');$('rcpName').focus();return;}
+  recipes[name]=snapshot(); const ns=Object.keys(recipes); if(ns.length>50)delete recipes[ns[0]];
+  localStorage.setItem('abt3.recipes',JSON.stringify(recipes)); renderRecipes(); toast(`Saved “${name}”`);
 }
 function renderRecipes(){
-  const box=$('rcpList');
-  const names=Object.keys(recipes);
-  if(!names.length){ box.innerHTML='<span class="hint" style="margin:0">None saved yet.</span>'; return; }
+  const box=$('rcpList'), ns=Object.keys(recipes);
+  if(!ns.length){box.innerHTML='<span class="hint" style="margin:0">None saved yet.</span>';return;}
   box.innerHTML='';
-  names.forEach(n=>{
-    const b=document.createElement('button');
-    b.type='button'; b.className='chip';
-    b.append(n);
-    const x=document.createElement('span');
-    x.className='rx'; x.textContent='✕'; x.setAttribute('aria-label',`Delete ${n}`);
-    x.addEventListener('click',e=>{
-      e.stopPropagation();
-      confirmBox(`Delete recipe “${n}”?`,()=>{
-        delete recipes[n];
-        localStorage.setItem('abt2.recipes',JSON.stringify(recipes));
-        renderRecipes();
-      });
-    });
+  ns.forEach(n=>{const b=document.createElement('button');b.className='chip';b.append(n);
+    const x=document.createElement('span');x.className='rx';x.textContent='✕';
+    x.addEventListener('click',e=>{e.stopPropagation();confirmBox('Delete recipe','Delete “'+n+'”?',()=>{delete recipes[n];localStorage.setItem('abt3.recipes',JSON.stringify(recipes));renderRecipes();});});
     b.appendChild(x);
-    b.addEventListener('click',()=>{
-      applyCfg(recipes[n]); syncAll(); persist();
-      $('rcpName').value=n;
-      toast(`Loaded “${n}”`);
-    });
-    box.appendChild(b);
-  });
+    b.addEventListener('click',()=>{applyCfg(recipes[n]);syncAll();persist();$('rcpName').value=n;go('feed');toast(`Loaded “${n}”`);});
+    box.appendChild(b);});
+}
+
+/* ================= PERSIST ================= */
+function persist(){
+  localStorage.setItem('abt3.logs',JSON.stringify(logs));
+  localStorage.setItem('abt3.state',JSON.stringify({metric:S.metric,profile:S.profile,ppm:S.ppm,phCal:S.phCal}));
 }
 function loadSaved(){
   try{
-    const u=localStorage.getItem('abt2.unit'); if(u) S.metric=u==='m';
-    applyCfg(JSON.parse(localStorage.getItem('abt2.cfg')||'null'));
-    recipes=JSON.parse(localStorage.getItem('abt2.recipes')||'{}');
-    if(typeof recipes!=='object'||Array.isArray(recipes)||!recipes) recipes={};
-    logs=JSON.parse(localStorage.getItem('abt2.logs')||'[]');
-    if(!Array.isArray(logs)) logs=[];
-  }catch(e){ logs=[]; recipes={}; }
-  // migrate v1 logs once (best effort)
-  try{
-    if(!localStorage.getItem('abt2.migrated')){
-      const old=JSON.parse(localStorage.getItem('logEntries')||'[]');
-      old.forEach(o=>{
-        const i=o.inputs||{}, d=(o.result||{}).dosages||{};
-        const volL=i.isMetric?+i.size:+i.size*GAL;
-        if(!isFinite(volL)) return;
-        logs.push({id:o.id||Date.now()+Math.random(), ts:new Date(o.timestamp).toISOString(),
-          stage:i.growthStage||'?', metric:!!i.isMetric, volL, ec:+i.ec||0, srcEc:0, ph:+i.desiredPH||0,
-          gb:i.growBloom||'', cf:i.coreFade||'', balProduct:'blended',
-          doses:[{name:'Balance',ml:+d.balance||0,sub:''},{name:'Grow/Bloom',ml:+d.grow||0,sub:''},
-                 {name:'Core/Fade',ml:+d.core||0,sub:''},{name:d.cleanseLabel||'Cleanse',ml:+d.cleanse||0,sub:''}]});
-      });
-      logs.sort((a,b)=>new Date(b.ts)-new Date(a.ts));
-      localStorage.setItem('abt2.migrated','1');
-      persist();
-    }
-  }catch(e){/* old data unreadable — skip */}
+    const st=JSON.parse(localStorage.getItem('abt3.state')||'null');
+    if(st){S.metric=st.metric??true;S.profile=PROFILES[st.profile]?st.profile:'craft';S.ppm=st.ppm||500;S.phCal=st.phCal||{};}
+    recent=JSON.parse(localStorage.getItem('abt3.recent')||'{}')||{};
+    recipes=JSON.parse(localStorage.getItem('abt3.recipes')||'{}')||{};
+    logs=JSON.parse(localStorage.getItem('abt3.logs')||'[]'); if(!Array.isArray(logs))logs=[];
+    applyCfg(JSON.parse(localStorage.getItem('abt3.cfg')||'null'));
+  }catch(e){logs=[];recipes={};recent={};}
+}
+function saveDefaults(){localStorage.setItem('abt3.cfg',JSON.stringify(snapshot()));toast('Defaults saved');}
+
+/* ================= SHEETS / CONFIRM ================= */
+function openSheet(id){$(id).classList.add('on');}
+function closeSheet(id){$(id).classList.remove('on');}
+function confirmBox(title,msg,cb){$('cfTitle').textContent=title;$('cfMsg').textContent=msg;cfCb=cb;openSheet('cfSheet');}
+
+/* ================= TOOLTIPS ================= */
+const TIPS={
+  stage:["Growth stage","Sets EC, pH, Cleanse rate and the product pair from Athena's Pro schedule. Clone & flower run on Bloom+Core; veg on Grow+Core; finish swaps Core→Fade. Slide EC to fine-tune."],
+  tank:["Tank / reservoir size","The volume you're mixing. Everything scales to it. Switch L/gal up top — the number converts, doses don't."],
+  src:["Source water EC","EC of raw water before nutrients, subtracted from target so salts land on your real number. RO = 0. Above 0.6 isn't recommended."],
+  ph:["Target pH","Athena target 5.4–6.0. Logged here; use the pH tab to estimate the Balance dose to hit it."],
+  mix:["Base nutrients","Pick one A-part (Grow or Bloom) and one B-part (Core or Fade) — Athena never runs both of a part together. Stock strength can differ per product."],
+  supp:["Supplements","CaMg for RO/inert media (every week). PK is a no-N flower booster from week 3. Both dose at a fixed rate you can adjust."],
+  balance:["Balance buffer","Athena's pH-up. Blended Balance = liquid potassium silicate (0-0-2, also feeds Si). Pro Balance = dry potassium carbonate for venturi/Netaflex. 'Both' dissolves Pro powder into Blended. Not for Netaflex when liquid. Don't add a separate silica product on top of Blended Balance."],
+  bothload:["Combined Balance","Athena's Pro-into-Blended procedure: dissolve Pro Balance powder into your Blended Balance liquid. Optimal ~26 g/L. Never exceed 48 g/L (180 g/gal). Mixing Pro powder is exothermic — let it cool; keep off aluminium."],
+  cleanse:["Cleanse in reservoir","Runs in the feed tank every irrigation (~2 ml/gal). Reset/flush use higher rates — see the presets."],
+  folvol:["Spray volume","Size of your foliar spray tank — separate from the feed reservoir."],
+  folpreset:["Spray presets","One tap loads a known recipe — IPM preventative/pressure, IPM+Stack, Stack, Cleanse wipe. Tweak rates after."],
+  stockprod:["Concentrate product","Which base product this stock tank holds. Every concentrate gets its own tank — never combined."],
+  stockstr:["Stock strength","Grams product per litre of stock. 240 g/L = 2 lb/gal (imperial std); 226 = 2 lb/4 L (metric std); 120 = Dosatron; 300 needs agitation."],
+  depmode:["Feed input","Batches/day: batch size × mixes per day. Litres/day: total feed volume dispensed daily."],
+  depdate:["Start date","Set it and you get the calendar date the stock tank runs dry."],
+  phec:["Feed EC","Buffering scales with nutrient strength — higher EC needs more Balance to move pH the same amount."],
+  phcal:["Calibration","Athena publishes no fixed ml-per-pH — the official method is to titrate in 1 ml/gal steps and record. Log a real correction and this learns your water's buffer per profile."],
+  ppm:["PPM scale","500 scale (Hanna/US ×500) or 700 scale (EU ×700). Changes the ppm readout only, not doses."]
+};
+function showTip(id){const t=TIPS[id];if(!t)return;$('tipTitle').textContent=t[0];$('tipBody').innerHTML=t.slice(1).map(p=>`<p>${p}</p>`).join('');openSheet('tipwrap');}
+
+/* ================= TOUR ================= */
+const TOUR=[
+  {tab:'feed',sel:'#nav',title:"One app, five tools",body:"The bottom bar switches tools — Feed tank, Foliar spray, Stock tanks, pH correction, and More. All reachable one-handed."},
+  {tab:'feed',sel:'#profRow',title:"Pick your scale",body:"Garage, Craft or Commercial sets sensible defaults and remembers your recent tank sizes for that scale."},
+  {tab:'feed',sel:'#stageChips',title:"Feed: pick a stage",body:"Stage sets the products, EC and pH from Athena's schedule. Slide EC to fine-tune, enter your tank size, and hit Calculate — doses slide up."},
+  {tab:'foliar',sel:'#folPresetChips',title:"Foliar is separate",body:"IPM and sprays live here, out of your feed tank. Presets load known spray recipes in one tap."},
+  {tab:'stock',sel:'#tab-stock .card',title:"Plan your stock tanks",body:"Build concentrate stocks by strength, and see how many days — and the exact date — before a tank needs refilling."},
+  {tab:'ph',sel:'#tab-ph .card',title:"Dial in pH",body:"Estimate the Balance dose, then log the real result so it learns your water — Athena's own titrate-and-record method. Replay this tour any time from More."}
+];
+let tourI=0;
+function startTour(){tourI=0;$('tour').classList.add('on');showTourStep();}
+function showTourStep(){
+  const s=TOUR[tourI]; go(s.tab);
+  $('tourStep').textContent=`Step ${tourI+1} of ${TOUR.length}`; $('tourTitle').textContent=s.title; $('tourBody').textContent=s.body;
+  $('tourDots').innerHTML=TOUR.map((_,i)=>`<i class="${i===tourI?'on':''}"></i>`).join('');
+  $('tourNext').textContent=tourI===TOUR.length-1?'Done':'Next';
+  setTimeout(()=>{const el=document.querySelector(s.sel),halo=$('tourHalo');
+    if(el){const r=el.getBoundingClientRect();halo.classList.add('on');halo.style.left=(r.left-6)+'px';halo.style.top=(r.top-6)+'px';halo.style.width=(r.width+12)+'px';halo.style.height=(r.height+12)+'px';}
+    else halo.classList.remove('on');},260);
+}
+function endTour(){$('tour').classList.remove('on');$('tourHalo').classList.remove('on');localStorage.setItem('abt3.toured','1');}
+
+/* ================= NAV ================= */
+function go(tab){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='tab-'+tab));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  const showAct=tab==='feed'||tab==='foliar';
+  $('actbar').classList.toggle('on',showAct);
+  $('calcBtnLabel').textContent=tab==='foliar'?'Calculate spray':'Calculate dosage';
+  $('calcBtn').onclick=tab==='foliar'?calcFoliar:calcFeed;
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* ================= events ================= */
-// unit toggle — canonical storage means toggling is pure presentation
-$('uMetric').addEventListener('click',()=>{ if(S.metric) return;
-  S.volL=rateCanon10Vol($('vol').value); S.metric=true; syncUnits(); persist(); });
-$('uImperial').addEventListener('click',()=>{ if(!S.metric) return;
-  S.volL=rateCanon10Vol($('vol').value); S.metric=false; syncUnits(); persist(); });
+/* ================= SYNC ALL ================= */
+function syncProfile(){document.querySelectorAll('#profRow .prof').forEach(p=>p.classList.toggle('on',p.dataset.prof===S.profile));}
+function syncUnits(){$('uMetric').classList.toggle('on',S.metric);$('uImperial').classList.toggle('on',!S.metric);}
+function syncPpm(){document.querySelectorAll('#ppmSeg button').forEach(b=>b.classList.toggle('on',b.dataset.s===String(S.ppm)));$('ppmVal').textContent=ppmStr(S.ec);}
+function syncAll(){
+  syncUnits();syncProfile();syncPpm();syncStage();syncEc();syncFeedUnits();syncProducts();syncSupp();syncBal();syncClChips();
+  $('srcEc').value=S.srcEc;$('ph').value=S.ph.toFixed(1);
+  syncFoliar();fillStockSelects();syncPh();buildClean();
+  $('discBox').textContent=`Profile: ${PROFILES[S.profile].name} · ${PROFILES[S.profile].note} Independent tool — verify every mix against the official Athena label.`;
+}
 
-// stage chips
+/* ================= EVENTS ================= */
+$('uMetric').addEventListener('click',()=>{if(S.metric)return;captureVols();S.metric=true;syncAll();persist();});
+$('uImperial').addEventListener('click',()=>{if(!S.metric)return;captureVols();S.metric=false;syncAll();persist();});
+function captureVols(){S.volL=toL($('vol').value);S.folVolL=toL($('folVol').value);}
+document.querySelectorAll('#profRow .prof').forEach(p=>p.addEventListener('click',()=>{
+  captureVols();
+  S.profile=p.dataset.prof;
+  syncProfile();syncFeedUnits();syncFoliar();fillStockSelects();syncPh();persist();toast(`${PROFILES[S.profile].name} profile`);
+}));
+$('vol').addEventListener('change',()=>{S.volL=toL($('vol').value);});
+document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
 document.querySelectorAll('#stageChips .chip').forEach(c=>c.addEventListener('click',()=>{
-  S.stage=c.dataset.stage;
-  const st=STAGES[S.stage];
-  S.ec=st.ec||S.ec; S.ph=st.ph;
-  S.balRate10L[S.balProduct]=st.bal; S.cl10L=st.cl;
+  S.stage=c.dataset.stage; const st=STAGES[S.stage];
+  S.ec=st.ec; S.ph=st.ph; S.cl10=st.cl;
   Object.keys(S.products).forEach(k=>S.products[k]=st.on.includes(k));
-  if(S.stage==='flush'){ S.stack.on=false; S.ipm.on=false; }
-  $('ph').value=st.ph;
-  syncStage(); syncEc(); syncBal(); syncClChips(); syncProducts(); syncExtras();
-  $('clRate').value=r1(rateDisp(S.cl10L));
+  $('ph').value=st.ph.toFixed(1);
+  syncStage();syncEc();syncClChips();syncProducts();$('clRate').value=r1(rateDisp(S.cl10));
 }));
-
-// nutrient product toggles + per-product stock strength
-document.querySelectorAll('#prodRows .prow').forEach(row=>{
-  const k=row.dataset.p;
-  row.querySelector('.ptg').addEventListener('click',()=>{
-    S.products[k]=!S.products[k];
-    syncProducts();
-  });
-  row.querySelector('.pconc').addEventListener('change',e=>{ S.conc[k]=e.target.value; });
-});
-
-// stack / ipm
-$('stackOn').addEventListener('click',()=>{ S.stack.on=!S.stack.on; syncExtras(); });
-$('ipmOn').addEventListener('click',()=>{ S.ipm.on=!S.ipm.on; syncExtras(); });
-$('stackRate').addEventListener('change',()=>{ S.stack.r10=Math.max(0,rateCanon(parseFloat($('stackRate').value)||0)); });
-$('ipmRate').addEventListener('change',()=>{ S.ipm.r10=Math.max(0,rateCanon(parseFloat($('ipmRate').value)||0)); });
-
-// recipes
-$('rcpSave').addEventListener('click',saveRecipe);
-$('rcpName').addEventListener('keydown',e=>{ if(e.key==='Enter') saveRecipe(); });
-
-// EC slider
-$('ecSlide').addEventListener('input',e=>{ S.ec=+e.target.value; syncEc(); });
-
-// steppers
+$('ecSlide').addEventListener('input',e=>{S.ec=+e.target.value;syncEc();});
 document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{
-  const id=b.dataset.step, d=+b.dataset.d, el=$(id);
-  const stepv=id==='ph'?0.1:0.5;
-  const v=(parseFloat(el.value)||0)+d*stepv;
-  el.value=r1(Math.max(0,v));
-  el.dispatchEvent(new Event('change'));
+  const el=$(b.dataset.step);if(!el)return;const step=parseFloat(el.step)||0.5,lo=parseFloat(el.min)||0,hi=el.max?parseFloat(el.max):Infinity;
+  el.value=r1(Math.min(hi,Math.max(lo,(parseFloat(el.value)||0)+(+b.dataset.d)*step)));el.dispatchEvent(new Event('change'));
 }));
-$('ph').addEventListener('change',()=>{ S.ph=clampNum($('ph').value,5,7,5.8); $('ph').value=S.ph.toFixed(1); });
-$('balRate').addEventListener('change',()=>{ S.balRate10L[S.balProduct]=Math.max(0,rateCanon(parseFloat($('balRate').value)||0)); });
-$('clRate').addEventListener('change',()=>{ S.cl10L=Math.max(0,rateCanon(parseFloat($('clRate').value)||0)); syncClChips(); });
-
-// balance product
-$('balBlend').addEventListener('click',()=>{ S.balProduct='blended'; syncBal(); });
-$('balPro').addEventListener('click',()=>{ S.balProduct='pro'; syncBal(); });
-$('proConc').addEventListener('change',e=>{ S.proConc=+e.target.value; });
-
-// balance dial-in
-$('balDialBtn').addEventListener('click',()=>{
-  const used=parseFloat($('balUsed').value), volL=rateCanon10Vol($('vol').value);
-  if(!isFinite(used)||used<0||!isFinite(volL)){ toast('Need total ml used + tank size'); return; }
-  const r10=used/volL*10;
-  S.balRate10L[S.balProduct]=r1(r10);
-  $('balRate').value=r1(rateDisp(r10));
-  toast(`Balance rate set: ${r1(rateDisp(r10))} ${rateUnit()}`);
-});
-
-// cleanse chips
-document.querySelectorAll('#clChips .chip').forEach(c=>c.addEventListener('click',()=>{
-  S.cl10L=+c.dataset.cl;
-  $('clRate').value=r1(rateDisp(S.cl10L));
-  syncClChips();
-}));
-
-// main buttons
-$('calcBtn').addEventListener('click',calc);
-$('saveBtn').addEventListener('click',saveDefaults);
-$('resetBtn').addEventListener('click',()=>{
-  confirmBox('Reset all inputs to stage defaults?',()=>{
-    localStorage.removeItem('abt2.cfg');
-    Object.assign(S,{stage:'veg',ec:3,ph:5.8,srcEc:0,volL:NaN,
-      products:{grow:true,bloom:false,core:true,fade:false},
-      conc:{grow:'226',bloom:'226',core:'226',fade:'226'},
-      balProduct:'blended',balRate10L:{blended:5,pro:5},proConc:120,cl10L:9,
-      stack:{on:false,r10:4},ipm:{on:false,r10:198}});
-    $('srcEc').value=0; $('ph').value='5.8'; $('tuEc').value=''; $('balUsed').value=''; $('rcpName').value='';
-    syncAll(); toast('Reset');
-  });
-});
-$('mixBtn').addEventListener('click',openMix);
-$('shareBtn').addEventListener('click',share);
-$('mixClose').addEventListener('click',()=>$('mixOvl').classList.remove('show'));
+$('ph').addEventListener('change',()=>{S.ph=clamp($('ph').value,5,7,5.8);$('ph').value=S.ph.toFixed(1);});
+$('balRate').addEventListener('change',()=>{S.balBlend10=Math.max(0,rateCanon(parseFloat($('balRate').value)||0));});
+$('balProRate').addEventListener('change',()=>{S.balPro10=Math.max(0,rateCanon(parseFloat($('balProRate').value)||0));});
+$('bothLoad').addEventListener('change',()=>{S.bothLoad=clamp($('bothLoad').value,0,48,26);$('bothLoad').value=S.bothLoad;});
+$('clRate').addEventListener('change',()=>{S.cl10=Math.max(0,rateCanon(parseFloat($('clRate').value)||0));syncClChips();});
+$('proConc').addEventListener('change',e=>{S.proConc=+e.target.value;});
+$('balBlend').addEventListener('click',()=>{S.balMode='blended';syncBal();});
+$('balPro').addEventListener('click',()=>{S.balMode='pro';syncBal();});
+$('balBoth').addEventListener('click',()=>{S.balMode='both';syncBal();});
+document.querySelectorAll('#clChips .chip').forEach(c=>c.addEventListener('click',()=>{S.cl10=+c.dataset.cl;$('clRate').value=r1(rateDisp(S.cl10));syncClChips();}));
 $('tuBtn').addEventListener('click',topUp);
+$('saveBtn').addEventListener('click',saveDefaults);
+$('rcpOpenBtn').addEventListener('click',()=>{go('more');setTimeout(()=>$('rcpName').scrollIntoView({behavior:'smooth',block:'center'}),120);});
+$('resetBtn').addEventListener('click',()=>confirmBox('Reset','Reset the Feed recipe to stage defaults?',()=>{
+  localStorage.removeItem('abt3.cfg');
+  Object.assign(S,{stage:'veg',ec:3.0,ph:6.0,srcEc:0,volL:NaN,products:{grow:true,bloom:false,core:true,fade:false},
+    conc:{grow:'226',bloom:'226',core:'226',fade:'226'},supp:{camg:{on:false,r10:10},pk:{on:false,r10:26}},
+    balMode:'blended',balBlend10:13,balPro10:13,proConc:120,bothLoad:26,cl10:9});
+  $('srcEc').value=0;$('ph').value='6.0';$('tuEc').value='';$('tuOut').style.display='none';
+  syncAll();toast('Reset');
+}));
+$('folVol').addEventListener('change',()=>{S.folVolL=toL($('folVol').value);});
+$('stkProd').addEventListener('change',e=>{S.stkProd=e.target.value;});
+$('stkStr').addEventListener('change',e=>{S.stkStr=e.target.value;});
+$('stkBuildBtn').addEventListener('click',calcStkBuild);
+$('depProd').addEventListener('change',e=>{S.depProd=e.target.value;});
+$('depStr').addEventListener('change',e=>{S.depStr=e.target.value;});
+$('depEc').addEventListener('input',e=>{S.depEc=+e.target.value;$('depEcVal').textContent=S.depEc.toFixed(1);e.target.style.setProperty('--fill',((S.depEc-0.5)/4*100)+'%');});
+document.querySelectorAll('#depModeSeg button').forEach(b=>b.addEventListener('click',()=>{
+  S.depMode=b.dataset.m;document.querySelectorAll('#depModeSeg button').forEach(x=>x.classList.toggle('on',x===b));
+  $('depBatchWrap').style.display=S.depMode==='batch'?'':'none';$('depDailyWrap').style.display=S.depMode==='daily'?'':'none';
+}));
+$('depBtn').addEventListener('click',calcDepletion);
+$('phEc').addEventListener('input',e=>{S.phEc=+e.target.value;$('phEcVal').textContent=S.phEc.toFixed(1);e.target.style.setProperty('--fill',((S.phEc-0.5)/4*100)+'%');});
+document.querySelectorAll('#phBalSeg button').forEach(b=>b.addEventListener('click',()=>{S.phBal=b.dataset.b;syncPh();}));
+$('phBtn').addEventListener('click',calcPh);
+$('calBtn').addEventListener('click',logCal);
+document.querySelectorAll('#ppmSeg button').forEach(b=>b.addEventListener('click',()=>{S.ppm=+b.dataset.s;syncPpm();persist();}));
+$('rcpSave').addEventListener('click',saveRecipe);
+$('rcpName').addEventListener('keydown',e=>{if(e.key==='Enter')saveRecipe();});
 $('csvBtn').addEventListener('click',exportCsv);
-$('clearBtn').addEventListener('click',()=>{
-  if(!logs.length){ toast('History is already empty'); return; }
-  confirmBox('Delete all history? This cannot be undone.',()=>{ logs=[]; persist(); renderLogs(); toast('History cleared'); });
-});
-$('cfNo').addEventListener('click',()=>{ cfCb=null; $('cfOvl').classList.remove('show'); });
-$('cfYes').addEventListener('click',()=>{ if(cfCb) cfCb(); cfCb=null; $('cfOvl').classList.remove('show'); });
-[['cfOvl'],['mixOvl']].forEach(([id])=>$(id).addEventListener('click',e=>{ if(e.target.id===id) $(id).classList.remove('show'); }));
+$('clearBtn').addEventListener('click',()=>{if(!logs.length){toast('History already empty');return;}confirmBox('Clear history','Delete all history? Cannot be undone.',()=>{logs=[];persist();renderLogs();toast('Cleared');});});
+$('tourBtn').addEventListener('click',startTour);
+$('mixBtn').addEventListener('click',openMix);
+$('shareBtn').addEventListener('click',()=>{const t=shareText();if(!t)return;if(navigator.share)navigator.share({title:'Athena dosage',text:t}).catch(()=>copyTxt(t));else copyTxt(t);});
+function copyTxt(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Copied')).catch(()=>toast('Copy unavailable'));}
+$('mixDone').addEventListener('click',()=>closeSheet('mixSheet'));
+$('cfYes').addEventListener('click',()=>{if(cfCb)cfCb();cfCb=null;closeSheet('cfSheet');});
+document.addEventListener('click',e=>{const i=e.target.closest('.info');if(i&&i.dataset.tip)showTip(i.dataset.tip);});
+document.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click',()=>{const s=el.closest('.sheet,.tipwrap');if(s)s.classList.remove('on');cfCb=null;}));
+$('tourNext').addEventListener('click',()=>{if(tourI>=TOUR.length-1)endTour();else{tourI++;showTourStep();}});
+$('tourSkip').addEventListener('click',endTour);
 
-/* ================= boot ================= */
-function syncAll(){ syncUnits(); syncStage(); syncEc(); syncBal(); syncClChips(); syncProducts();
-  $('srcEc').value=S.srcEc; $('ph').value=S.ph.toFixed(1); }
+/* ================= BOOT ================= */
 loadSaved();
-syncAll();
-renderLogs();
-renderRecipes();
-
-// embed mode + iframe auto-height
-if(new URLSearchParams(location.search).has('embed')) document.documentElement.classList.add('embed');
-if(window.parent!==window){
+buildProdRows();buildSupp();buildFoliar();fillStockSelects();
+syncAll();renderLogs();renderRecipes();
+go('feed');
+try{$('depDate').value=new Date().toISOString().slice(0,10);}catch(e){}
+if(!localStorage.getItem('abt3.toured'))setTimeout(startTour,500);
+if(new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('embed');
+if(window.parent!==window && typeof ResizeObserver!=='undefined'){
   const post=()=>parent.postMessage({type:'abt-height',height:document.documentElement.scrollHeight},'*');
-  new ResizeObserver(post).observe(document.body);
-  post();
+  new ResizeObserver(post).observe(document.body); post();
 }
+
 })();
 </script>
 </body>
