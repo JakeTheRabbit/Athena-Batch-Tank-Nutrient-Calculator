@@ -1,74 +1,65 @@
-# Athena Batch Tank Calculator — Pro Line
+# Athena Grow Calculator
 
 **🚀 [Use the live calculator](https://jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator/)** · also at [athena.legacy.ag](https://athena.legacy.ag)
 
-A precision dosing calculator for mixing [Athena Pro Line](https://support.athenaag.com/hc/en-us/articles/17190427112859-Pro-Line-Feed-Schedules) nutrients into batch tanks of any size. Feed charts give you per-gallon ratios; this scales the official dosing chart to your exact reservoir — 17 gallons or 2,500 liters — with no manual math.
+A precision dosing calculator for the full [Athena](https://support.athenaag.com/hc/en-us/articles/17190427112859-Pro-Line-Feed-Schedules) nutrient, foliar and cleaning range. Five phone-first tools — feed tank, foliar spray, stock-tank planning, pH correction and cleaning reference — that scale Athena's official schedules to any reservoir, from a 20 L tent to a 1,000 L commercial stock tank, with no manual math.
 
-| Desktop | Mobile |
-|---|---|
-| ![Desktop](img/desktop.png) | ![Mobile](img/mobile.png) |
+**Disclaimer:** Independent tool — not affiliated with, endorsed, or sponsored by Athena Agriculture. All product names are trademarks of their owners. Verify every mix against the official label. Use at your own risk.
 
-**Disclaimer:** Independent tool — not affiliated with, endorsed, or sponsored by Athena. Verify all calculations. Use at your own risk.
+## The five tools
 
-## Features
+Bottom-tab navigation, everything reachable one-handed on a phone.
 
-- **Official Athena dosing chart, interpolated** — the chart anchors at EC 1.0 / 1.5 / 2.0 … 4.0; the calculator linearly interpolates between anchors so EC 2.7 gives a real dose instead of silently snapping to 2.5.
-- **Metric & Imperial** — liters/gallons toggle. All rates are stored canonically (liters, ml/10 L) and converted only for display, so switching units never changes the actual dose.
-- **Growth-stage presets** — Clone / Veg / Flower / Finish / Flush chips set pH, EC, Balance and Cleanse rates plus the usual product pair. Flush is RO + Cleanse only.
-- **Independent product toggles** — Pro Grow, Pro Bloom, Pro Core and Pro Fade are each individually switchable with their own stock strength. Turning both A-parts (Grow + Bloom) or both B-parts (Core + Fade) on splits that part's chart dose **50/50** for transition feeds.
-- **Stack & IPM dosing** — Stack as a drench additive (label: 1–2 ml/gal weekly, final veg week → flower week 3); IPM as a foliar **spray-tank** batch (60–90 ml/gal preventative, 90–120 active) with a hard warning that it never goes in the fertigation reservoir.
-- **Named recipes** — save the entire form (stage, EC, products, strengths, Balance, Cleanse, Stack/IPM) under a name in the browser; load or delete with one tap.
-- **Pro Balance & Blended Balance** — choose your pH buffer:
-  - *Blended Balance* (liquid potassium silicate) — ml dosing, label range 2–5 ml/gal.
-  - *Pro Balance* (dry potassium carbonate) — dose from a 40–120 g/L stock, with dry-gram equivalents shown.
-  - A **dial-in utility** converts "I used 73 ml to pH this tank" into a saved rate for next time. Rates are remembered per product.
-- **Athena Cleanse only** — preset chips for Light / Maintenance / Reset / Flush rates (label: 2–5 ml/gal maintenance, 5–10 ml/gal reset & final flush). Anolyte support removed.
-- **Source water EC offset** — running tap or bore water? Enter its EC and it's subtracted from the target before dosing (RO = 0).
-- **Mixed concentrate strengths** — independent strength selectors for Grow/Bloom and Core/Fade stocks (113 / 226 / 240 / 282 g/L ⇄ 1 / 2 / 2.2 / 2.5 lb/gal), because real stockrooms have mismatched batches. Dry-gram equivalents shown for every dose.
-- **Top-up calculator** — tank reads EC 2.4, target is 3.0? Get the exact ml of each part to add. Overshot? Get the liters of water to dilute with.
-- **Mix mode** — fullscreen tank-side checklist in the correct order (Cleanse → Balance → Grow/Bloom → Core/Fade) with tap-to-tick steps and big numbers.
-- **History + CSV export** — every calculation saved to localStorage, expandable entries, one-tap delete, CSV export. Old-version history is migrated automatically.
-- **Share** — native share sheet on mobile, clipboard fallback on desktop.
-- **Phone-first** — big touch targets, no-zoom inputs, safe-area aware, works as a home-screen app. Single file, no backend, no accounts, fully offline once saved locally.
+### 🥤 Feed — reservoir nutrient batch
+- **Exact Athena dosing.** Doses come from Athena's *Metric Dosage Reference Guide* grams-per-10 L master, divided by your stock strength. This reproduces **both** Athena's published metric (226 g/L) and imperial (240 g/L) ml tables to the digit, at any target EC (linear interpolation between chart anchors).
+- **Real growth-stage schedule.** Clone / Veg / Flower / Finish / Flush set the EC, pH, Cleanse rate and product pair from Athena's Pro Program. Clone & flower run on Bloom + Core, veg on Grow + Core, finish swaps Core → Fade. Athena runs a **hard Grow→Bloom switch** — the A-parts (Grow/Bloom) and B-parts (Core/Fade) are pick-one, not blended.
+- **Balance buffer, three ways** — *Blended* (liquid potassium silicate, also feeds Si), *Pro* (dry potassium carbonate for venturi/Netaflex), or *Both* — Athena's official procedure of dissolving Pro Balance powder into Blended Balance to boost pH-up, capped at 48 g/L (180 g/gal).
+- **Supplements** — CaMg (RO / inert media) and PK (no-N flower booster, week 3+).
+- **Cleanse in reservoir**, source-water EC offset, mixed stock strengths per product, and a **top-up calculator** (tank reads EC 2.4, target 3.0 → exact ml to add, or litres of water to dilute if you overshot).
+
+### 🌿 Foliar — spray tank (separate from feed)
+IPM / IPW, Stack foliar and Cleanse surface spray, with one-tap presets (IPM preventative 90 ml/gal, IPM pressure 120 ml/gal, the compatible IPM + Stack tank-mix, Stack, Cleanse wipe-down) and the full spray SOP — saturate the substrate first, lights-off, dry 3–4 h. Kept out of the feed tank, the way most growers run it (Athena also publishes an optional IPM root-drench at 5–10 ml/gal).
+
+### 🛢️ Stock — concentrate builder + tank life
+- **Concentrate builder** — target strength (120 / 226 / 240 / 300 g/L) × tank size → kg of product to add, with the fill-to-80%-then-top procedure and the 300 g/L agitation warning.
+- **Tank life / refill date** — stock size, strength, feed EC and either batches-per-day or litres-per-day → how many days and weeks the stock lasts, daily draw, total feed supported, and the **calendar refill date**.
+
+### 🧪 pH — Balance correction estimator
+Estimate the Balance dose to move current pH → target at a given EC. Athena publishes **no** fixed ml-per-pH figure (it depends on your water and recipe), so the tool uses their own titrate-and-record method: it estimates, then **learns from your logged corrections per profile** to sharpen the next estimate.
+
+### ⚙️ More — cleaning, recipes, history, settings
+Cleanse reservoir/flush use-cases and the separate Clean Line (Renew / Reset / Perafoam) between-crop protocols; saved recipes; history with CSV export; PPM scale (500/700); and the replayable walkthrough.
+
+## Built for one hand on a phone
+
+- Fixed bottom-tab navigation and a sticky Calculate bar — thumb-reachable.
+- Big steppers and sliders so most inputs need no keyboard; **recent-value chips** and per-profile recommendations to speed re-entry.
+- Results slide up in a sheet with **Mix mode** (tap-to-tick, correct order: Balance first → Cleanse → base nutrients → Fade → supplements, check pH last) and Share.
+- Profiles (Garage / Craft / Commercial) set sensible scale defaults and remember your tank sizes.
+- Guided tour on first run, tooltips on every input, Athena-inspired dark theme.
+- Metric ⇄ Imperial toggle (converts the display; dosing is driven by the stock strength you pick, matching Athena's separate metric/imperial standards).
 
 ## Embedding
 
-The calculator is a single self-contained HTML file designed to drop into any site:
+Single self-contained HTML file — drop it into any site:
 
 ```html
 <iframe src="https://jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator/?embed=1"
         style="width:100%;border:0" id="athena-calc"></iframe>
-<script>
-  addEventListener('message', e => {
-    if (e.data?.type === 'abt-height')
-      document.getElementById('athena-calc').style.height = e.data.height + 'px';
-  });
-</script>
 ```
 
-`?embed=1` hides the header/footer chrome, and the page posts its height to the parent on every resize for seamless auto-sizing.
+`?embed=1` hides the header chrome.
 
 ## Standalone / offline
 
-No installation, no build. Download [`www/index.html`](www/index.html) and open it in any modern browser — everything runs client-side. On a phone, use the browser's **Add to Home Screen** for an app-like fullscreen experience.
-
-## How it works
-
-1. Pick a **growth stage** — pH, EC, Balance and Cleanse rates pre-fill (everything stays editable).
-2. Set **target EC** with the slider and enter your **tank size**.
-3. Pick the **concentrate strength** each stock was mixed at — Grow/Bloom and Core/Fade can differ.
-4. Choose your **Balance product** and rate (use the dial-in utility to capture your water's real demand).
-5. **Calculate** → doses appear with per-10 L (or per-gal) rates and dry-gram equivalents.
-6. Hit **Mix mode** at the tank and tick off each addition as you pour.
-
-The dose tables are Athena's published dosing chart, taken verbatim. Doses between chart anchors are linear interpolations; an EC below 1.0 is flagged as extrapolated.
+No installation, no build, no backend, no accounts. Download [`www/index.html`](www/index.html) and open it in any modern browser — everything runs client-side and persists to `localStorage`. On a phone, use **Add to Home Screen** for a fullscreen app.
 
 ## Development
 
 - `www/index.html` — the app (single file: HTML + CSS + vanilla JS, zero dependencies).
-- `docs/index.html` — identical copy served by GitHub Pages. Keep both in sync when editing.
+- `docs/index.html` — identical copy served by GitHub Pages. **Keep both in sync** when editing.
 
-Bug reports and PRs welcome. For major changes, open an issue first.
+All dosing figures are cross-verified against Athena's official Feed Schedule, Dosage Reference Guide (doc A01.004), store.athenaag.com and support.athenaag.com. Doses between chart anchors are linear interpolations; EC below the chart floor is flagged as extrapolated. Rates marked *SEED* in-app are conservative pending label confirmation.
 
 ## License
 
