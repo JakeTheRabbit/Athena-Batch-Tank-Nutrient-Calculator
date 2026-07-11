@@ -4,7 +4,9 @@ A dosing calculator for the full Athena nutrient, foliar and cleaning range. Run
 
 **Open it: [jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator](https://jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator/)**
 
-![Athena Grow Calculator](img/hero.png)
+| Light | Dark |
+|---|---|
+| ![Athena Grow Calculator, light theme](img/hero-light.png) | ![Athena Grow Calculator, dark theme](img/hero-dark.png) |
 
 Not affiliated with, endorsed by, or sponsored by Athena Agriculture. All product names are trademarks of their owners. Verify every mix against the official label.
 
