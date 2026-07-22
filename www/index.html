@@ -285,6 +285,9 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .tour{position:fixed;inset:0;z-index:100;display:none}
 .tour.on{display:block}
 .tour .scrim{position:absolute;inset:0;background:rgba(3,5,3,.72);backdrop-filter:blur(2px)}
+/* when a spotlight target exists, the halo's 9999px shadow does the dimming —
+   the scrim must go clear or it dims and blurs the spotlighted element too */
+.tour.spot .scrim{background:transparent;backdrop-filter:none}
 /* No entrance animation: a keyframe with a fill-mode fought the centering
    transform (translateX(-50%)) and left the popup off-screen / invisible.
    Base style is always visible and centered — reliability over flourish. */
@@ -1459,16 +1462,22 @@ const TOUR=[
 ];
 let tourI=0;
 function startTour(){tourI=0;$('tour').classList.add('on');showTourStep();}
+function positionHalo(){
+  const s=TOUR[tourI],halo=$('tourHalo'),tour=$('tour'),el=document.querySelector(s.sel);
+  if(!el){halo.classList.remove('on');tour.classList.remove('spot');return;}
+  let r=el.getBoundingClientRect();
+  if(r.top<0||r.bottom>innerHeight){el.scrollIntoView({block:'center',behavior:'instant'});r=el.getBoundingClientRect();}
+  halo.classList.add('on');tour.classList.add('spot');
+  halo.style.left=(r.left-6)+'px';halo.style.top=(r.top-6)+'px';halo.style.width=(r.width+12)+'px';halo.style.height=(r.height+12)+'px';
+}
 function showTourStep(){
   const s=TOUR[tourI]; go(s.tab);
   $('tourStep').textContent=`Step ${tourI+1} of ${TOUR.length}`; $('tourTitle').textContent=s.title; $('tourBody').textContent=s.body;
   $('tourDots').innerHTML=TOUR.map((_,i)=>`<i class="${i===tourI?'on':''}"></i>`).join('');
   $('tourNext').textContent=tourI===TOUR.length-1?'Done':'Next';
-  setTimeout(()=>{const el=document.querySelector(s.sel),halo=$('tourHalo');
-    if(el){const r=el.getBoundingClientRect();halo.classList.add('on');halo.style.left=(r.left-6)+'px';halo.style.top=(r.top-6)+'px';halo.style.width=(r.width+12)+'px';halo.style.height=(r.height+12)+'px';}
-    else halo.classList.remove('on');},260);
+  setTimeout(positionHalo,260);
 }
-function endTour(){$('tour').classList.remove('on');$('tourHalo').classList.remove('on');localStorage.setItem('abt3.toured','1');}
+function endTour(){$('tour').classList.remove('on');$('tour').classList.remove('spot');$('tourHalo').classList.remove('on');localStorage.setItem('abt3.toured','1');}
 
 /* ================= NAV ================= */
 function go(tab){
@@ -1573,6 +1582,8 @@ document.addEventListener('click',e=>{const i=e.target.closest('.info');if(i&&i.
 document.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click',()=>{const s=el.closest('.sheet,.tipwrap');if(s)s.classList.remove('on');cfCb=null;}));
 $('tourNext').addEventListener('click',()=>{if(tourI>=TOUR.length-1)endTour();else{tourI++;showTourStep();}});
 $('tourSkip').addEventListener('click',endTour);
+addEventListener('resize',()=>{if($('tour').classList.contains('on'))positionHalo()});
+addEventListener('scroll',()=>{if($('tour').classList.contains('on'))positionHalo()},{passive:true});
 
 /* ================= THEME ================= */
 function effTheme(){const s=localStorage.getItem('abt3.theme');if(s==='light'||s==='dark')return s;try{return matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';}catch(e){return 'light';}}
