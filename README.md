@@ -1,5 +1,7 @@
 # Athena Grow Calculator
 
+> **This repo is free. My 2am dryback debugging is not.** If it saved you a crop, a weekend, or a nervous breakdown — [buy the rabbit a bag of nutes](https://github.com/sponsors/JakeTheRabbit). If it didn't, keep your money. I respect a tight nutrient budget.
+
 A dosing calculator for the full Athena nutrient, foliar and cleaning range. Runs in your browser, works offline, and scales any recipe from a 20 litre tent to a 1000 litre commercial stock tank. Built for a phone, one-handed, tank-side.
 
 **Open it: [jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator](https://jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator/)**
@@ -90,5 +92,3 @@ Pull requests are welcome too.
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-> **This repo is free. My 2am dryback debugging is not.** If it saved you a crop, a weekend, or a nervous breakdown — [buy the rabbit a bag of nutes](https://github.com/sponsors/JakeTheRabbit). If it didn't, keep your money. I respect a tight nutrient budget.
