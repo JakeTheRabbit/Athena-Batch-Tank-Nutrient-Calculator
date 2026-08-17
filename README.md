@@ -90,3 +90,5 @@ Pull requests are welcome too.
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+> **This repo is free. My 2am dryback debugging is not.** If it saved you a crop, a weekend, or a nervous breakdown — [buy the rabbit a bag of nutes](https://github.com/sponsors/JakeTheRabbit). If it didn't, keep your money. I respect a tight nutrient budget.
