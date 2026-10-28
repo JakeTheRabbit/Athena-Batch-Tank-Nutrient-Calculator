@@ -258,6 +258,23 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .mix-step .mv{font-size:1.45rem;font-weight:800;color:var(--dc,var(--accent));white-space:nowrap}
 .mix-step .mv i{font-style:normal;font-size:11px;color:var(--ink3);font-weight:600;margin-left:2px}
 .mix-step.done{opacity:.42}.mix-step.done .mn b{text-decoration:line-through}
+.mix-step{flex-wrap:wrap}
+.mix-step .ecchk{flex-basis:100%;display:flex;align-items:center;gap:8px;padding-left:39px;font-size:11px;color:var(--ink3)}
+.mix-step .ecchk b{color:var(--ink)}
+.mix-step .ecchk input{width:74px;height:32px;padding:0 8px;font-size:13px;margin-left:auto}
+.mix-step .ecres{flex-basis:100%;padding-left:39px;font-size:11px;font-weight:600;line-height:1.45}
+.mix-step .ecres.ok{color:var(--accent)}.mix-step .ecres.warn{color:var(--warn)}.mix-step .ecres.bad{color:var(--bad)}
+.dose .ecat{display:block;font-size:10.5px;color:var(--ink2);margin-top:2px;font-weight:600}
+.netec{height:44px;display:flex;align-items:center;padding:0 12px;border:1px solid var(--hair);border-radius:11px;background:var(--inset);font-weight:800;color:var(--accent)}
+.wzbar{height:4px;border-radius:3px;background:var(--hair);margin:-4px 0 14px;overflow:hidden}
+.wzbar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.wz h4{font-size:1rem;font-weight:800;margin-bottom:6px}
+.wz p.lead{font-size:12.5px;color:var(--ink2);line-height:1.6;margin-bottom:13px}
+.wz .sum{font-size:12.5px}.wz .sum .row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--hair)}
+.wz .sum .row span{color:var(--ink2)}
+.rzlog{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:7px 0;border-bottom:1px dashed var(--hair)}
+.rzlog span{color:var(--ink3)}.rzlog .x{background:none;border:0;color:var(--ink3);font-size:15px;padding:0 4px}
+.spark{width:100%;height:90px;display:block;margin:4px 0 10px}
 .ordnote{font-size:11px;color:var(--ink3);line-height:1.55;margin-top:10px}
 
 /* history log */
@@ -359,11 +376,20 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
 <!-- ============ FEED (reservoir nutrient mix) ============ -->
 <!-- ============================================================= -->
 <section class="panel on" id="tab-feed">
-  <div class="phead"><h1>Feed tank</h1><p>Reservoir nutrient batch — scales any recipe to your tank. Foliar sprays live in their own tab.</p></div>
+  <div class="phead"><h1>Feed tank</h1><p>Dose a reservoir batch from Athena's Pro chart. Set the week, tank size and source water, then calculate.</p>
+    <button type="button" class="btn sm primary" id="wzOpen" style="margin-top:10px"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Step-by-step setup</button></div>
 
   <div class="card">
     <div class="chead"><h2>Recipe</h2><div class="sub" id="stageSub">Mother &amp; Veg</div></div>
     <div class="cbody">
+
+      <div class="fgroup">
+        <span class="lab">Nutrient line <i class="info" data-tip="line">i</i></span>
+        <div class="seg" id="lineSeg" role="group" aria-label="Nutrient line">
+          <button type="button" data-l="pro" class="on">Pro Line <small>dry powder</small></button>
+          <button type="button" data-l="blended">Blended <small>liquid A/B</small></button>
+        </div>
+      </div>
 
       <div class="fgroup">
         <span class="lab">Growth stage <i class="info" data-tip="stage">i</i></span>
@@ -374,6 +400,12 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
           <button type="button" class="chip" data-stage="finish">Finish</button>
           <button type="button" class="chip" data-stage="flush">Flush</button>
         </div>
+      </div>
+
+      <div class="fgroup">
+        <span class="lab">Week (Athena chart) <i class="info" data-tip="week">i</i></span>
+        <div class="chips scroll" id="weekChips"><!-- injected --></div>
+        <div class="hint" id="weekHint"></div>
       </div>
 
       <div class="grid2 fgroup">
@@ -392,6 +424,16 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
         </div>
       </div>
 
+      <div class="fgroup">
+        <span class="lab">Source water <i class="info" data-tip="water">i</i></span>
+        <div class="chips" id="waterChips">
+          <button type="button" class="chip" data-w="ro">RO / distilled</button>
+          <button type="button" class="chip" data-w="tap">Tap</button>
+          <button type="button" class="chip" data-w="well">Well / bore</button>
+          <button type="button" class="chip" data-w="custom">Custom</button>
+        </div>
+      </div>
+
       <div class="grid2 fgroup">
         <div>
           <span class="lab">Source water EC <i class="info" data-tip="src">i</i></span>
@@ -401,12 +443,28 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
           </div>
         </div>
         <div>
+          <span class="lab">Source water pH <i class="info" data-tip="srcph">i</i></span>
+          <div class="step">
+            <button type="button" data-step="srcPh" data-d="-1" aria-label="Source pH down">−</button>
+            <input type="number" id="srcPh" inputmode="decimal" step="0.1" min="4" max="9" value="6.5">
+            <button type="button" data-step="srcPh" data-d="1" aria-label="Source pH up">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="hint" id="waterHint" style="margin:-4px 0 12px"></div>
+
+      <div class="grid2 fgroup">
+        <div>
           <span class="lab">Target pH <i class="info" data-tip="ph">i</i></span>
           <div class="step">
             <button type="button" data-step="ph" data-d="-1" aria-label="pH down">−</button>
             <input type="number" id="ph" inputmode="decimal" step="0.1" min="5.0" max="7.0" value="5.8">
             <button type="button" data-step="ph" data-d="1" aria-label="pH up">+</button>
           </div>
+        </div>
+        <div>
+          <span class="lab">Nutrients add <i class="info" data-tip="netec">i</i></span>
+          <div class="netec" id="netEc">EC 3.0</div>
         </div>
       </div>
 
@@ -483,12 +541,12 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
         <div class="grid2 tight">
           <div class="step">
             <button type="button" data-step="clRate" data-d="-1">−</button>
-            <input type="number" id="clRate" inputmode="decimal" step="0.5" min="0" value="9">
+            <input type="number" id="clRate" inputmode="decimal" step="0.5" min="0" value="5.3">
             <button type="button" data-step="clRate" data-d="1">+</button>
           </div>
           <div class="chips" id="clChips">
             <button type="button" class="chip" data-cl="3">Light</button>
-            <button type="button" class="chip on" data-cl="9">Maint.</button>
+            <button type="button" class="chip on" data-cl="5.3">Feed</button>
             <button type="button" class="chip" data-cl="13">Reset</button>
             <button type="button" class="chip" data-cl="26">Flush</button>
           </div>
@@ -636,7 +694,57 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
 <!-- ============ pH (correction estimator) ============ -->
 <!-- ============================================================= -->
 <section class="panel" id="tab-ph">
-  <div class="phead"><h1>pH correction</h1><p>Estimate how much Balance to add to hit your target pH. Learns from your own tanks to get sharper over time.</p></div>
+  <div class="phead"><h1>Root zone</h1><p>Compare runoff against Athena's substrate EC targets, get the feed EC and feed pH that move the root zone back into range, and track runoff EC over time to time the next EC increase.</p></div>
+
+  <div class="card">
+    <div class="chead"><h2>Runoff check <i class="info" data-tip="rz" style="margin-left:4px">i</i></h2><div class="sub" id="rzSub">diagnose</div></div>
+    <div class="cbody">
+      <div class="fgroup">
+        <span class="lab">Crop stage <i class="info" data-tip="rzstage">i</i></span>
+        <div class="seg sm" id="rzStageSeg" role="group" aria-label="Root-zone stage">
+          <button type="button" data-z="veg">Veg</button><button type="button" data-z="stretch">Stretch F1–3</button><button type="button" data-z="bulk">Bulk F4–7</button><button type="button" data-z="finish">Finish F8–9</button>
+        </div>
+        <div class="hint" id="rzRange"></div>
+      </div>
+      <div class="grid2 fgroup">
+        <div>
+          <span class="lab">Feed EC <i class="info" data-tip="rzfeed">i</i></span>
+          <div class="step"><button type="button" data-step="rzFeedEc" data-d="-1">−</button><input type="number" id="rzFeedEc" inputmode="decimal" step="0.1" min="0" max="6" value="3.0"><button type="button" data-step="rzFeedEc" data-d="1">+</button></div>
+        </div>
+        <div>
+          <span class="lab">Feed pH</span>
+          <div class="step"><button type="button" data-step="rzFeedPh" data-d="-1">−</button><input type="number" id="rzFeedPh" inputmode="decimal" step="0.1" min="4" max="8" value="6.0"><button type="button" data-step="rzFeedPh" data-d="1">+</button></div>
+        </div>
+      </div>
+      <div class="grid2 fgroup">
+        <div>
+          <span class="lab">Runoff EC <i class="info" data-tip="rzro">i</i></span>
+          <div class="inwrap"><input type="number" id="rzRoEc" inputmode="decimal" step="0.1" min="0" max="15" placeholder="e.g. 4.2"><span class="unit">mS/cm</span></div>
+        </div>
+        <div>
+          <span class="lab">Runoff pH</span>
+          <div class="inwrap"><input type="number" id="rzRoPh" inputmode="decimal" step="0.1" min="3" max="9" placeholder="e.g. 6.3"><span class="unit">pH</span></div>
+        </div>
+      </div>
+      <div class="fgroup">
+        <span class="lab">Runoff volume <b>% of feed</b> · optional <i class="info" data-tip="rzpct">i</i></span>
+        <div class="inwrap"><input type="number" id="rzPct" inputmode="decimal" step="1" min="0" max="80" placeholder="e.g. 15"><span class="unit">%</span></div>
+      </div>
+      <div class="btnrow">
+        <button type="button" class="btn primary" id="rzBtn">Diagnose</button>
+        <button type="button" class="btn" id="rzLogBtn">Diagnose + log</button>
+      </div>
+      <div id="rzOut" style="margin-top:12px;display:none"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chead"><h2>Runoff log · EC trend <i class="info" data-tip="rzlog" style="margin-left:4px">i</i></h2><div class="sub"><button type="button" class="btn sm ghost danger" id="rzClear" style="height:30px">Clear</button></div></div>
+    <div class="cbody">
+      <div id="rzTrend"></div>
+      <div id="rzList"></div>
+    </div>
+  </div>
 
   <div class="card">
     <div class="chead"><h2>How much Balance?</h2><div class="sub">estimate</div></div>
@@ -664,7 +772,8 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
       </div>
       <div class="fgroup">
         <span class="lab">Balance product</span>
-        <div class="seg sm" id="phBalSeg"><button type="button" data-b="blended" class="on">Blended liquid</button><button type="button" data-b="pro">Pro dry stock</button></div>
+        <div class="seg sm" id="phBalSeg"><button type="button" data-b="blended" class="on">Blended liquid</button><button type="button" data-b="pro">Pro dry stock</button><button type="button" data-b="both">Both (combined)</button></div>
+        <div class="hint" id="phBalHint"></div>
       </div>
       <button type="button" class="btn primary full" id="phBtn">Estimate Balance</button>
       <div id="phOut" style="margin-top:12px;display:none"></div>
@@ -720,6 +829,7 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
         <span class="lab">PPM scale <i class="info" data-tip="ppm">i</i></span>
         <div class="seg sm" id="ppmSeg"><button type="button" data-s="500" class="on">500 (US / Hanna)</button><button type="button" data-s="700">700 (EU / Truncheon)</button></div>
       </div>
+      <button type="button" class="btn full" id="wzOpen2" style="margin-bottom:9px" onclick="document.getElementById('wzOpen').click()"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Step-by-step setup</button>
       <button type="button" class="btn full" id="tourBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>Replay walkthrough</button>
     </div>
   </div>
@@ -739,7 +849,7 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
   <button type="button" class="on" data-tab="feed"><svg viewBox="0 0 24 24"><path d="M5 3h14l-1 8a6 6 0 0 1-12 0z"/><path d="M8 21h8M12 17v4"/></svg><span>Feed</span></button>
   <button type="button" data-tab="foliar"><svg viewBox="0 0 24 24"><path d="M12 2s6 5 6 11a6 6 0 0 1-12 0c0-6 6-11 6-11z"/><path d="M9 20h6"/></svg><span>Foliar</span></button>
   <button type="button" data-tab="stock"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="13" rx="2"/><path d="M5 12h14M9 8V4h6v4"/></svg><span>Stock</span></button>
-  <button type="button" data-tab="ph"><svg viewBox="0 0 24 24"><path d="M7 3v6l-3 6a3 3 0 0 0 3 4h10a3 3 0 0 0 3-4l-3-6V3"/><path d="M6 3h12M9 15h.01M13 17h.01"/></svg><span>pH</span></button>
+  <button type="button" data-tab="ph"><svg viewBox="0 0 24 24"><path d="M7 3v6l-3 6a3 3 0 0 0 3 4h10a3 3 0 0 0 3-4l-3-6V3"/><path d="M6 3h12M9 15h.01M13 17h.01"/></svg><span>Root zone</span></button>
   <button type="button" data-tab="more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>More</span></button>
 </nav>
 
@@ -772,6 +882,18 @@ footer a{color:var(--ink2);border-bottom:1px dotted var(--ink3);text-decoration:
   <div class="sh"><h3 id="cfTitle">Confirm</h3><button type="button" class="x" data-close><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <p id="cfMsg" style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:14px"></p>
   <div class="btnrow"><button type="button" class="btn" data-close>Cancel</button><button type="button" class="btn primary" id="cfYes">Confirm</button></div>
+</div></div>
+
+<!-- setup wizard -->
+<div class="sheet" id="wzSheet"><div class="scrim" data-close></div><div class="body">
+  <div class="grab"></div>
+  <div class="sh"><h3 id="wzTitle">Setup</h3><div class="sub" id="wzStep" style="font-size:11px;color:var(--ink3)"></div><button type="button" class="x" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="wzbar"><i id="wzBar"></i></div>
+  <div id="wzBody"></div>
+  <div class="btnrow" style="margin-top:14px">
+    <button type="button" class="btn" id="wzBack">Back</button>
+    <button type="button" class="btn primary" id="wzNext">Next</button>
+  </div>
 </div></div>
 
 <!-- tooltip -->
@@ -836,7 +958,7 @@ const NUTS = [
   {k:"grow",  name:"Pro Grow",  table:"A", part:"A", color:"#00c46a"},
   {k:"bloom", name:"Pro Bloom", table:"A", part:"A", color:"#f472b6"},
   {k:"core",  name:"Pro Core",  table:"B", part:"B", color:"#38bdf8"},
-  {k:"fade",  name:"Pro Fade",  table:"B", part:"B", color:"#fb923c"}
+  {k:"fade",  name:"Pro Fade",  table:"B", part:"B", color:"#fb923c", fixed:"240"}   // liquid, as bottled: Core swap at 240 g/L = Athena's 19 ml/gal
 ];
 
 /* Supplements dosed at a fixed rate (ml per 10 L), volume-scaled. */
@@ -851,11 +973,66 @@ const SUPP = [
    overrides); ph = mid of Athena's band; cl = reservoir Cleanse ml/10L. */
 const STAGES = {
   clone:  {name:"Clone / Cutting", ec:2.0, ph:5.6, cl:2.6, on:["bloom","core"]},
-  veg:    {name:"Mother & Veg",    ec:3.0, ph:6.0, cl:9,   on:["grow","core"]},
-  flower: {name:"Flower",          ec:3.0, ph:6.0, cl:9,   on:["bloom","core"]},
-  finish: {name:"Finish / Fade",   ec:3.0, ph:6.2, cl:9,   on:["bloom","fade"]},
+  veg:    {name:"Mother & Veg",    ec:3.0, ph:6.0, cl:5.3,  on:["grow","core"]},
+  flower: {name:"Flower",          ec:3.0, ph:6.0, cl:5.3,  on:["bloom","core"]},
+  finish: {name:"Finish / Fade",   ec:3.0, ph:6.2, cl:5.3,  on:["bloom","fade"]},
   flush:  {name:"Flush",           ec:0,   ph:6.2, cl:26,  on:[]}
 };
+
+/* Week-by-week Pro chart, verbatim from Athena's Grower Toolbox batch tank tool
+   (Pro line, powder, Fade modifier on). All weeks chart EC 3.0, Cleanse 2 ml/gal,
+   Core 4.6 g/gal (W1–F7), Fade 19 ml/gal replaces Core F8–F9. a = Grow/Bloom g/gal. */
+const WEEKS = [
+  {lab:"Veg W1",st:"veg",a:7.7},{lab:"Veg W2",st:"veg",a:7.6},{lab:"Veg W3",st:"veg",a:7.6},{lab:"Veg W4",st:"veg",a:7.7},
+  {lab:"Flower W1",st:"flower",a:7.7},{lab:"Flower W2",st:"flower",a:7.6},{lab:"Flower W3",st:"flower",a:7.4},
+  {lab:"Flower W4",st:"flower",a:7.7},{lab:"Flower W5",st:"flower",a:7.7},{lab:"Flower W6",st:"flower",a:7.5},
+  {lab:"Flower W7",st:"flower",a:7.5},{lab:"Flower W8",st:"finish",a:7.6},{lab:"Flower W9",st:"finish",a:7.7}
+];
+const WEEK_CL = 2*10/GAL;                             // 2 ml/gal as ml/10L
+
+/* Blended line: direct liquid ml per US gal, verbatim from Athena's Grower Toolbox
+   "Blended with Fade" chart. ec = chart EC for that week. Same 13 weeks as WEEKS. */
+const BL_PRODS = [
+  {k:"ga",   name:"Blended Grow A",  color:"#00c46a"},
+  {k:"gb",   name:"Blended Grow B",  color:"#38bdf8"},
+  {k:"ba",   name:"Blended Bloom A", color:"#f472b6"},
+  {k:"bb",   name:"Blended Bloom B", color:"#c084fc"},
+  {k:"camg", name:"Blended CaMg",    color:"#22d3ee"},
+  {k:"pk",   name:"Blended PK",      color:"#a78bfa"},
+  {k:"fade", name:"Blended Fade",    color:"#fb923c"}
+];
+const BL_WEEKS = [
+  {ec:2.1,ga:11,gb:11,camg:4},{ec:2.1,ga:11,gb:11,camg:4},{ec:2.1,ga:11,gb:11,camg:4},{ec:2.1,ga:11,gb:11,camg:4},
+  {ec:2.3,ba:12,bb:12,camg:4},{ec:2.3,ba:12,bb:12,camg:4},{ec:2.5,ba:12,bb:12,camg:4,pk:4},
+  {ec:2.6,ba:12,bb:12,camg:4,pk:6},{ec:2.4,ba:10,bb:10,camg:4,pk:9},{ec:2.3,ba:9,bb:9,camg:4,pk:10},
+  {ec:1.7,ba:5,bb:5,camg:4,pk:12},{ec:1.7,pk:12,fade:12},{ec:1.7,pk:12,fade:12}
+];
+const lineEc=i=>S.line==='blended'?BL_WEEKS[i].ec:3.0;   // chart EC for week i on the active line
+
+/* Source water presets. EC/pH are typical starting values: the grower overwrites
+   them with a meter reading. bal = Blended Balance starting rate, ml/10L
+   (Athena range 2–10 ml/gal: RO has no buffer so it starts mid-range). */
+const WATER = {
+  ro:    {name:"RO / distilled", ec:0.0, ph:6.5, bal:13,
+          note:"RO has no alkalinity and no Ca/Mg. Add Balance first, before any nutrient. Its pH reading drifts with CO₂ and is not meaningful until Balance is in. Turn on CaMg if the media is inert or Ca/Mg deficiency shows."},
+  tap:   {name:"Tap", ec:0.3, ph:7.5, bal:5.3,
+          note:"Tap water carries carbonate alkalinity that already buffers pH. Start Balance low, read pH after the nutrients are in, and add more only if pH is under target. Source EC is subtracted from the target so total EC lands on the chart."},
+  well:  {name:"Well / bore", ec:0.5, ph:7.8, bal:3,
+          note:"Bore water is usually high in alkalinity and dissolved minerals. Start Balance at the minimum. Above 0.6 EC the minerals displace chart nutrients: blend with RO or test the water before relying on the chart."},
+  custom:{name:"Custom", note:"Enter your meter readings. Source EC is subtracted from the target so total EC lands on your number."}
+};
+
+/* Root-zone (substrate / runoff) EC targets by crop phase, mS/cm.
+   Athena Pro Line Handbook (metric, A01.002) p.40 for stretch, bulk and finish;
+   veg from Athena's Precision Irrigation Strategy (3.5–4.5, building to 4–5 by flip).
+   Root-zone pH window 5.8–6.4: input 5.8–6.2 with runoff slightly above input. */
+const RZ = {
+  veg:    {name:"Veg",           lo:3.5, hi:4.5, src:"Athena Precision Irrigation Strategy: 3.5–4.5, building to 4–5 by flip."},
+  stretch:{name:"Stretch F1–3",  lo:4.0, hi:10,  src:"Athena handbook p.40: stretch substrate EC 4–10 (generative). High runoff EC is intended here."},
+  bulk:   {name:"Bulk F4–7",     lo:3.5, hi:6.0, src:"Athena handbook p.40: bulk substrate EC 3.5–6."},
+  finish: {name:"Finish F8–9",   lo:3.0, hi:4.0, src:"Athena handbook p.40: finish substrate EC 3–4."}
+};
+const RZ_PH = {lo:5.8, hi:6.4};
 
 /* Foliar / spray-tank products — ml per 10 L of spray water.
    IPM rebranded IPW (Integrated Plant Wash) — same formula. */
@@ -910,22 +1087,29 @@ const PROFILES = {
    titrate in 1 ml/gal increments and record. This tool does that math and
    learns per-profile from logged corrections. Seed = rough starting point. */
 const PH_SEED = { blended:{k:4.0, alpha:0.35}, pro:{k:3.0, alpha:0.35} };
+/* Combined Balance (Pro powder dissolved into Blended at L g/L). Each ml carries 1 ml
+   Blended plus L/1000 g Pro powder. Pro seed: 3.0 ml of 120 g/L stock = 0.36 g per 10 L per
+   pH unit. Potencies add, so k_both = 1 / (1/4.0 + (L/1000)/0.36). L=26 g/L → k ≈ 3.1. */
+function phSeed(b){
+  if(b!=='both')return PH_SEED[b];
+  return {k:1/(1/PH_SEED.blended.k+(S.bothLoad/1000)/(PH_SEED.pro.k*0.12)), alpha:0.35};
+}
 
 /* ================= STATE ================= */
 const S = {
   metric:true, profile:"craft", ppm:500,
-  stage:"veg", ec:3.0, ph:6.0, srcEc:0, volL:NaN,
-  products:{grow:true,bloom:false,core:true,fade:false},
+  line:"pro", stage:"veg", ec:3.0, ph:6.0, srcEc:0, volL:NaN, water:"ro", srcPh:6.5, rzStage:"veg",
+  products:{grow:true,bloom:false,core:true,fade:false}, week:null,
   conc:{grow:"226",bloom:"226",core:"226",fade:"226"},
   supp:{camg:{on:false,r10:10}, pk:{on:false,r10:26}},
   balMode:"blended", balBlend10:13, balPro10:13, proConc:120, bothLoad:26,
-  cl10:9,
+  cl10:5.3,
   folVolL:NaN, folProducts:{ipm:true,stackf:false,cleansef:false}, folR10:{},
   stkProd:"grow", stkStr:"240",
   depProd:"grow", depStr:"240", depMode:"batch", depBpd:1, depEc:3.0,
   phEc:3.0, phBal:"blended", phCal:{}
 };
-let lastFeed=null, lastFoliar=null, logs=[], recipes={}, cfCb=null, recent={};
+let lastFeed=null, lastFoliar=null, logs=[], recipes={}, cfCb=null, recent={}, rzLog=[];
 let lastResultForMix=null, lastMixKind='feed';
 
 /* ================= HELPERS ================= */
@@ -956,9 +1140,17 @@ function lerpGPG(tbl,ec){
    ml = grams / stock-strength. Reproduces Athena's published ml tables exactly. */
 function nutTotals(ecEff,volL){
   const units=volL/10;
+  if(S.line==='blended'){
+    // Liquid line: chart ml/gal scaled by (nutrient EC ÷ chart EC); exact at the chart EC with RO water.
+    const w=BL_WEEKS[S.week!=null?S.week:0], k=w.ec>0?ecEff/w.ec:1;
+    return BL_PRODS.filter(p=>w[p.k]).map(p=>{const rate=w[p.k]*k*10/GAL, ml=rate*units;
+      return {k:p.k,name:p.name,color:p.color,rate,ml,g:ml,liq:true};});
+  }
+  // chart week: scale the A-part to Athena's g/gal for that week (chart is 20.3 g/10L at EC 3)
+  const wkA=(S.week!=null&&WEEKS[S.week])?WEEKS[S.week].a/(G10.A[5]*GAL/10):1;
   return NUTS.filter(n=>S.products[n.k]).map(n=>{
-    const g=lerpGPG(G10[n.table],ecEff)*units;       // grams for tank
-    const gl=(CONC.find(o=>o.k===S.conc[n.k])||CONC[2]).gl;   // fall back to 226 g/L if a stored strength drifted out of range
+    const g=lerpGPG(G10[n.table],ecEff)*units*(n.table==='A'?wkA:1);   // grams for tank
+    const gl=(CONC.find(o=>o.k===(n.fixed||S.conc[n.k]))||CONC[2]).gl;   // fall back to 226 g/L if a stored strength drifted out of range
     const ml=g/gl*1000;                              // ml of stock
     const rate10=ml/units;                           // ml per 10 L (display)
     return {k:n.k,name:n.name,color:n.color,rate:rate10,ml,g};
@@ -1029,7 +1221,8 @@ function syncSupp(){
 }
 function fillConc(){
   document.querySelectorAll('#prodRows .prow').forEach(row=>{
-    const k=row.dataset.p, el=row.querySelector('.pconc'); el.innerHTML='';
+    const k=row.dataset.p, el=row.querySelector('.pconc'), fx=NUTS.find(n=>n.k===k).fixed; el.innerHTML='';
+    if(fx){el.innerHTML=`<option value="${fx}">Liquid · as bottled</option>`;return;}
     CONC.forEach(o=>{const op=document.createElement('option');op.value=o.k;op.textContent=o.lab;el.appendChild(op);});
     el.value=S.conc[k];
   });
@@ -1038,7 +1231,7 @@ function syncProducts(){
   document.querySelectorAll('#prodRows .prow').forEach(row=>{
     const k=row.dataset.p, is=S.products[k];
     row.querySelector('.ptg').classList.toggle('on',is);
-    row.querySelector('.pconc').disabled=!is;
+    row.querySelector('.pconc').disabled=!is||!!NUTS.find(n=>n.k===k).fixed;
     row.querySelector('.sp').textContent='';
   });
 }
@@ -1062,14 +1255,39 @@ function syncBal(){
 function syncEc(){
   $('ecVal').textContent=S.ec.toFixed(1); $('ppmVal').textContent=ppmStr(S.ec);
   const sl=$('ecSlide'); sl.value=S.ec; sl.style.setProperty('--fill',((S.ec-0.5)/3.5*100)+'%');
+  syncNetEc();
 }
 function syncStage(){
   document.querySelectorAll('#stageChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.stage===S.stage));
-  const st=STAGES[S.stage]; $('stageSub').textContent=st.name;
+  const st=STAGES[S.stage], wk=S.week!=null?WEEKS[S.week]:null; $('stageSub').textContent=wk?wk.lab:st.name;
+  document.querySelectorAll('#weekChips .chip').forEach(c=>c.classList.toggle('on',+c.dataset.wk===S.week));
+  const bl=S.line==='blended', bw=bl?BL_WEEKS[S.week!=null?S.week:0]:null;
+  $('weekHint').innerHTML=bl
+    ? `Athena Blended chart${S.week!=null?` ${wk.lab}`:''}: ${BL_PRODS.filter(p=>bw[p.k]).map(p=>`<b>${bw[p.k]} ml/gal ${p.name.replace('Blended ','')}</b>`).join(' + ')} + 2 ml/gal Cleanse @ EC ${bw.ec}. Doses scale with the EC slider.`
+    : wk
+    ? `Athena chart: <b>${wk.a} g/gal ${wk.st==='veg'?'Grow':'Bloom'}</b> + ${wk.st==='finish'?'<b>19 ml/gal Fade</b>':'<b>4.6 g/gal Core</b>'} + 2 ml/gal Cleanse @ EC 3.0. Doses scale with the EC slider.`
+    : 'Optional. Pick a week to load Athena\'s exact weekly rates. Fade replaces Core in F8–F9.';
+  document.querySelectorAll('#lineSeg button').forEach(b=>b.classList.toggle('on',b.dataset.l===S.line));
+  document.querySelector('#stageChips [data-stage=clone]').style.display=bl?'none':'';
+  $('prodRows').style.display=bl?'none':''; $('mixNote').style.display=bl?'none':''; $('suppGroup').style.display=bl?'none':'';
   const flush=S.stage==='flush';
   $('ecSlide').disabled=flush;
   $('prodRows').style.opacity=flush?'.4':'1'; $('prodRows').style.pointerEvents=flush?'none':'';
   $('suppGroup').style.opacity=flush?'.4':'1'; $('suppGroup').style.pointerEvents=flush?'none':'';
+}
+function syncWater(){
+  document.querySelectorAll('#waterChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.w===S.water));
+  const w=WATER[S.water]||WATER.custom;
+  let h=w.note;
+  if(S.srcEc>0.6)h+=' <b style="color:var(--warn)">Source EC above 0.6: expect the chart to under-deliver nutrients.</b>';
+  if(S.srcPh>8)h+=' <b style="color:var(--warn)">Source pH above 8: high alkalinity. Check pH after nutrients before any Balance.</b>';
+  $('waterHint').innerHTML=h;
+  $('srcEc').value=S.srcEc; $('srcPh').value=S.srcPh.toFixed(1);
+  syncNetEc();
+}
+function syncNetEc(){
+  const net=Math.max(0,S.ec-S.srcEc);
+  $('netEc').textContent=S.stage==='flush'?'none (flush)':`EC ${net.toFixed(1)}${S.srcEc>0?` (${S.ec.toFixed(1)} − ${S.srcEc.toFixed(1)})`:''}`;
 }
 function syncClChips(){document.querySelectorAll('#clChips .chip').forEach(c=>c.classList.toggle('on',Math.abs(+c.dataset.cl-S.cl10)<0.4));}
 function syncFeedUnits(){
@@ -1085,23 +1303,24 @@ function syncFeedUnits(){
 function calcFeed(){
   S.volL=toL($('vol').value);
   if(!isFinite(S.volL)){toast('Enter a tank size first');$('vol').focus();return;}
-  S.ph=clamp($('ph').value,5,7,5.8); S.srcEc=clamp($('srcEc').value,0,1.5,0);
+  S.ph=clamp($('ph').value,5,7,5.8); S.srcEc=clamp($('srcEc').value,0,1.5,0); S.srcPh=clamp($('srcPh').value,4,9,6.5);
   pushRecent('vol',S.volL);
   const st=STAGES[S.stage], flush=S.stage==='flush';
   const ecEff=flush?0:Math.max(0,S.ec-S.srcEc);
   const nuts=flush?[]:nutTotals(ecEff,S.volL);
   const mult=S.volL/10;
-  const supp=flush?[]:SUPP.filter(s=>S.supp[s.k].on).map(s=>({key:s.k,name:s.name,color:s.color,r10:S.supp[s.k].r10,ml:S.supp[s.k].r10*mult}));
+  const supp=flush||S.line==='blended'?[]:SUPP.filter(s=>S.supp[s.k].on).map(s=>({key:s.k,name:s.name,color:s.color,r10:S.supp[s.k].r10,ml:S.supp[s.k].r10*mult}));
   const balBlendMl=(S.balMode!=='pro')?S.balBlend10*mult:0;
   const balProMl  =(S.balMode==='pro')?S.balPro10*mult:0;
   const bothG     =(S.balMode==='both')?S.bothLoad*(balBlendMl/1000):0;   // g Pro powder in combined stock
   const clMl=S.cl10*mult;
-  lastFeed={when:new Date(),stage:S.stage,stageName:st.name,metric:S.metric,volL:S.volL,
+  lastFeed={when:new Date(),stage:S.stage,stageName:S.week!=null?WEEKS[S.week].lab:st.name,water:S.water,metric:S.metric,volL:S.volL,
     ec:S.ec,srcEc:S.srcEc,ecEff,ph:S.ph,nuts,supp,balMode:S.balMode,
     balBlendMl,balBlend10:S.balBlend10,balProMl,balPro10:S.balPro10,proConc:S.proConc,
     balProG:balProMl*S.proConc/1000,bothG,bothLoad:S.bothLoad,clMl,cl10:S.cl10,
-    belowChart:nuts.length>0&&ecEff>0&&ecEff<0.5,
-    aboveChart:nuts.length>0&&ecEff>4, zeroEc:!flush&&S.ec>0&&ecEff<=0};
+    line:S.line, blScale:S.line==='blended'&&!flush?ecEff/BL_WEEKS[S.week!=null?S.week:0].ec:1,
+    belowChart:S.line==='pro'&&nuts.length>0&&ecEff>0&&ecEff<0.5,
+    aboveChart:S.line==='pro'&&nuts.length>0&&ecEff>4, zeroEc:!flush&&S.ec>0&&ecEff<=0};
   renderFeed(lastFeed); pushLog(lastFeed); persist(); openSheet('resSheet');
 }
 function feedRows(r){
@@ -1115,10 +1334,23 @@ function feedRows(r){
     if(r.balProMl>0)rows.push({key:'balp',name:'Pro Balance stock',sub:`${fmt(f(r.balPro10))} ml/${u} · ≈${fmt(r.balProG)} g dry`,ml:r.balProMl,color:'#f5b642'});
   }
   rows.push({key:'cl',name:'Athena Cleanse',sub:`${fmt(f(r.cl10))} ml/${u}`,ml:r.clMl,color:'#26d0a8'});
-  (r.nuts||[]).forEach(n=>rows.push({key:n.k,name:n.name,sub:`${fmt(f(n.rate))} ml/${u} · ≈${fmt(n.g)} g`,ml:n.ml,color:n.color}));
-  (r.supp||[]).forEach(s=>rows.push({key:s.key,name:s.name,sub:`${fmt(f(s.r10))} ml/${u}`,ml:s.ml,color:s.color}));
+  // Expected tank EC after each addition. Balance/Cleanse barely move EC; the chart EC
+  // is split across the B-part then A-part by gram share (salts conduct roughly per gram).
+  const src=r.srcEc||0;
+  rows.forEach(x=>{x.ec=src;x.ecSoft=true;});
+  const bFirst=n=>!n.liq&&(n.k==='core'||n.k==='fade');   // Pro: Core/Fade before Grow/Bloom. Blended: chart order (A, B, CaMg, PK, Fade)
+  const nuts=[...(r.nuts||[])].sort((a,b)=>bFirst(a)?-1:bFirst(b)?1:0);
+  const gSum=nuts.reduce((s,n)=>s+n.g,0); let ec=src;
+  nuts.forEach(n=>{ec+=gSum>0?r.ecEff*n.g/gSum:0;rows.push({key:n.k,name:n.name,sub:`${fmt(f(n.rate))} ml/${u} · ${n.liq?'direct liquid':`≈${fmt(n.g)} g`}`,ml:n.ml,color:n.color,ec});});
+  (r.supp||[]).forEach(s=>rows.push({key:s.key,name:s.name,sub:`${fmt(f(s.r10))} ml/${u}`,ml:s.ml,color:s.color,ec,ecAbove:true}));
   return rows;
 }
+function ecAtTxt(d){
+  if(d.ec==null)return'';
+  if(d.ecAbove)return`Tank EC rises above ${d.ec.toFixed(2)}: supplement EC is on top of the chart`;
+  return d.ecSoft?`Tank EC ≈ ${d.ec.toFixed(2)} (+0–0.1)`:`Tank EC after this ≈ ${d.ec.toFixed(2)}`;
+}
+function ecTol(exp){return Math.max(0.15,exp*0.08);}
 function renderFeed(r){
   const vol=fromL(r.volL);
   let h=`<div class="sumchips"><span class="pill"><b>${r.stageName}</b></span><span class="pill">${fmt(vol,1)} ${r.metric?'L':'gal'}</span>
@@ -1128,7 +1360,11 @@ function renderFeed(r){
   if(r.belowChart)h+=`<div class="flag warn">EC below the chart (0.5) — dose extrapolated linearly. Verify with your meter.</div>`;
   if(r.aboveChart)h+=`<div class="flag warn">EC above the chart (4.0) — dose held at the 4.0 rate. Verify with your meter.</div>`;
   if(r.stage==='flush')h+=`<div class="flag warn">Flush: RO water + Cleanse only. No nutrients, no Balance.</div>`;
-  h+=feedRows(r).map(d=>`<div class="dose" style="--dc:${d.color}"><div class="nm"><b>${d.name}</b><span>${d.sub}</span></div><div class="v">${fmt(d.ml)}<i>ml</i></div></div>`).join('');
+  if(r.line==='blended'&&r.stage!=='flush'&&Math.abs(r.blScale-1)>0.02)h+=`<div class="flag warn">Blended rates scaled ×${r.blScale.toFixed(2)} from Athena's chart EC to your nutrient EC ${r.ecEff.toFixed(1)}. Set source EC 0 and the chart EC to get the published rates.</div>`;
+  if(r.line==='blended'&&r.blScale>1.3)h+=`<div class="flag bad">More than 30% above the Blended chart. Athena's Blended line is built for EC 1.7–2.6; consider the Pro line for higher EC.</div>`;
+  if(r.water==='ro'&&r.stage!=='flush'&&!r.balBlendMl&&!r.balProMl)h+=`<div class="flag warn">RO water with no Balance: pH will crash once the Pro powders go in. Add Balance first.</div>`;
+  h+=feedRows(r).map(d=>`<div class="dose" style="--dc:${d.color}"><div class="nm"><b>${d.name}</b><span>${d.sub}</span>${ecAtTxt(d)?`<span class="ecat">${ecAtTxt(d)}</span>`:''}</div><div class="v">${fmt(d.ml)}<i>ml</i></div></div>`).join('');
+  if(r.stage!=='flush')h+=`<div class="hint">Tank EC after each step ${r.line==='blended'?'assumes the order shown (A, then B, then supplements), with the chart EC split by volume':'assumes Core/Fade goes in before Grow/Bloom, with the chart EC split by grams'}. A reading more than ±0.15 (or ±8%) off means stop and check the product${r.line==='blended'?'':', the stock strength, or wait for powder to dissolve'}. Mix mode lets you enter each reading.</div>`;
   $('resBody').innerHTML=h; $('resTitle').textContent='Feed dosage';
   $('resStamp').textContent=r.when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   $('resActions').style.display='flex'; lastResultForMix=r; lastMixKind='feed';
@@ -1269,7 +1505,7 @@ function calcDepletion(){
 
 /* ================= pH TAB ================= */
 function phKey(){return S.profile+'__'+S.phBal;}
-function phModel(){const seed=PH_SEED[S.phBal],cal=S.phCal[phKey()];return (cal&&cal.n>0)?{k:cal.k,alpha:seed.alpha,n:cal.n,cal:true}:{k:seed.k,alpha:seed.alpha,n:0,cal:false};}
+function phModel(){const seed=phSeed(S.phBal),cal=S.phCal[phKey()];return (cal&&cal.n>0)?{k:cal.k,alpha:seed.alpha,n:cal.n,cal:true}:{k:seed.k,alpha:seed.alpha,n:0,cal:false};}
 function estBalanceMl(volL,ec,dpH){const m=phModel();return dpH*(volL/10)*m.k*(1+m.alpha*ec);}
 function calcPh(){
   const volL=toL($('phVol').value);
@@ -1279,12 +1515,13 @@ function calcPh(){
   $('phOut').style.display='block';
   if(tgt<=cur){$('phOut').innerHTML=`<div class="flag warn">Target is at/below current pH. Balance only raises pH. To lower pH, dilute or add feed acid per your SOP.</div>`;return;}
   const dpH=tgt-cur, ml=estBalanceMl(volL,S.phEc,dpH), m=phModel();
-  const g=S.phBal==='pro'?ml*S.proConc/1000:null, per10=ml/(volL/10), perGal=per10*GAL/10;
+  const g=S.phBal==='pro'?ml*S.proConc/1000:S.phBal==='both'?ml*S.bothLoad/1000:null, per10=ml/(volL/10), perGal=per10*GAL/10;
+  const nm={pro:'Pro Balance stock',blended:'Blended Balance',both:`combined Balance (${S.bothLoad} g/L Pro in Blended)`}[S.phBal];
   $('phOut').innerHTML=`<div class="tiles">
-    <div class="tile wide"><div class="k">Add ${S.phBal==='pro'?'Pro Balance stock':'Blended Balance'}</div><div class="val">${fmt(ml)}<i>ml</i></div></div>
+    <div class="tile wide"><div class="k">Add ${nm}</div><div class="val">${fmt(ml)}<i>ml</i></div></div>
     <div class="tile"><div class="k">Rate</div><div class="val sm">${fmt(perGal,1)}<i>ml/gal</i></div></div>
     <div class="tile"><div class="k">pH move</div><div class="val sm">${cur.toFixed(1)}→${tgt.toFixed(1)}</div></div>
-    ${g!=null?`<div class="tile wide"><div class="k">≈ dry Balance</div><div class="val sm">${fmt(g)}<i>g</i></div></div>`:''}
+    ${g!=null?`<div class="tile wide"><div class="k">${S.phBal==='both'?'≈ Pro powder carried in that dose':'≈ dry Balance'}</div><div class="val sm">${fmt(g)}<i>g</i></div></div>`:''}
   </div>
   <div class="flag ${m.cal?'ok':'warn'}">${m.cal?`Tuned to your <b>${PROFILES[S.profile].name}</b> profile from ${m.n} logged correction${m.n>1?'s':''}.`:'Seed estimate — Athena publishes no fixed ml/pH (it depends on your water &amp; recipe).'} Add in <b>~1 ml/gal increments</b>, stir, re-read — then log it below to sharpen the next estimate. This is Athena's own titrate-and-record method.</div>`;
   $('calMl').value=Math.round(ml); $('calTo').value=tgt.toFixed(1); S._phCalCtx={volL,ec:S.phEc,cur};
@@ -1294,7 +1531,7 @@ function logCal(){
   const ml=parseFloat($('calMl').value), to=parseFloat($('calTo').value);
   if(!isFinite(ml)||ml<=0||!isFinite(to)){toast('Enter ml added and new pH');return;}
   const dpH=to-ctx.cur; if(dpH<=0){toast('New pH must be above old pH');return;}
-  const seed=PH_SEED[S.phBal], kRaw=ml/((ctx.volL/10)*dpH*(1+seed.alpha*ctx.ec));
+  const seed=phSeed(S.phBal), kRaw=ml/((ctx.volL/10)*dpH*(1+seed.alpha*ctx.ec));
   if(kRaw<seed.k/10||kRaw>seed.k*10){toast('That reading looks off (10× from expected) — not logged');return;}
   const key=phKey(), prev=S.phCal[key]||{k:seed.k,n:0}, n=prev.n+1, k=(prev.k*prev.n+kRaw)/n;
   S.phCal[key]={k,n}; persist();
@@ -1306,8 +1543,123 @@ function syncPh(){
   $('phVolUnit').textContent=volUnit();
   $('phEcVal').textContent=S.phEc.toFixed(1); $('phEc').value=S.phEc; $('phEc').style.setProperty('--fill',((S.phEc-0.5)/3.5*100)+'%');
   document.querySelectorAll('#phBalSeg button').forEach(b=>b.classList.toggle('on',b.dataset.b===S.phBal));
+  $('phBalHint').innerHTML=S.phBal==='both'
+    ? `Combined stock at <b>${S.bothLoad} g/L</b> Pro powder (set on the Feed tab). Seed strength k ≈ ${phSeed('both').k.toFixed(2)} ml per 10 L per pH unit: about ${Math.round((PH_SEED.blended.k/phSeed('both').k-1)*100)}% stronger than Blended alone. Calibration is stored separately for the combined stock.`
+    : S.phBal==='pro'?`Pro stock at <b>${S.proConc} g/L</b> (set on the Feed tab).`:'Blended Balance liquid as bottled.';
   const m=phModel(); $('phCalSub').textContent=m.cal?`${m.n} sample${m.n>1?'s':''}`:'seed model';
   renderRecent('phVolRecent','phVol','phVol',PROFILES[S.profile].vol);
+}
+
+/* ================= ROOT ZONE (runoff) ================= */
+// Map the Feed tab's week/stage to a root-zone phase. F1–3 stretch, F4–7 bulk, F8–9 finish.
+function rzFromFeed(){
+  if(S.week!=null)return S.week<4?'veg':S.week<7?'stretch':S.week<11?'bulk':'finish';
+  if(S.stage==='clone'||S.stage==='veg')return 'veg';
+  if(S.stage==='finish')return 'finish';
+  return S.rzStage==='bulk'?'bulk':'stretch';
+}
+function rzAutofill(){
+  S.rzStage=rzFromFeed();
+  if(!$('rzFeedEc').dataset.touched)$('rzFeedEc').value=S.ec.toFixed(1);
+  if(!$('rzFeedPh').dataset.touched)$('rzFeedPh').value=S.ph.toFixed(1);
+  syncRz();
+}
+function syncRz(){
+  document.querySelectorAll('#rzStageSeg button').forEach(b=>b.classList.toggle('on',b.dataset.z===S.rzStage));
+  const R=RZ[S.rzStage];
+  $('rzRange').innerHTML=`Target root-zone EC <b>${R.lo}–${R.hi}</b> · root-zone pH <b>${RZ_PH.lo}–${RZ_PH.hi}</b>. ${R.src}`;
+  $('rzSub').textContent=R.name;
+  renderRzTrend();
+}
+function ecStep(gap){return gap>1?0.5:gap>0.5?0.3:0.2;}
+function rzDiagnose(log){
+  const feedEc=clamp($('rzFeedEc').value,0,6,S.ec), feedPh=clamp($('rzFeedPh').value,4,8,S.ph);
+  const roEc=parseFloat($('rzRoEc').value), roPh=parseFloat($('rzRoPh').value), pct=parseFloat($('rzPct').value);
+  if(!isFinite(roEc)&&!isFinite(roPh)){toast('Enter runoff EC and/or pH');$('rzRoEc').focus();return;}
+  const R=RZ[S.rzStage], out=$('rzOut'); out.style.display='block';
+  let newEc=feedEc, newPh=feedPh, h='', tiles='';
+  if(isFinite(roEc)){
+    const st=roEc<R.lo?'low':roEc>R.hi?'high':'ok';
+    tiles+=`<div class="tile"><div class="k">Runoff EC</div><div class="val sm" style="color:var(--${st==='ok'?'accent':'warn'})">${roEc.toFixed(1)}</div><div class="hint" style="margin:2px 0 0">target ${R.lo}–${R.hi}</div></div>`;
+    if(st==='low'){
+      const gap=R.lo-roEc;
+      if(isFinite(pct)&&pct>20)h+=`<div class="flag warn"><b>Root zone EC is low (${roEc.toFixed(1)} vs ${R.lo}–${R.hi}).</b> Runoff at ${pct}% is washing nutrients out. Cut runoff to 10–20% first: that raises root-zone EC without changing the tank. Re-check after 2–3 days.</div>`;
+      else{
+        newEc=Math.min(4.0,r1(feedEc+ecStep(gap)));
+        h+=`<div class="flag warn"><b>Root zone EC is low (${roEc.toFixed(1)} vs ${R.lo}–${R.hi}).</b> Raise feed EC ${feedEc.toFixed(1)} → <b>${newEc.toFixed(1)}</b>. Re-check runoff after 2–3 irrigation days before the next step.${newEc>=4&&feedEc>=4?' Feed is already at the chart ceiling (4.0): reduce runoff % or lengthen dryback instead.':''}</div>`;
+      }
+    }else if(st==='high'){
+      const gap=roEc-R.hi;
+      if(isFinite(pct)&&pct<10)h+=`<div class="flag warn"><b>Root zone EC is high (${roEc.toFixed(1)} vs ${R.lo}–${R.hi}).</b> Runoff at ${pct}% lets salts stack. Raise runoff to 15–20% before changing the tank, then re-check.</div>`;
+      else{
+        newEc=Math.max(1.0,r1(feedEc-ecStep(gap)));
+        h+=`<div class="flag warn"><b>Root zone EC is high (${roEc.toFixed(1)} vs ${R.lo}–${R.hi}).</b> Lower feed EC ${feedEc.toFixed(1)} → <b>${newEc.toFixed(1)}</b>, and hold runoff at 15–20%.</div>`;
+      }
+      if(roEc>feedEc+3&&S.rzStage!=='stretch')h+=`<div class="flag bad"><b>Salt build-up:</b> runoff is more than 3 EC above feed. Run pulsed irrigations at feed pH 5.8–6.2 until runoff EC trends back toward feed EC, then return to 10–20% daily runoff.</div>`;
+    }else{
+      h+=`<div class="flag ok"><b>Root zone EC in range.</b> Hold feed EC at ${feedEc.toFixed(1)}.${roEc<=feedEc?' Runoff is at or below feed EC: the crop is taking nutrients faster than water. Log daily readings below to time the next EC increase.':''}</div>`;
+      if(S.rzStage==='stretch'&&roEc<6)h+=`<div class="hint">Stretch is the generative window: Athena allows root-zone EC up to 10. Holding runoff EC in the upper half (6–8) restricts stretch; reduce runoff % or extend dryback to build it.</div>`;
+    }
+  }
+  if(isFinite(roPh)){
+    const st=roPh<RZ_PH.lo?'low':roPh>RZ_PH.hi?'high':'ok';
+    tiles+=`<div class="tile"><div class="k">Runoff pH</div><div class="val sm" style="color:var(--${st==='ok'?'accent':'warn'})">${roPh.toFixed(1)}</div><div class="hint" style="margin:2px 0 0">target ${RZ_PH.lo}–${RZ_PH.hi}</div></div>`;
+    if(st==='high'){
+      newPh=5.8;
+      h+=`<div class="flag warn"><b>Root zone pH is high (${roPh.toFixed(1)}).</b> Send feed at pH <b>5.8</b> for 24–48 h (2–4 irrigations) with normal runoff, then re-test.${feedPh<=5.8?` Feed is already at 5.8: cut the Balance rate by about 25%. ${S.balMode==='both'?`Your combined stock (${S.bothLoad} g/L Pro carbonate in Blended silicate) carries more alkalinity per ml than Blended alone: lower the Pro load or switch to Blended only.`:S.balMode==='pro'?'Pro Balance is potassium carbonate and leaves alkalinity in the root zone.':'Blended Balance is potassium silicate and pushes root-zone pH up.'}`:''}</div>`;
+    }else if(st==='low'){
+      newPh=6.2;
+      h+=`<div class="flag warn"><b>Root zone pH is low (${roPh.toFixed(1)}).</b> Send feed at pH <b>6.2</b> for 24–48 h (2–4 irrigations), then re-test.${feedPh>=6.2?` Feed is already at 6.2: raise runoff to 15–20% to clear acidity and ${S.balMode==='blended'?'consider the combined Balance stock (Pro powder in Blended, up to 48 g/L) for more buffer per ml':'raise the Balance rate'}. Check roots for browning if it persists.`:''}</div>`;
+    }else h+=`<div class="flag ok"><b>Root zone pH in range.</b> Hold feed pH at ${feedPh.toFixed(1)}. Runoff a little above feed pH is normal.</div>`;
+  }
+  const change=newEc!==feedEc||newPh!==feedPh;
+  out.innerHTML=`<div class="tiles" style="margin-bottom:10px">${tiles}
+    <div class="tile"><div class="k">Send feed EC</div><div class="val sm">${newEc.toFixed(1)}</div></div>
+    <div class="tile"><div class="k">Send feed pH</div><div class="val sm">${newPh.toFixed(1)}</div></div></div>${h}
+    ${change?`<button type="button" class="btn primary full" id="rzApply">Apply EC ${newEc.toFixed(1)} · pH ${newPh.toFixed(1)} to the Feed tab</button>`:''}`;
+  if(change)$('rzApply').addEventListener('click',()=>{
+    S.ec=newEc;S.ph=newPh;$('ph').value=S.ph.toFixed(1);syncEc();
+    $('rzFeedEc').value=newEc.toFixed(1);$('rzFeedPh').value=newPh.toFixed(1);
+    toast(`Feed set to EC ${newEc.toFixed(1)}, pH ${newPh.toFixed(1)}`);go('feed');
+  });
+  if(log){
+    rzLog.push({ts:new Date().toISOString(),z:S.rzStage,feedEc,feedPh,roEc:isFinite(roEc)?roEc:null,roPh:isFinite(roPh)?roPh:null,pct:isFinite(pct)?pct:null});
+    if(rzLog.length>120)rzLog.shift();
+    localStorage.setItem('abt3.rz',JSON.stringify(rzLog)); renderRzTrend(); toast('Reading logged');
+  }
+}
+// Least-squares slope of runoff EC per day over the last 10 days of logged readings.
+function renderRzTrend(){
+  const box=$('rzTrend'), list=$('rzList'), R=RZ[S.rzStage], DAY=864e5;
+  const pts=rzLog.filter(e=>e.roEc!=null&&Date.now()-Date.parse(e.ts)<10*DAY).map(e=>({t:Date.parse(e.ts),v:e.roEc,f:e.feedEc}));
+  list.innerHTML=rzLog.length?rzLog.slice().reverse().slice(0,12).map((e,i)=>{const d=new Date(e.ts);
+    return `<div class="rzlog"><span>${d.toLocaleDateString([],{day:'numeric',month:'short'})} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ${RZ[e.z]?RZ[e.z].name:''}</span><div>feed ${e.feedEc.toFixed(1)} · runoff <b>${e.roEc!=null?e.roEc.toFixed(1):'–'}</b> · pH ${e.roPh!=null?e.roPh.toFixed(1):'–'}<button type="button" class="x" data-ri="${rzLog.length-1-i}" aria-label="Delete reading">×</button></div></div>`;}).join('')
+    :'<div class="empty">No readings yet. Use “Diagnose + log” once a day at the same time (first runoff of the day) to build a trend.</div>';
+  list.querySelectorAll('.x').forEach(b=>b.addEventListener('click',()=>{rzLog.splice(+b.dataset.ri,1);localStorage.setItem('abt3.rz',JSON.stringify(rzLog));renderRzTrend();}));
+  if(pts.length<2){box.innerHTML=pts.length?'<div class="hint" style="margin-top:0">One reading logged. A trend needs two or more readings on different days.</div>':'';return;}
+  const n=pts.length, mt=pts.reduce((s,p)=>s+p.t,0)/n, mv=pts.reduce((s,p)=>s+p.v,0)/n;
+  const den=pts.reduce((s,p)=>s+(p.t-mt)**2,0), slope=den?pts.reduce((s,p)=>s+(p.t-mt)*(p.v-mv),0)/den*DAY:0;   // EC per day
+  const last=pts[n-1], dateIn=d=>new Date(Date.now()+d*DAY).toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'});
+  let msg, cls='ok';
+  const below3=pts.slice(-3).length===3&&pts.slice(-3).every(p=>p.v<=p.f);
+  if(last.v<R.lo){cls='warn';msg=`Runoff EC ${last.v.toFixed(1)} is under the ${R.name} range now. Raise feed EC by ${ecStep(R.lo-last.v).toFixed(1)} today.`;}
+  else if(below3){cls='warn';msg=`Runoff EC has been at or below feed EC on the last 3 readings. The crop is taking nutrients faster than water: raise feed EC by 0.2 now.`;}
+  else if(slope<-0.05){const d=(last.v-R.lo)/-slope;cls=d<3?'warn':'ok';
+    msg=`Runoff EC falling ${(-slope).toFixed(2)}/day. At this rate it reaches ${R.lo} in about ${Math.max(0,d).toFixed(1)} days (${dateIn(d)}). Raise feed EC by 0.2 on or before that date.`;}
+  else if(slope>0.05){const d=(R.hi-last.v)/slope;cls=d<3&&S.rzStage!=='stretch'?'warn':'ok';
+    msg=`Runoff EC rising ${slope.toFixed(2)}/day; reaches ${R.hi} in about ${Math.max(0,d).toFixed(1)} days (${dateIn(d)}).${S.rzStage==='stretch'?' Intended during stretch.':' Before then, raise runoff to 15–20% or lower feed EC by 0.2.'}`;}
+  else msg=`Runoff EC stable (${slope>=0?'+':''}${slope.toFixed(2)}/day) inside ${R.lo}–${R.hi}. No change needed.`;
+  // sparkline: band = target range, solid = runoff EC, dashed = feed EC
+  const W=320,H=90,t0=pts[0].t,t1=last.t||t0+1,vs=pts.flatMap(p=>[p.v,p.f]).concat([R.lo,Math.min(R.hi,Math.max(...pts.map(p=>p.v))+1)]);
+  const lo=Math.min(...vs)-0.3, hi=Math.max(...vs)+0.3, x=t=>8+(W-16)*(t1>t0?(t-t0)/(t1-t0):0.5), y=v=>H-6-(H-12)*(v-lo)/(hi-lo);
+  const line=k=>pts.map(p=>`${x(p.t).toFixed(1)},${y(p[k]).toFixed(1)}`).join(' ');
+  box.innerHTML=`<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Runoff EC trend">
+    <rect x="0" y="${y(Math.min(R.hi,hi)).toFixed(1)}" width="${W}" height="${(y(R.lo)-y(Math.min(R.hi,hi))).toFixed(1)}" fill="rgba(var(--accent-rgb),.10)"/>
+    <polyline points="${line('f')}" fill="none" stroke="var(--ink3)" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <polyline points="${line('v')}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+    ${pts.map(p=>`<circle cx="${x(p.t).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="3" fill="var(--accent)"/>`).join('')}</svg>
+    <div class="hint" style="margin-top:0">Shaded band: ${R.name} target ${R.lo}–${R.hi}. Solid: runoff EC. Dashed: feed EC.</div>
+    <div class="flag ${cls}">${msg}</div>`;
 }
 
 /* ================= CLEAN REF (More) ================= */
@@ -1326,10 +1678,21 @@ function openMix(){
   if(!lastResultForMix)return;
   const r=lastResultForMix, rows=lastMixKind==='feed'?feedRows(r):r.rows, vol=fromL(r.volL);
   $('mixSub').textContent=`${r.stageName} · ${fmt(vol,1)} ${r.metric?'L':'gal'} · tap each step`;
-  $('mixSteps').innerHTML=rows.map(d=>`<div class="mix-step" style="--dc:${d.color}"><div class="ck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4 10-10"/></svg></div><div class="mn"><b>${d.name}</b><span>${d.sub}</span></div><div class="mv">${fmt(d.ml)}<i>ml</i></div></div>`).join('');
-  $('mixSteps').querySelectorAll('.mix-step').forEach(s=>s.addEventListener('click',()=>s.classList.toggle('done')));
+  $('mixSteps').innerHTML=rows.map((d,i)=>`<div class="mix-step" style="--dc:${d.color}"><div class="ck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4 10-10"/></svg></div><div class="mn"><b>${d.name}</b><span>${d.sub}</span></div><div class="mv">${fmt(d.ml)}<i>ml</i></div>${
+    lastMixKind==='feed'&&d.ec!=null&&!d.ecAbove?`<div class="ecchk">Expect EC <b>${d.ec.toFixed(2)}</b>${d.ecSoft?' (+0–0.1)':''}<input type="number" inputmode="decimal" step="0.01" min="0" placeholder="meter" data-i="${i}" aria-label="Measured EC after ${d.name}"></div><div class="ecres"></div>`:''}</div>`).join('');
+  $('mixSteps').querySelectorAll('.mix-step').forEach(s=>s.addEventListener('click',e=>{if(e.target.closest('.ecchk'))return;s.classList.toggle('done');}));
+  $('mixSteps').querySelectorAll('.ecchk input').forEach(inp=>inp.addEventListener('input',()=>{
+    const d=rows[+inp.dataset.i], v=parseFloat(inp.value), res=inp.closest('.mix-step').querySelector('.ecres');
+    if(!isFinite(v)){res.className='ecres';res.textContent='';return;}
+    const exp=d.ec+(d.ecSoft?0.05:0), tol=ecTol(exp)+(d.ecSoft?0.05:0), dv=v-exp;
+    if(Math.abs(dv)<=tol){res.className='ecres ok';res.textContent=`On track (${dv>=0?'+':''}${dv.toFixed(2)}). Add the next product.`;inp.closest('.mix-step').classList.add('done');return;}
+    res.className='ecres '+(Math.abs(dv)>tol*2?'bad':'warn');
+    res.textContent=dv>0
+      ? `High by ${dv.toFixed(2)}. Stop. Check: wrong product or double dose, ${r.line==='blended'?'measuring error,':'stock mixed stronger than the selected g/L,'} or source EC higher than entered.`
+      : `Low by ${(-dv).toFixed(2)}. Circulate 5–10 min and re-read${r.line==='blended'?'':' (powder stock dissolves slowly)'}. Still low: ${r.line==='blended'?'':'stock weaker than selected, '}product missed, or meter needs calibrating.`;
+  }));
   $('mixOrder').innerHTML=lastMixKind==='feed'
-    ? '<b>Balance is always first</b> (buffers RO water). Then Cleanse → base nutrients (Core, then Grow/Bloom) → Fade → CaMg/PK. <b>Never combine concentrates undiluted.</b> Let each dissolve &amp; circulate, then check pH last.'
+    ? `<b>Order:</b> Balance first (buffers RO water), then Cleanse, ${r.line==='blended'?'part A, part B, CaMg, PK, Fade':'Core or Fade, Grow or Bloom, then CaMg/PK'}. Never combine concentrates undiluted. Circulate after each addition, read EC and enter it against the expected value, then check pH last.`
     : 'Foliar: fill clean RO water → saturate substrate with feed first → add each product with agitation → spray lights-off → dry 3–4 h. Keep out of the fertigation reservoir.';
   openSheet('mixSheet');
 }
@@ -1373,20 +1736,22 @@ function exportCsv(){
 /* ================= RECIPES ================= */
 function snapshot(){
   S.volL=toL($('vol').value); S.ph=clamp($('ph').value,5,7,5.8); S.srcEc=clamp($('srcEc').value,0,1.5,0);
-  return {stage:S.stage,ec:S.ec,ph:S.ph,srcEc:S.srcEc,volL:S.volL,products:{...S.products},conc:{...S.conc},
+  S.srcPh=clamp($('srcPh').value,4,9,6.5);
+  return {line:S.line,stage:S.stage,week:S.week,water:S.water,srcPh:S.srcPh,ec:S.ec,ph:S.ph,srcEc:S.srcEc,volL:S.volL,products:{...S.products},conc:{...S.conc},
     supp:JSON.parse(JSON.stringify(S.supp)),balMode:S.balMode,balBlend10:S.balBlend10,balPro10:S.balPro10,proConc:S.proConc,bothLoad:S.bothLoad,cl10:S.cl10,metric:S.metric};
 }
 function applyCfg(c){
   if(!c||typeof c!=='object')return;
   const num=(v,d)=>isFinite(+v)?+v:d;                 // coerce & default any numeric field
   const sp=c.supp&&typeof c.supp==='object'?c.supp:{};
-  Object.assign(S,{stage:STAGES[c.stage]?c.stage:S.stage,
+  Object.assign(S,{stage:STAGES[c.stage]?c.stage:S.stage,week:WEEKS[c.week]?c.week:null,
+    water:WATER[c.water]?c.water:'ro',srcPh:num(c.srcPh,6.5),line:c.line==='blended'?'blended':'pro',
     ec:num(c.ec,S.ec),ph:num(c.ph,S.ph),srcEc:num(c.srcEc,0),volL:isFinite(+c.volL)?+c.volL:NaN,
     products:Object.assign({grow:true,bloom:false,core:true,fade:false},c.products||{}),
     conc:Object.assign({grow:'226',bloom:'226',core:'226',fade:'226'},c.conc||{}),
     supp:{camg:Object.assign({on:false,r10:10},sp.camg||{}),pk:Object.assign({on:false,r10:26},sp.pk||{})},
     balMode:['blended','pro','both'].includes(c.balMode)?c.balMode:'blended',
-    balBlend10:num(c.balBlend10,13),balPro10:num(c.balPro10,13),proConc:num(c.proConc,120),bothLoad:num(c.bothLoad,26),cl10:num(c.cl10,9),metric:c.metric??S.metric});
+    balBlend10:num(c.balBlend10,13),balPro10:num(c.balPro10,13),proConc:num(c.proConc,120),bothLoad:num(c.bothLoad,26),cl10:num(c.cl10,5.3),metric:c.metric??S.metric});
 }
 function saveRecipe(){
   const name=$('rcpName').value.trim(); if(!name){toast('Name the recipe');$('rcpName').focus();return;}
@@ -1419,6 +1784,7 @@ function loadSaved(){
   recent=obj(rd('abt3.recent',{}))||{};
   recipes=obj(rd('abt3.recipes',{}))||{};
   const lg=rd('abt3.logs',[]); logs=Array.isArray(lg)?lg:[];
+  const rz=rd('abt3.rz',[]); rzLog=Array.isArray(rz)?rz.filter(e=>e&&isFinite(e.feedEc)&&RZ[e.z]):[];
   try{applyCfg(obj(rd('abt3.cfg',null)));}catch(e){/* a bad cfg must not blank recipes/logs */}
 }
 function saveDefaults(){localStorage.setItem('abt3.cfg',JSON.stringify(snapshot()));toast('Defaults saved');}
@@ -1431,9 +1797,20 @@ function confirmBox(title,msg,cb){$('cfTitle').textContent=title;$('cfMsg').text
 /* ================= TOOLTIPS ================= */
 const TIPS={
   stage:["Growth stage","Sets EC, pH, Cleanse rate and the product pair from Athena's Pro schedule. Clone & flower run on Bloom+Core; veg on Grow+Core; finish swaps Core→Fade. Slide EC to fine-tune."],
+  line:["Nutrient line","Pro Line: dry Grow/Bloom + Core (Fade late flower), mixed into concentrate stocks and dosed from Athena's grams-per-10 L chart at any EC up to 4.0. Blended: liquid Grow A/B or Bloom A/B plus CaMg, PK and Fade, dosed straight from the bottle at Athena's weekly ml/gal chart (EC 1.7–2.6). Both lines share Balance and Cleanse."],
+  water:["Source water","Pick your water and the EC/pH fields fill with typical values, and Balance gets a matching starting rate. Overwrite them with your own meter readings: those are what the dose is built on."],
+  srcph:["Source water pH","Raw water pH before anything goes in. High pH (7.5+) usually means carbonate alkalinity, which already buffers the tank, so less Balance is needed. RO pH reads unstable and can be ignored."],
+  netec:["Nutrient EC","Target EC minus source water EC: the EC the nutrients themselves have to supply. This is the number the doses are built from."],
+  rz:["Runoff check","Collect runoff from the first irrigation that produces it, from several plants. Enter feed and runoff EC/pH. The tool compares runoff with Athena's substrate EC target for the stage and gives the feed EC and feed pH that move the root zone back into range."],
+  rzstage:["Crop stage","Fills from the Feed tab's week. Stretch (flower W1–3) is generative: Athena allows root-zone EC up to 10. Bulk (W4–7) 3.5–6. Finish (W8–9) 3–4."],
+  rzfeed:["Feed EC / pH","What you are sending now. Fills from the Feed tab; change it if the tank reads differently."],
+  rzro:["Runoff EC","Root-zone proxy. Above feed EC is normal (the plant drinks water faster than salts). At or below feed EC means the crop is taking nutrients faster than water: time to raise feed EC."],
+  rzpct:["Runoff %","Runoff volume ÷ feed volume. Athena runs 10–20%. Too much washes EC out; too little stacks salts. Entering it lets the tool tell irrigation problems apart from recipe problems."],
+  rzlog:["Runoff log","Log one reading a day at the same point in the irrigation day. With two or more days logged the tool fits a trend, tells you the date runoff EC will leave the target range, and when to raise feed EC."],
   tank:["Tank / reservoir size","The volume you're mixing. Everything scales to it. Switch L/gal up top — the number converts, doses don't."],
   src:["Source water EC","EC of raw water before nutrients, subtracted from target so salts land on your real number. RO = 0. Above 0.6 isn't recommended."],
-  ph:["Target pH","Athena target 5.4–6.0. Logged here; use the pH tab to estimate the Balance dose to hit it."],
+  ph:["Target pH","Feed pH for the tank. Athena input range 5.8–6.2. The Root zone tab recommends a value from your runoff pH and estimates the Balance dose to reach it."],
+  week:["Week","Athena's chart week by week: 4 veg weeks, 9 flower weeks. Pro: EC 3.0 every week, that week's exact Grow/Bloom rate, Core (Fade in F8–F9) and 2 ml/gal Cleanse; tap again to clear. Blended: the published ml/gal for A, B, CaMg, PK and Fade at that week's chart EC (1.7–2.6)."],
   mix:["Base nutrients","Pick one A-part (Grow or Bloom) and one B-part (Core or Fade) — Athena never runs both of a part together. Stock strength can differ per product."],
   supp:["Supplements","CaMg for RO/inert media (every week). PK is a no-N flower booster from week 3. Both dose at a fixed rate you can adjust."],
   balance:["Balance buffer","Athena's pH-up. Blended Balance = liquid potassium silicate (0-0-2, also feeds Si). Pro Balance = dry potassium carbonate for venturi/Netaflex. 'Both' dissolves Pro powder into Blended. Not for Netaflex when liquid. Don't add a separate silica product on top of Blended Balance."],
@@ -1453,12 +1830,12 @@ function showTip(id){const t=TIPS[id];if(!t)return;$('tipTitle').textContent=t[0
 
 /* ================= TOUR ================= */
 const TOUR=[
-  {tab:'feed',sel:'#nav',title:"One app, five tools",body:"The bottom bar switches tools — Feed tank, Foliar spray, Stock tanks, pH correction, and More. All reachable one-handed."},
+  {tab:'feed',sel:'#nav',title:"Navigation",body:"Feed: reservoir batch. Foliar: spray tank. Stock: concentrate builder and refill date. Root zone: runoff diagnosis, EC trend and Balance estimator. More: cleaning, recipes, history, settings."},
   {tab:'feed',sel:'#profRow',title:"Pick your scale",body:"Garage, Craft or Commercial sets sensible defaults and remembers your recent tank sizes for that scale."},
   {tab:'feed',sel:'#stageChips',title:"Feed: pick a stage",body:"Stage sets the products, EC and pH from Athena's schedule. Slide EC to fine-tune, enter your tank size, and hit Calculate — doses slide up."},
   {tab:'foliar',sel:'#folPresetChips',title:"Foliar is separate",body:"IPM and sprays live here, out of your feed tank. Presets load known spray recipes in one tap."},
   {tab:'stock',sel:'#tab-stock .card',title:"Plan your stock tanks",body:"Build concentrate stocks by strength, and see how many days — and the exact date — before a tank needs refilling."},
-  {tab:'ph',sel:'#tab-ph .card',title:"Dial in pH",body:"Estimate the Balance dose, then log the real result so it learns your water — Athena's own titrate-and-record method. Replay this tour any time from More."}
+  {tab:'ph',sel:'#tab-ph .card',title:"Read the root zone",body:"Enter runoff EC and pH. You get the feed EC and feed pH to send next, and a logged trend tells you when to raise EC. The Balance estimator below learns your water from each correction you log. Replay this tour from More."}
 ];
 let tourI=0;
 function startTour(){tourI=0;$('tour').classList.add('on');showTourStep();}
@@ -1479,6 +1856,106 @@ function showTourStep(){
 }
 function endTour(){$('tour').classList.remove('on');$('tour').classList.remove('spot');$('tourHalo').classList.remove('on');localStorage.setItem('abt3.toured','1');}
 
+/* ================= SETUP WIZARD =================
+   Walks the Feed recipe one decision per screen. Every control writes straight into S,
+   so closing early keeps whatever was entered. Last screen runs the calculation. */
+const wzSeg=(id,opts,cur)=>`<div class="seg" id="${id}">${opts.map(([v,l])=>`<button type="button" data-v="${v}" class="${String(v)===String(cur)?'on':''}">${l}</button>`).join('')}</div>`;
+const WZ=[
+  {t:"Nutrient line and units",
+   lead:"Pro Line is dry powder: you dissolve it into a concentrate stock and dose that stock by target EC. Blended is ready-made liquid A/B dosed straight from the bottle at Athena's weekly chart rates.",
+   html:()=>`<span class="lab">Nutrient line</span>${wzSeg('wzLine',[['pro','Pro Line · dry'],['blended','Blended · liquid']],S.line)}
+     <span class="lab" style="margin-top:14px">Units</span>${wzSeg('wzUnits',[['1','Metric · L'],['0','US · gal']],S.metric?1:0)}
+     <span class="lab" style="margin-top:14px">Operation size</span>${wzSeg('wzProf',Object.entries(PROFILES).map(([k,p])=>[k,p.name]),S.profile)}
+     <div class="hint">Operation size sets default tank sizes and keeps a separate pH calibration per size.</div>`,
+   bind:()=>{
+     wzSegOn('wzLine',v=>{if(S.line!==v)document.querySelector(`#lineSeg [data-l=${v}]`).click();});
+     wzSegOn('wzUnits',v=>{(v==='1'?$('uMetric'):$('uImperial')).click();});
+     wzSegOn('wzProf',v=>{document.querySelector(`#profRow [data-prof=${v}]`)?.click();});
+   }},
+  {t:"Tank size",
+   lead:"The volume of finished nutrient solution you are mixing, not the size of the tank. Every dose scales from this number.",
+   html:()=>`<span class="lab">Batch volume</span><div class="inwrap"><input type="number" id="wzVol" inputmode="decimal" min="0" value="${isFinite(S.volL)?+fromL(S.volL).toFixed(2):''}" placeholder="${fmt(fromL(PROFILES[S.profile].vol),0)}"><span class="unit">${volUnit()}</span></div>
+     <div class="hint">Typical for ${PROFILES[S.profile].name}: ${fmt(fromL(PROFILES[S.profile].vol),0)} ${volUnit()}.</div>`,
+   bind:()=>{$('wzVol').addEventListener('input',()=>{$('vol').value=$('wzVol').value;S.volL=toL($('wzVol').value);});},
+   ok:()=>isFinite(toL($('wzVol').value))||(toast('Enter a batch volume'),false)},
+  {t:"Source water",
+   lead:"Source EC is subtracted from the target so the finished tank lands on the chart EC. Source pH and alkalinity decide how much Balance you need.",
+   html:()=>`<span class="lab">Water type</span>${wzSeg('wzWater',Object.entries(WATER).map(([k,w])=>[k,w.name]),S.water)}
+     <div class="grid2" style="margin-top:12px"><div><span class="lab">Source EC</span><div class="inwrap"><input type="number" id="wzSrcEc" inputmode="decimal" step="0.1" min="0" max="1.5" value="${S.srcEc}"><span class="unit">mS/cm</span></div></div>
+     <div><span class="lab">Source pH</span><div class="inwrap"><input type="number" id="wzSrcPh" inputmode="decimal" step="0.1" min="4" max="9" value="${S.srcPh.toFixed(1)}"><span class="unit">pH</span></div></div></div>
+     <div class="hint" id="wzWaterNote">${WATER[S.water].note}</div>`,
+   bind:()=>{
+     wzSegOn('wzWater',v=>{document.querySelector(`#waterChips [data-w=${v}]`).click();$('wzSrcEc').value=S.srcEc;$('wzSrcPh').value=S.srcPh.toFixed(1);$('wzWaterNote').textContent=WATER[v].note;});
+     $('wzSrcEc').addEventListener('change',()=>{$('srcEc').value=$('wzSrcEc').value;$('srcEc').dispatchEvent(new Event('change'));});
+     $('wzSrcPh').addEventListener('change',()=>{$('srcPh').value=$('wzSrcPh').value;$('srcPh').dispatchEvent(new Event('change'));});
+   }},
+  {t:"Where is the crop?",
+   lead:"Pick the week of the cycle. This loads Athena's chart for that week: products, EC, pH and Cleanse. Fade replaces Core (Pro) or Bloom A/B (Blended) in the last two weeks.",
+   html:()=>`<div class="chips" id="wzWeeks">${WEEKS.map((w,i)=>`<button type="button" class="chip ${S.week===i?'on':''}" data-v="${i}">${w.lab}</button>`).join('')}
+     ${S.line==='pro'?`<button type="button" class="chip ${S.stage==='clone'?'on':''}" data-v="clone">Clone</button>`:''}<button type="button" class="chip ${S.stage==='flush'?'on':''}" data-v="flush">Flush</button></div>
+     <div class="hint" id="wzWeekNote"></div>`,
+   bind:()=>{
+     const note=()=>{$('wzWeekNote').innerHTML=S.stage==='flush'?'Flush: RO water and Cleanse only.':`Target EC <b>${S.ec.toFixed(1)}</b> · pH <b>${S.ph.toFixed(1)}</b>. ${$('weekHint').innerHTML}`;};
+     document.querySelectorAll('#wzWeeks .chip').forEach(c=>c.addEventListener('click',()=>{
+       const v=c.dataset.v;
+       if(v==='clone'||v==='flush')document.querySelector(`#stageChips [data-stage=${v}]`).click(); else setWeek(+v);
+       document.querySelectorAll('#wzWeeks .chip').forEach(x=>x.classList.toggle('on',x===c)); note();
+     })); note();
+   }},
+  {t:"Pro stock strength", when:()=>S.line==='pro'&&S.stage!=='flush',
+   lead:"How strong you mixed each Pro concentrate, in grams of powder per litre of stock. Athena's metric standard is 226 g/L (2 lb in 4 L); the imperial standard is 240 g/L (2 lb per gal). Fade is a liquid and needs no setting.",
+   html:()=>`<span class="lab">All Pro powder stocks</span><select id="wzConc">${CONC.map(o=>`<option value="${o.k}" ${S.conc.grow===o.k?'selected':''}>${o.lab}</option>`).join('')}</select>
+     <div class="hint">Different strength per product? Set each one on the Feed tab after this.</div>`,
+   bind:()=>{$('wzConc').addEventListener('change',e=>{['grow','bloom','core'].forEach(k=>S.conc[k]=e.target.value);fillConc();});}},
+  {t:"Balance (pH buffer)", when:()=>S.stage!=='flush',
+   lead:"Balance goes in first and sets the tank's buffer. Blended is liquid potassium silicate; Pro is dry potassium carbonate mixed as a stock; Both dissolves Pro powder into Blended for more buffer per ml.",
+   html:()=>`${wzSeg('wzBal',[['blended','Blended'],['pro','Pro stock'],['both','Both (combined)']],S.balMode)}
+     <div class="grid2" style="margin-top:12px"><div><span class="lab">Starting rate <b>${rateUnit()}</b></span><div class="inwrap"><input type="number" id="wzBalRate" inputmode="decimal" step="0.5" min="0" value="${r1(rateDisp(S.balMode==='pro'?S.balPro10:S.balBlend10))}"></div></div>
+     <div id="wzLoadWrap" style="${S.balMode==='both'?'':'display:none'}"><span class="lab">Pro powder in Blended <b>g/L</b></span><div class="inwrap"><input type="number" id="wzLoad" inputmode="decimal" step="1" min="0" max="48" value="${S.bothLoad}"></div></div></div>
+     <div class="hint">Prefilled from your water type. This is a starting dose: check pH after the nutrients and use the Root zone tab's Balance estimator to correct it.</div>`,
+   bind:()=>{
+     wzSegOn('wzBal',v=>{$({blended:'balBlend',pro:'balPro',both:'balBoth'}[v]).click();$('wzLoadWrap').style.display=v==='both'?'':'none';$('wzBalRate').value=r1(rateDisp(v==='pro'?S.balPro10:S.balBlend10));});
+     $('wzBalRate').addEventListener('change',()=>{const v=Math.max(0,rateCanon(parseFloat($('wzBalRate').value)||0));if(S.balMode==='pro')S.balPro10=v;else S.balBlend10=v;syncBal();});
+     $('wzLoad').addEventListener('change',()=>{$('bothLoad').value=$('wzLoad').value;$('bothLoad').dispatchEvent(new Event('change'));});
+   }},
+  {t:"Supplements", when:()=>S.line==='pro'&&S.stage!=='flush',
+   lead:"Both are optional on the Pro Line. CaMg suits RO water and inert media. PK is a no-nitrogen flower booster from flower week 3. (The Blended chart already includes its CaMg and PK.)",
+   html:()=>`<div class="chips" id="wzSupp">${SUPP.map(s=>`<button type="button" class="chip ${S.supp[s.k].on?'on':''}" data-v="${s.k}">${s.name}</button>`).join('')}</div>
+     <div class="hint">${S.water==='ro'?'RO water selected: CaMg recommended. ':''}${S.week!=null&&S.week>=6&&S.week<=10?'Flower week 3 or later: PK applies. ':''}</div>`,
+   bind:()=>{document.querySelectorAll('#wzSupp .chip').forEach(c=>c.addEventListener('click',()=>{S.supp[c.dataset.v].on=!S.supp[c.dataset.v].on;c.classList.toggle('on');syncSupp();}));}},
+  {t:"Review",
+   lead:"Check the recipe, then calculate. Everything you set here is now on the Feed tab, and Save defaults there stores it for next time.",
+   html:()=>`<div class="sum">${[
+     ['Line',S.line==='pro'?'Pro Line (dry)':'Blended (liquid)'],
+     ['Stage',S.stage==='flush'?'Flush':S.week!=null?WEEKS[S.week].lab:STAGES[S.stage].name],
+     ['Batch',isFinite(S.volL)?`${fmt(fromL(S.volL),1)} ${volUnit()}`:'not set'],
+     ['Water',`${WATER[S.water].name} · EC ${S.srcEc.toFixed(1)} · pH ${S.srcPh.toFixed(1)}`],
+     ['Target',S.stage==='flush'?'no nutrients':`EC ${S.ec.toFixed(1)} (nutrients ${Math.max(0,S.ec-S.srcEc).toFixed(1)}) · pH ${S.ph.toFixed(1)}`],
+     ['Balance',{blended:'Blended',pro:'Pro stock',both:`Both · ${S.bothLoad} g/L`}[S.balMode]+` · ${r1(rateDisp(S.balMode==='pro'?S.balPro10:S.balBlend10))} ${rateUnit()}`]
+   ].map(([k,v])=>`<div class="row"><span>${k}</span><b>${v}</b></div>`).join('')}</div>`}
+];
+let wzI=0;
+function wzSegOn(id,cb){document.querySelectorAll(`#${id} button`).forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll(`#${id} button`).forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset.v);}));}
+function wzSteps(){return WZ.filter(s=>!s.when||s.when());}
+function wzRender(){
+  const st=wzSteps(); wzI=Math.min(wzI,st.length-1); const s=st[wzI];
+  $('wzTitle').textContent=s.t; $('wzStep').textContent=`Step ${wzI+1} of ${st.length}`;
+  $('wzBar').style.width=((wzI+1)/st.length*100)+'%';
+  $('wzBody').innerHTML=`<div class="wz"><p class="lead">${s.lead}</p>${s.html()}</div>`;
+  if(s.bind)s.bind();
+  $('wzBack').style.visibility=wzI?'visible':'hidden';
+  $('wzNext').textContent=wzI===st.length-1?'Calculate':'Next';
+}
+function openWizard(){wzI=0;go('feed');openSheet('wzSheet');wzRender();localStorage.setItem('abt3.toured','1');}
+$('wzOpen').addEventListener('click',openWizard);
+$('wzBack').addEventListener('click',()=>{if(wzI>0){wzI--;wzRender();}});
+$('wzNext').addEventListener('click',()=>{
+  const st=wzSteps(), s=st[wzI];
+  if(s.ok&&!s.ok())return;
+  if(wzI<st.length-1){wzI++;wzRender();return;}
+  closeSheet('wzSheet'); calcFeed();
+});
+
 /* ================= NAV ================= */
 function go(tab){
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='tab-'+tab));
@@ -1487,6 +1964,11 @@ function go(tab){
   $('actbar').classList.toggle('on',showAct);
   $('calcBtnLabel').textContent=tab==='foliar'?'Calculate spray':'Calculate dosage';
   $('calcBtn').onclick=tab==='foliar'?calcFoliar:calcFeed;
+  if(tab==='ph'){   // carry the Feed tab's numbers across so nothing is typed twice
+    rzAutofill();
+    if(!$('phVol').value&&isFinite(S.volL))$('phVol').value=+fromL(S.volL).toFixed(2);
+    S.phEc=Math.min(4,Math.max(0.5,S.ec)); S.phBal=S.balMode; syncPh();
+  }
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -1496,7 +1978,7 @@ function syncUnits(){$('uMetric').classList.toggle('on',S.metric);$('uImperial')
 function syncPpm(){document.querySelectorAll('#ppmSeg button').forEach(b=>b.classList.toggle('on',b.dataset.s===String(S.ppm)));$('ppmVal').textContent=ppmStr(S.ec);}
 function syncAll(){
   syncUnits();syncProfile();syncPpm();syncStage();syncEc();syncFeedUnits();syncProducts();syncSupp();syncBal();syncClChips();
-  $('srcEc').value=S.srcEc;$('ph').value=S.ph.toFixed(1);
+  $('ph').value=S.ph.toFixed(1);syncWater();
   syncFoliar();fillStockSelects();syncPh();buildClean();
   $('discBox').textContent=`Profile: ${PROFILES[S.profile].name} · ${PROFILES[S.profile].note} Independent tool — verify every mix against the official Athena label.`;
 }
@@ -1518,12 +2000,29 @@ document.querySelectorAll('#profRow .prof').forEach(p=>p.addEventListener('click
 }));
 $('vol').addEventListener('change',()=>{S.volL=toL($('vol').value);});
 document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
-document.querySelectorAll('#stageChips .chip').forEach(c=>c.addEventListener('click',()=>{
-  S.stage=c.dataset.stage; const st=STAGES[S.stage];
-  S.ec=st.ec; S.ph=st.ph; S.cl10=st.cl;
+$('weekChips').innerHTML=WEEKS.map((w,i)=>`<button type="button" class="chip" data-wk="${i}">${w.lab.replace('Veg W','V').replace('Flower W','F')}</button>`).join('');
+// Load week i of the active line's chart (null clears back to stage defaults; Blended always needs a week).
+function setWeek(i){
+  if(i==null&&S.line==='blended')i=S.week!=null?S.week:0;
+  S.week=i; if(i!=null)S.stage=WEEKS[i].st;
+  const st=STAGES[S.stage];
+  S.ec=i!=null?lineEc(i):st.ec; S.ph=st.ph; S.cl10=i!=null?WEEK_CL:st.cl;
   Object.keys(S.products).forEach(k=>S.products[k]=st.on.includes(k));
   $('ph').value=st.ph.toFixed(1);
   syncStage();syncEc();syncClChips();syncProducts();$('clRate').value=r1(rateDisp(S.cl10));
+}
+document.querySelectorAll('#weekChips .chip').forEach(c=>c.addEventListener('click',()=>{const i=+c.dataset.wk;setWeek(S.week===i&&S.line==='pro'?null:i);}));
+document.querySelectorAll('#stageChips .chip').forEach(c=>c.addEventListener('click',()=>{
+  const sg=c.dataset.stage;
+  if(S.line==='blended'&&sg!=='flush'){setWeek(WEEKS.findIndex(w=>w.st===sg));return;}   // Blended stages map to their first chart week
+  S.stage=sg; S.week=null; setWeek(null);
+}));
+document.querySelectorAll('#lineSeg button').forEach(b=>b.addEventListener('click',()=>{
+  if(S.line===b.dataset.l)return;
+  S.line=b.dataset.l;
+  if(S.stage==='flush')syncStage();
+  else setWeek(S.week!=null?S.week:S.line==='blended'?Math.max(0,WEEKS.findIndex(w=>w.st===(S.stage==='clone'?'veg':S.stage))):null);
+  toast(S.line==='blended'?'Blended line: liquid A/B, chart rates per week':'Pro Line: dry powder stock, dosed by EC');
 }));
 $('ecSlide').addEventListener('input',e=>{S.ec=+e.target.value;syncEc();});
 document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{
@@ -1541,13 +2040,25 @@ $('balPro').addEventListener('click',()=>{S.balMode='pro';syncBal();});
 $('balBoth').addEventListener('click',()=>{S.balMode='both';syncBal();});
 document.querySelectorAll('#clChips .chip').forEach(c=>c.addEventListener('click',()=>{S.cl10=+c.dataset.cl;$('clRate').value=r1(rateDisp(S.cl10));syncClChips();}));
 $('tuBtn').addEventListener('click',topUp);
+document.querySelectorAll('#waterChips .chip').forEach(c=>c.addEventListener('click',()=>{
+  S.water=c.dataset.w; const w=WATER[S.water];
+  if(w.ec!=null){S.srcEc=w.ec;S.srcPh=w.ph;S.balBlend10=w.bal;}
+  syncWater();syncBal();
+}));
+$('srcEc').addEventListener('change',()=>{S.srcEc=clamp($('srcEc').value,0,1.5,0);syncWater();});
+$('srcPh').addEventListener('change',()=>{S.srcPh=clamp($('srcPh').value,4,9,6.5);syncWater();});
+document.querySelectorAll('#rzStageSeg button').forEach(b=>b.addEventListener('click',()=>{S.rzStage=b.dataset.z;syncRz();}));
+['rzFeedEc','rzFeedPh'].forEach(id=>$(id).addEventListener('change',()=>{$(id).dataset.touched='1';}));
+$('rzBtn').addEventListener('click',()=>rzDiagnose(false));
+$('rzLogBtn').addEventListener('click',()=>rzDiagnose(true));
+$('rzClear').addEventListener('click',()=>{if(!rzLog.length){toast('Log already empty');return;}confirmBox('Clear runoff log','Delete all runoff readings? Cannot be undone.',()=>{rzLog=[];localStorage.removeItem('abt3.rz');renderRzTrend();});});
 $('saveBtn').addEventListener('click',saveDefaults);
 $('rcpOpenBtn').addEventListener('click',()=>{go('more');setTimeout(()=>$('rcpName').scrollIntoView({behavior:'smooth',block:'center'}),120);});
 $('resetBtn').addEventListener('click',()=>confirmBox('Reset','Reset the Feed recipe to stage defaults?',()=>{
   localStorage.removeItem('abt3.cfg');
-  Object.assign(S,{stage:'veg',ec:3.0,ph:6.0,srcEc:0,volL:NaN,products:{grow:true,bloom:false,core:true,fade:false},
+  Object.assign(S,{line:'pro',stage:'veg',week:null,ec:3.0,ph:6.0,srcEc:0,water:'ro',srcPh:6.5,volL:NaN,products:{grow:true,bloom:false,core:true,fade:false},
     conc:{grow:'226',bloom:'226',core:'226',fade:'226'},supp:{camg:{on:false,r10:10},pk:{on:false,r10:26}},
-    balMode:'blended',balBlend10:13,balPro10:13,proConc:120,bothLoad:26,cl10:9});
+    balMode:'blended',balBlend10:13,balPro10:13,proConc:120,bothLoad:26,cl10:5.3});
   $('srcEc').value=0;$('ph').value='6.0';$('tuEc').value='';$('tuOut').style.display='none';
   syncAll();toast('Reset');
 }));
@@ -1603,7 +2114,7 @@ buildProdRows();buildSupp();buildFoliar();fillStockSelects();
 syncAll();renderLogs();renderRecipes();
 go('feed');
 try{$('depDate').value=new Date().toISOString().slice(0,10);}catch(e){}
-if(!localStorage.getItem('abt3.toured'))setTimeout(startTour,500);
+if(!localStorage.getItem('abt3.toured'))setTimeout(openWizard,400);   // first run: guided setup (the tour stays under More)
 if(new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('embed');
 if(window.parent!==window && typeof ResizeObserver!=='undefined'){
   const post=()=>parent.postMessage({type:'abt-height',height:document.documentElement.scrollHeight},'*');

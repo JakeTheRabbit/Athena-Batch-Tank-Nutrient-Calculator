@@ -2,7 +2,7 @@
 
 > **This repo is free. My 2am dryback debugging is not.** If it saved you a crop, a weekend, or a nervous breakdown — [buy the rabbit a bag of nutes](https://github.com/sponsors/JakeTheRabbit). If it didn't, keep your money. I respect a tight nutrient budget.
 
-A dosing calculator for the full Athena nutrient, foliar and cleaning range. Runs in your browser, works offline, and scales any recipe from a 20 litre tent to a 1000 litre commercial stock tank. Built for a phone, one-handed, tank-side.
+Reservoir dosing, root-zone diagnosis and stock planning for the Athena Pro Line and Blended Line. Runs in the browser, works offline, and stores everything locally.
 
 **Open it: [jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator](https://jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator/)**
 
@@ -12,82 +12,73 @@ A dosing calculator for the full Athena nutrient, foliar and cleaning range. Run
 
 Not affiliated with, endorsed by, or sponsored by Athena Agriculture. All product names are trademarks of their owners. Verify every mix against the official label.
 
-## What it does
+## Feed tank
 
-Five tools, one page, switched from a bottom bar you can reach with your thumb. Everything runs client-side. No account, no backend, no data leaves your phone.
+Doses one reservoir batch.
 
-### Feed - reservoir nutrient batch
-- Doses come from Athena's own grams-per-10L reference divided by your stock strength, so the numbers match both the metric (226 g/L) and imperial (240 g/L) published tables exactly, at any target EC.
-- Growth stage sets the EC, pH, Cleanse rate and the product pair from Athena's Pro schedule. Clone and flower run on Bloom and Core, veg on Grow and Core, finish swaps Core for Fade. Athena runs a hard Grow to Bloom switch, so the A-parts and B-parts are pick-one, not blended.
-- Balance three ways. Blended liquid, Pro dry stock, or Both - Athena's procedure for dissolving Pro Balance powder into Blended Balance, capped at 48 g/L.
-- CaMg and PK supplements, Cleanse in the reservoir, a source-water EC offset, and mixed stock strengths per product.
-- Top-up calculator. Tank reads EC 2.4 and you want 3.0, it gives the exact millilitres of each part to add. Overshot, it gives the litres of water to dilute with.
+- **Nutrient line.** Pro Line (dry powder dissolved into concentrate stock) or Blended Line (liquid A/B dosed from the bottle). Balance and Cleanse are shared by both.
+- **Weekly schedule.** Veg W1–W4 and Flower W1–W9, taken from Athena's Grower Toolbox batch tank tool.
+  - Pro: EC 3.0 every week. Grow/Bloom 7.4–7.7 g/gal by week, Core 4.6 g/gal, Fade 19 ml/gal in place of Core in F8–F9, Cleanse 2 ml/gal.
+  - Blended: the published ml/gal for Grow A/B or Bloom A/B, CaMg, PK and Fade, at that week's chart EC (2.1 veg, 1.7–2.6 flower).
+- **Any target EC.** Pro doses come from Athena's grams-per-10 L chart (doc A01.004) divided by the stock strength, linear between EC anchors 0.5–4.0. Blended doses scale with the ratio of nutrient EC to chart EC, so they are exact at the chart EC with RO water.
+- **Source water.** RO, tap, well, or custom. Selecting one fills typical EC and pH values and a matching Balance starting rate. Source EC is subtracted from the target, so the finished tank reads the target.
+- **Expected tank EC after each addition.** Each dose line shows the EC the tank should read after that product goes in. In Mix mode you enter your meter reading at each step. A reading off by more than ±0.15 EC (or ±8%) is flagged, with the likely cause.
+- **Balance.** Blended (liquid potassium silicate), Pro (dry potassium carbonate stock), or Both: Pro powder dissolved into Blended at up to 48 g/L, following Athena's procedure.
+- **Top-up.** Enter the running tank's EC. The tool returns the millilitres of each part needed to reach the target, or the litres of water needed to dilute an overshoot.
 
-### Foliar - spray tank
-IPM (now IPW), Stack foliar and Cleanse surface spray, with one-tap presets for IPM preventative, IPM pressure, the IPM and Stack tank-mix, Stack, and a Cleanse wipe-down. Full spray procedure included - saturate the substrate first, lights off, dry three to four hours. Kept out of your feed tank by default, the way most people run it.
+## Root zone
 
-### Stock - concentrate builder and tank life
-- Build a concentrate stock by target strength and tank size. It gives the kilograms of product to add and the mixing steps.
-- Plan how long a stock tank lasts. Feed it your stock size, strength and daily feed volume and it returns the days and weeks of runway, the daily draw, the total feed supported, and the calendar date you refill.
+- **Runoff check.** Enter feed EC/pH, runoff EC/pH and, optionally, runoff % of feed volume. Runoff is compared with Athena's substrate EC target for the crop phase:
 
-### pH - Balance correction estimator
-Estimate the Balance dose to move current pH to your target at a given EC. Athena does not publish a fixed millilitres-per-pH figure because it depends on your water and recipe, so the tool uses their own method - titrate, record, and it learns your water from each correction you log, per profile.
+  | Phase | Root-zone EC | Source |
+  |---|---|---|
+  | Veg | 3.5–4.5 | Athena Precision Irrigation Strategy |
+  | Stretch (F1–3) | 4–10 | Athena Pro Handbook A01.002 p.40 |
+  | Bulk (F4–7) | 3.5–6 | Athena Pro Handbook A01.002 p.40 |
+  | Finish (F8–9) | 3–4 | Athena Pro Handbook A01.002 p.40 |
 
-### More
-Cleanse and Clean Line (Renew, Reset, Perafoam) cleaning protocols, saved recipes, calculation history with CSV export, PPM scale, and the walkthrough you can replay any time.
+  The output is the feed EC and feed pH to send next, and a button that applies them to the Feed tab. It separates irrigation causes (runoff % too high or too low) from recipe causes, flags salt build-up, and gives Balance guidance for the Balance product you use, including the combined stock.
+- **Runoff log and EC trend.** Log one reading a day. With two or more days logged, a least-squares trend gives the runoff EC change per day, the date it will leave the target range, and when to raise feed EC by 0.2. It also flags three consecutive readings with runoff EC at or below feed EC.
+- **Balance estimator.** Estimates the Balance dose to move the tank from the current pH to the target pH for Blended, Pro, or the combined stock. Athena publishes no fixed ml-per-pH figure, so the tool learns from each correction you log. Calibration is stored per operation size and per Balance product.
 
-## Built for a phone
+## Foliar, Stock, More
 
-- Bottom-tab nav and a sticky Calculate bar, all in thumb reach.
-- Big steppers and sliders so most inputs need no keyboard. Recent-value chips and per-profile suggestions to speed re-entry.
-- Results slide up in a sheet with Mix mode - tap each addition off in the correct order (Balance first, then Cleanse, base nutrients, Fade, supplements, check pH last).
-- Profiles for Garage, Craft and Commercial set sensible defaults and remember your tank sizes.
-- Light and dark themes with a toggle in the header. Follows your phone's setting by default.
-- A guided tour on first run, tooltips on every input, and it installs to your home screen as an app.
+- **Foliar.** IPM/IPW, Stack and Cleanse spray tanks, with presets and the spray procedure.
+- **Stock.** Concentrate builder (kilograms of powder for a stock tank at a set strength) and tank life (days of runway and the refill date).
+- **More.** Cleanse and Clean Line protocols, saved recipes, calculation history with CSV export, PPM scale, theme, step-by-step setup and the walkthrough.
 
-## How to use it
+## First run
 
-1. Pick a growth stage. EC, pH and the product pair fill in.
-2. Slide the target EC and enter your tank size.
-3. Set the stock strength each concentrate was mixed at. Grow, Bloom, Core and Fade can each differ.
-4. Choose your Balance product and rate. Use the pH tab if you want the dose estimated.
-5. Hit Calculate. Doses slide up with per-10L or per-gal rates and dry-gram equivalents.
-6. Tap Mix mode at the tank and tick each addition off as you pour.
+A step-by-step setup opens on first launch. It covers the nutrient line and units, batch volume, source water, crop week, stock strength, Balance product and rate, and supplements. Each screen writes straight to the Feed tab, and the last screen calculates the batch. Reopen it from the Feed tab or More.
 
-Switch Metric and Imperial in the top bar. The number converts, the dose does not - dosing is driven by the stock strength you pick, which is how Athena's separate metric and imperial standards work.
+## Running offline
 
-## How it works
+Download [`www/index.html`](www/index.html) and open it in any modern browser. There is no build step and no backend. On a phone, Add to Home Screen gives a full-screen app.
 
-Every dosing figure is cross-checked against Athena's official Feed Schedule, Dosage Reference Guide (doc A01.004), and the store and support pages. Base nutrient doses use the grams-per-10L master divided by the chosen stock strength, which reproduces both published rate tables to the digit. Doses between the chart's EC anchors are linear interpolations. EC below the chart floor or above the top anchor is flagged. A handful of rates that the source could not confirm are marked SEED in the app.
-
-## Run it offline
-
-No install, no build, no accounts. Download [`www/index.html`](www/index.html) and open it in any modern browser. Everything runs client-side and saves to your browser's local storage. On a phone, use Add to Home Screen for a full-screen app.
-
-## Embed it
-
-Single self-contained file, drops into any site:
+## Embedding
 
 ```html
 <iframe src="https://jaketherabbit.github.io/Athena-Batch-Tank-Nutrient-Calculator/?embed=1"
         style="width:100%;border:0" id="athena-calc"></iframe>
 ```
 
-`?embed=1` hides the header chrome and the page posts its height to the parent on resize.
+`?embed=1` hides the header. The page posts its height to the parent on resize.
 
-## Want a change or a new feature
+## Sources and limits
 
-Open an issue. [New issue](https://github.com/JakeTheRabbit/Athena-Batch-Tank-Nutrient-Calculator/issues/new/choose).
+- The weekly Pro and Blended rates come from Athena's Grower Toolbox (growertoolbox.athenaag.com). The Blended rates are from its "Blended with Fade" chart.
+- Pro EC scaling uses Athena's Dosage Reference Guide (A01.004) grams-per-10 L master.
+- Tank EC after each addition splits the chart EC across products by grams (Pro) or by volume (Blended). Balance, Cleanse and the Pro-line supplements are not part of the chart EC, so treat the per-step values as checkpoints, not lab values.
+- The root-zone pH window (5.8–6.4) and the correction rules (feed 5.8 when runoff pH is high, 6.2 when it is low, held for 24–48 h) follow Athena's input range of 5.8–6.2.
+- Rates the source could not confirm are marked SEED in the app.
 
-- Feature or product request - tell me the product, the rate, and the source (a label photo or an Athena page). Rates need a source before they go in.
-- Bug - tell me the phone and browser, what you did, what you expected, and what happened.
+## Requests and bugs
 
-Pull requests are welcome too.
+[Open an issue](https://github.com/JakeTheRabbit/Athena-Batch-Tank-Nutrient-Calculator/issues/new/choose). A rate change needs a source: a label photo or an Athena page.
 
-## For developers
+## Development
 
-- `www/index.html` is the app. One file, HTML plus CSS plus vanilla JavaScript, zero dependencies.
-- `docs/index.html` is an identical copy served by GitHub Pages. Keep both in sync when you edit.
+`www/index.html` is the app: one file of HTML, CSS and vanilla JavaScript with no dependencies. `docs/index.html` is the copy GitHub Pages serves. Keep the two identical.
 
 ## License
 
